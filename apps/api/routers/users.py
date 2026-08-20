@@ -12,8 +12,10 @@ from ..tasks.email_tasks import send_invite_email
 from ..tasks.celery_app import send_task_safe
 from ..config import settings
 from ..services import s3_service
+from ..services.search import escape_like
 
 router = APIRouter(prefix="/users", tags=["users"])
+
 
 @router.get("", response_model=list[UserResponse])
 def get_users_batch(
@@ -39,7 +41,7 @@ def search_users(
     current_user: User = Depends(get_current_user),
 ):
     """Search users by name or email. Returns up to 10 matching users."""
-    pattern = f"%{q}%"
+    pattern = f"%{escape_like(q)}%"
     users = db.query(User).filter(
         User.deleted_at.is_(None),
         (User.name.ilike(pattern) | User.email.ilike(pattern)),
@@ -93,6 +95,7 @@ def update_user(user_id: uuid.UUID, body: UpdateProfileRequest, db: Session = De
     db.commit()
     db.refresh(user)
     return user
+
 
 
 @router.post("/{user_id}/avatar-upload", status_code=status.HTTP_201_CREATED)

@@ -19,6 +19,7 @@ import {
   Music,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { withBasePath } from '@/lib/base-path'
 import { Button } from '@/components/ui/button'
 import { GuestCommentInput } from '@/components/review/guest-comment-input'
 import { FolderShareViewer } from '@/components/share/folder-share-viewer'
@@ -84,12 +85,6 @@ async function fetchShareInfo(
   password?: string,
   logOpen?: boolean,
 ): Promise<ShareValidateResponse> {
-  const params = new URLSearchParams()
-  if (password) params.set('password', password)
-  if (logOpen) params.set('log_open', 'true')
-  const qs = params.toString() ? `?${params.toString()}` : ''
-  const url = `${API_URL}/share/${token}${qs}`
-
   // Include auth token if user is already logged in (for secure links)
   const headers: Record<string, string> = {}
   let accessToken: string | null = null
@@ -102,15 +97,47 @@ async function fetchShareInfo(
     headers['Authorization'] = `Bearer ${accessToken}`
   }
 
-  const response = await fetch(url, { headers })
-  if (!response.ok) {
-    if (response.status === 403) {
-      const data = await response.json().catch(() => ({}))
-      if (data.detail === 'Incorrect password') {
+  // When a password is supplied, use POST /share/{token}/verify so the
+  // password travels in the request body — not as a query string, which
+  // would be logged by nginx, browser history, Referer headers, and
+  // proxy/tunnel logs (SECURITY_AUDIT H3).
+  if (password) {
+    headers['Content-Type'] = 'application/json'
+    const body = JSON.stringify({ password, log_open: !!logOpen })
+    const resp = await fetch(`${API_URL}/share/${token}/verify`, {
+      method: 'POST',
+      headers,
+      body,
+    })
+    if (!resp.ok) {
+      if (resp.status === 403) {
+        // /verify answers 403 both for a wrong password and for a `secure`
+        // link whose viewer isn't signed in. Reporting the latter as
+        // "Incorrect password" strands the viewer retyping a password that
+        // was never the problem — they need the sign-in prompt instead.
+        const detail = await resp
+          .json()
+          .then((d) => d?.detail)
+          .catch(() => null)
+        if (typeof detail === 'string' && detail.includes('Authentication required')) {
+          return { requires_auth: true }
+        }
         return { requires_password: true, error: 'Incorrect password' }
       }
-      return { requires_password: true }
+      if (resp.status === 410) return { expired: true }
+      return {}
     }
+    return resp.json()
+  }
+
+  // No password — GET validates the link and either returns the full
+  // response (no password set / authenticated creator) or
+  // requires_password:true (password-protected, not yet verified).
+  const params = new URLSearchParams()
+  if (logOpen) params.set('log_open', 'true')
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  const response = await fetch(`${API_URL}/share/${token}${qs}`, { headers })
+  if (!response.ok) {
     if (response.status === 410) return { expired: true }
     return {}
   }
@@ -245,20 +272,22 @@ function GuestCommentItem({ comment }: GuestCommentItemProps) {
 interface GuestCommentListProps {
   token: string
   refreshKey: number
+  shareSession?: string | null
 }
 
-function GuestCommentList({ token, refreshKey }: GuestCommentListProps) {
+function GuestCommentList({ token, refreshKey, shareSession }: GuestCommentListProps) {
   const [comments, setComments] = React.useState<GuestComment[]>([])
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
     setLoading(true)
-    fetch(`${API_URL}/share/${token}/comments`)
+    const sp = shareSession ? `&share_session=${encodeURIComponent(shareSession)}` : ''
+    fetch(`${API_URL}/share/${token}/comments?_=1${sp}`)
       .then((r) => (r.ok ? r.json() : Promise.resolve([])))
       .then((data: CommentsResponse) => setComments(data))
       .catch(() => setComments([]))
       .finally(() => setLoading(false))
-  }, [token, refreshKey])
+  }, [token, refreshKey, shareSession])
 
   if (loading) {
     return (
@@ -375,6 +404,7 @@ interface ShareTopBarProps {
   downloadUrl: string | null
   token: string
   assetId: string
+  shareSession?: string | null
   sidebarOpen: boolean
   onToggleSidebar: () => void
   onBack?: () => void
@@ -388,6 +418,7 @@ function ShareTopBar({
   downloadUrl,
   token,
   assetId,
+  shareSession,
   sidebarOpen,
   onToggleSidebar,
   onBack,
@@ -398,7 +429,12 @@ function ShareTopBar({
   async function handleDownload() {
     setDownloading(true)
     try {
-      const res = await fetch(`${API_URL}/share/${token}/stream/${assetId}?download=true`)
+      // The stream endpoint re-checks the password session, so a
+      // password-protected link 403s here without it and the download
+      // silently does nothing.
+      const params = new URLSearchParams({ download: 'true' })
+      if (shareSession) params.set('share_session', shareSession)
+      const res = await fetch(`${API_URL}/share/${token}/stream/${assetId}?${params}`)
       if (!res.ok) return
       const data = await res.json()
       if (data?.url) {
@@ -681,6 +717,7 @@ interface ShareRightPanelProps {
   permission: SharePermission
   commentRefreshKey: number
   onCommentPosted: () => void
+  shareSession?: string | null
 }
 
 function ShareRightPanel({
@@ -689,6 +726,7 @@ function ShareRightPanel({
   permission,
   commentRefreshKey,
   onCommentPosted,
+  shareSession,
 }: ShareRightPanelProps) {
   const [activeTab, setActiveTab] = React.useState<'comments' | 'fields'>('comments')
 
@@ -734,7 +772,7 @@ function ShareRightPanel({
             </div>
 
             {/* Comment list */}
-            <GuestCommentList token={token} refreshKey={commentRefreshKey} />
+            <GuestCommentList token={token} refreshKey={commentRefreshKey} shareSession={shareSession} />
 
             {/* Approval actions */}
             {permission === 'approve' && (
@@ -748,6 +786,7 @@ function ShareRightPanel({
               <GuestCommentInput
                 token={token}
                 onCommentPosted={onCommentPosted}
+                shareSession={shareSession}
                 className="border-t border-white/[0.06] bg-[#141416]"
               />
             ) : (
@@ -821,6 +860,7 @@ interface ShareViewerProps {
   branding: ProjectBranding | null
   shareName?: string
   onBack?: () => void
+  shareSession?: string | null
 }
 
 function ShareViewer({
@@ -831,6 +871,7 @@ function ShareViewer({
   branding,
   shareName,
   onBack,
+  shareSession,
 }: ShareViewerProps) {
   const [streamUrl, setStreamUrl] = React.useState<string | null>(asset.stream_url ?? null)
   const [streamLoading, setStreamLoading] = React.useState(false)
@@ -845,7 +886,11 @@ function ShareViewer({
     }
     if (asset.asset_type !== 'video' && asset.asset_type !== 'audio') return
     setStreamLoading(true)
-    fetch(`${API_URL}/share/${token}/stream/${asset.id}`)
+    // Carries the password session for the same reason the download does —
+    // without it this 403s on a password-protected link and playback never
+    // starts.
+    const qs = shareSession ? `?share_session=${encodeURIComponent(shareSession)}` : ''
+    fetch(`${API_URL}/share/${token}/stream/${asset.id}${qs}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.stream_url) setStreamUrl(data.stream_url)
@@ -853,7 +898,7 @@ function ShareViewer({
       })
       .catch(() => null)
       .finally(() => setStreamLoading(false))
-  }, [token, asset.asset_type, asset.stream_url, asset.id])
+  }, [token, asset.asset_type, asset.stream_url, asset.id, shareSession])
 
   const displayName = shareName || branding?.custom_title || 'FreeFrame'
 
@@ -867,6 +912,7 @@ function ShareViewer({
         downloadUrl={streamUrl}
         token={token}
         assetId={asset.id}
+        shareSession={shareSession}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((p) => !p)}
         onBack={onBack}
@@ -891,6 +937,7 @@ function ShareViewer({
             permission={permission}
             commentRefreshKey={commentKey}
             onCommentPosted={() => setCommentKey((k) => k + 1)}
+            shareSession={shareSession}
           />
         )}
       </div>
@@ -953,8 +1000,12 @@ export default function SharePage({
       setState({ stage: 'password_required', loading: true })
     }
     try {
-      const shouldLogOpen = !password && !openLogged.current
-      if (shouldLogOpen) openLogged.current = true
+      // Ask to log the open on whichever call first returns the full
+      // response. Gating this on `!password` meant a password-protected link
+      // never recorded one: the initial GET short-circuits at
+      // requires_password and drops log_open, and the /verify that follows
+      // always carried log_open:false because a password was supplied.
+      const shouldLogOpen = !openLogged.current
       const data = await fetchShareInfo(token, password, shouldLogOpen)
       if (data.requires_auth) {
         setState({ stage: 'auth_required', title: data.title })
@@ -972,6 +1023,10 @@ export default function SharePage({
         setState({ stage: 'invalid' })
         return
       }
+
+      // Only now is the open actually recorded — the early returns above are
+      // all cases the server did not log.
+      if (shouldLogOpen) openLogged.current = true
 
       // Store share session from password-protected link validation
       if (data.share_session) {
@@ -1071,7 +1126,7 @@ export default function SharePage({
             This link is private. Please sign in to view the shared content.
           </p>
           <a
-            href="/login"
+            href={withBasePath('/login')}
             className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 transition-colors"
           >
             Sign in to continue
@@ -1107,6 +1162,7 @@ export default function SharePage({
       permission={state.permission}
       allowDownload={state.allowDownload}
       branding={state.branding}
+      shareSession={shareSession}
     />
   )
 }
