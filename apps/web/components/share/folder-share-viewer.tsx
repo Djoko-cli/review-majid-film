@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils'
 import { withBasePath } from '@/lib/base-path'
 import { useReview, type CreateCommentPayload } from '@/components/review/review-provider'
 import { useReviewStore } from '@/stores/review-store'
+import { useBrandingStore } from '@/stores/branding-store'
 import type {
   SharePermission,
   ShareLinkAppearance,
@@ -1049,11 +1050,12 @@ export function FolderShareViewer({
   const [panelOpen, setPanelOpen] = React.useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches)
   const [viewingAsset, setViewingAsset] = React.useState<FolderShareAssetItem | null>(null)
 
-  // Set page title
+  // Set page title — subscribe to orgName so the title updates once branding loads
+  const orgName = useBrandingStore((s) => s.orgName) || 'FreeFrame'
   React.useEffect(() => {
-    document.title = title ? `${title} – FreeFrame` : 'FreeFrame'
-    return () => { document.title = 'FreeFrame' }
-  }, [title])
+    document.title = title ? `${title} – ${orgName}` : orgName
+    return () => { document.title = orgName }
+  }, [title, orgName])
   const [selectedAsset, setSelectedAsset] = React.useState<FolderShareAssetItem | null>(null)
 
   const [assets, setAssets] = React.useState<FolderShareAssetItem[]>([])

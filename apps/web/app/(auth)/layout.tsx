@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
-import Image from 'next/image'
+import type { Metadata } from "next"
+import { AuthBrandingHeader } from "@/components/auth/auth-branding-header"
 
 export const metadata: Metadata = {
-  title: 'FreeFrame — Auth',
+  title: "FreeFrame — Auth",
 }
 
 export default function AuthLayout({
@@ -17,17 +17,8 @@ export default function AuthLayout({
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-accent/[0.04] blur-[120px]" />
       </div>
 
-      {/* Logo */}
-      <div className="relative mb-10">
-        <Image
-          src="/logo-full.png"
-          alt="FreeFrame"
-          width={180}
-          height={48}
-          priority
-          className="h-12 w-auto"
-        />
-      </div>
+      {/* Branding header — shown on every auth screen (login, setup, invite) */}
+      <AuthBrandingHeader />
 
       {/* Card */}
       <div className="relative w-full max-w-sm rounded-xl border border-border bg-bg-secondary/50 backdrop-blur-sm p-6 shadow-xl animate-fade-in">
