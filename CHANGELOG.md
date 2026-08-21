@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-08-21
+
+### Contributors
+
+Thanks to @rubenxyz (#202, #203) and @Lennart-Pingpong (#263).
+
 ### Upgrade notes
 
 - **`POST /upload/complete` now refuses a request whose `asset_id` is not the asset the version belongs to**, with a `400`. Only relevant if you drive the API with something other than the FreeFrame web client, which always sends back the id it was handed at initiate.
