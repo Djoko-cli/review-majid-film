@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Optional hardware-accelerated transcoding (NVENC / VAAPI) with HDR and Dolby Vision support.** Auto-detects an available GPU backend and falls back to the software pipeline when none is present, or when a hardware attempt fails at runtime (for example, out of VRAM). CPU-only and arm64 builds are unaffected by default. New env vars: `TRANSCODER_PIPELINE`, `TRANSCODER_OUTPUT`, `TRANSCODER_HDR`. (#127)
+
 ## [1.10.0] - 2026-08-21
 
 ### Contributors
