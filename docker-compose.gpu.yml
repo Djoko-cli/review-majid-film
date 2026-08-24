@@ -1,0 +1,11 @@
+services:
+  worker:
+    environment:
+      TRANSCODER_PIPELINE: NVIDIA
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
