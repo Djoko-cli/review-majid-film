@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { stubGeometry, restoreGeometry } from '@/test/geometry'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useReviewStore } from '@/stores/review-store'
 
 const replace = vi.fn()
@@ -323,6 +323,94 @@ describe('CompareOverlay marker click', () => {
     expect(transportSeekTo).toHaveBeenCalledWith(5)
     expect(transportToggle).not.toHaveBeenCalled()
     expect(useReviewStore.getState().focusedCommentId).toBe('c2')
+  })
+})
+
+describe('CompareOverlay version-switch offset reset (#182)', () => {
+  it('switching the left version clears offA/offB (calibrated for the OLD pair)', () => {
+    // Pre-existing sync offsets from calibrating the v1/v3 pair.
+    searchParamsString = 'compare=v-1&offA=1.5&offB=-0.5'
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(within(screen.getByTestId('compare-select-a')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v2$/ }))
+
+    const url = new URL(replace.mock.calls.at(-1)?.[0], 'http://x')
+    expect(url.searchParams.get('offA')).toBeNull()
+    expect(url.searchParams.get('offB')).toBeNull()
+    expect(url.searchParams.get('compare')).toBe('v-2')
+  })
+
+  it('switching the right version clears offA/offB and actually switches the version', () => {
+    searchParamsString = 'compare=v-1&offA=1.5&offB=-0.5'
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(within(screen.getByTestId('compare-select-b')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v2$/ }))
+
+    const url = new URL(replace.mock.calls.at(-1)?.[0], 'http://x')
+    expect(url.searchParams.get('offA')).toBeNull()
+    expect(url.searchParams.get('offB')).toBeNull()
+    // Asserted on the store, not just the URL: the right pane's version is the
+    // one thing this handler does that never reaches the query string, so a URL
+    // assertion alone stays green even if the switch is dropped entirely.
+    expect(useReviewStore.getState().currentVersion?.id).toBe('v-2')
+  })
+
+  it('re-picking the version already shown leaves calibrated offsets alone', () => {
+    // Reopening the dropdown and clicking the current version is not a switch.
+    // The compared pair is unchanged, so offsets calibrated for it are still
+    // valid and must survive.
+    searchParamsString = 'compare=v-1&offA=1.5&offB=-0.5'
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+    replace.mockClear()
+
+    fireEvent.click(within(screen.getByTestId('compare-select-a')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v1$/ }))
+
+    expect(replace).not.toHaveBeenCalled()
+  })
+
+  it('re-picking the right pane version does not switch or clear either', () => {
+    searchParamsString = 'compare=v-1&offA=1.5&offB=-0.5'
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+    replace.mockClear()
+    const versionBefore = useReviewStore.getState().currentVersion
+
+    fireEvent.click(within(screen.getByTestId('compare-select-b')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v3$/ }))
+
+    expect(replace).not.toHaveBeenCalled()
+    // The right pane already shows v3, so nothing should be written at all.
+    expect(useReviewStore.getState().currentVersion).toBe(versionBefore)
   })
 })
 
