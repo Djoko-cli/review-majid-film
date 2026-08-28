@@ -457,6 +457,74 @@ describe('CompareOverlay per-pane annotation display', () => {
     expect(screen.queryByTestId('annotation-overlay')).not.toBeInTheDocument()
   })
 
+  it('switching the left version clears a shown left-pane annotation (#181)', () => {
+    commentsByVersion['v-1'] = [
+      makeComment('c1', 'v-1', { annotation: { id: 'ann1', comment_id: 'c1', drawing_data: DRAWING } }),
+    ]
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+    fireEvent.click(screen.getByTestId('marker-a-c1'))
+    expect(screen.getAllByTestId('annotation-overlay')).toHaveLength(1)
+
+    fireEvent.click(within(screen.getByTestId('compare-select-a')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v2$/ }))
+
+    expect(screen.queryByTestId('annotation-overlay')).not.toBeInTheDocument()
+  })
+
+  it('switching one pane leaves a comment focused on the OTHER pane alone', () => {
+    // focusedCommentId is global, not per-pane, and the comment list and
+    // progress bar highlight from it. Clearing it on any switch silently
+    // unfocused a comment belonging to the pane that did not change.
+    commentsByVersion['v-3'] = [
+      makeComment('c9', 'v-3', { annotation: { id: 'ann9', comment_id: 'c9', drawing_data: DRAWING } }),
+    ]
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+    fireEvent.click(screen.getByTestId('marker-b-c9'))
+    expect(useReviewStore.getState().focusedCommentId).toBe('c9')
+
+    // switch the LEFT pane; the focus belongs to the right one
+    fireEvent.click(within(screen.getByTestId('compare-select-a')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v2$/ }))
+
+    expect(useReviewStore.getState().focusedCommentId).toBe('c9')
+    expect(screen.getAllByTestId('annotation-overlay')).toHaveLength(1)
+  })
+
+  it('switching the right version clears a shown right-pane annotation', () => {
+    commentsByVersion['v-3'] = [
+      makeComment('c9', 'v-3', { annotation: { id: 'ann9', comment_id: 'c9', drawing_data: DRAWING } }),
+    ]
+    render(
+      <CompareOverlay
+        asset={videoAsset}
+        versions={[makeVersion(1), makeVersion(2), makeVersion(3)]}
+        rightVersion={makeVersion(3)}
+        onClose={vi.fn()}
+      />,
+    )
+    fireEvent.click(screen.getByTestId('marker-b-c9'))
+    expect(screen.getAllByTestId('annotation-overlay')).toHaveLength(1)
+
+    fireEvent.click(within(screen.getByTestId('compare-select-b')).getByRole('button'))
+    fireEvent.click(screen.getByRole('option', { name: /^v2$/ }))
+
+    expect(screen.queryByTestId('annotation-overlay')).not.toBeInTheDocument()
+  })
+
   it('image side-by-side: annotated comment row click mounts the overlay inside that pane transform wrapper', () => {
     searchParamsString = 'compare=v-1&mode=sbs'
     streamUrl = '/img.webp'
