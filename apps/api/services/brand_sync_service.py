@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 from dataclasses import dataclass, field
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..config import settings
@@ -34,6 +35,17 @@ log = logging.getLogger("brand_sync")
 _DERIVED_FILE_RE = re.compile(r"^s(\d+)-(\d+)\.(avif|webp)$")
 
 _S3_PREFIX = "brand"
+
+# Distinct from cleanup_tasks._PURGE_ADVISORY_LOCK_KEY (5477651) — same
+# pg advisory lock space, different task. Session-scoped (pg_advisory_lock/
+# unlock), not the _xact variant cleanup_tasks.py uses: this function commits
+# once per project rather than once at the end, so a transaction-scoped lock
+# would release after the first commit and stop protecting anything.
+# real, not theoretical: the boot-time self-heal and an admin's manual
+# /brand/sync trigger raced on the very first real sync against majid.film's
+# actual catalog (21 projects) and both tried to INSERT the same new project,
+# hitting a UniqueViolation on brand_projects.slug.
+_BRAND_SYNC_ADVISORY_LOCK_KEY = 5477652
 
 
 @dataclass
@@ -98,8 +110,25 @@ def sync_from_majidfilm(db: Session) -> BrandSyncResult:
     if not is_enabled():
         return BrandSyncResult(enabled=False)
 
-    root = Path(settings.majidfilm_source_root)
     result = BrandSyncResult(enabled=True)
+
+    # Session-scoped advisory lock, held for the whole sync (see the key's
+    # own comment for why the _xact variant doesn't work here) — a
+    # concurrent sync (boot self-heal racing an admin's manual trigger, or
+    # the nightly Beat tick overlapping a still-running previous one) skips
+    # entirely rather than double-inserting the same new project.
+    got_lock = db.execute(text("SELECT pg_try_advisory_lock(:k)"), {"k": _BRAND_SYNC_ADVISORY_LOCK_KEY}).scalar()
+    if not got_lock:
+        result.warnings.append("Another brand sync is already running; skipped this run.")
+        return result
+    try:
+        return _run_sync(db, result)
+    finally:
+        db.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": _BRAND_SYNC_ADVISORY_LOCK_KEY})
+
+
+def _run_sync(db: Session, result: BrandSyncResult) -> BrandSyncResult:
+    root = Path(settings.majidfilm_source_root)
 
     try:
         manifest = json.loads((root / "brand-manifest.json").read_text("utf-8"))

@@ -32,11 +32,3 @@ class BrandSlideToggle(BaseModel):
     slug: str
     still: int
     disabled: bool
-
-
-class BrandSyncResultOut(BaseModel):
-    enabled: bool
-    new_projects: int = 0
-    updated_projects: int = 0
-    new_stills: int = 0
-    warnings: list[str] = []

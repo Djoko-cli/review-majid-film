@@ -9,13 +9,11 @@ from ..models.user import User
 from ..models.brand_slide import BrandProject, DisabledBrandSlide
 from ..routers.users import require_admin
 from ..services import s3_service
-from ..services.brand_sync_service import sync_from_majidfilm
 from ..schemas.brand_slide import (
     BrandProjectOut,
     BrandStillOut,
     DisabledBrandSlideOut,
     BrandSlideToggle,
-    BrandSyncResultOut,
 )
 
 router = APIRouter(prefix="/brand", tags=["brand_slides"])
@@ -81,23 +79,21 @@ def toggle_disabled_brand_slide(
         return None
 
 
-@router.post("/sync", response_model=BrandSyncResultOut)
-def trigger_brand_sync(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
-):
+@router.post("/sync", status_code=status.HTTP_202_ACCEPTED)
+def trigger_brand_sync(current_user: User = Depends(require_admin)):
     """Admin only: manually trigger a sync, rather than waiting for the nightly
-    Celery Beat schedule (see tasks/brand_sync_tasks.py)."""
+    Celery Beat schedule (see tasks/brand_sync_tasks.py). Dispatched to the
+    maintenance queue, not run inline: a real catalog (majid.film's is 21
+    projects / ~3700 derivative files as of writing) reads and uploads each
+    file one at a time and comfortably exceeds any reasonable HTTP timeout —
+    confirmed by timing out the synchronous version of this endpoint against
+    the real dataset before this fix."""
     if not settings.majidfilm_source_root or not settings.brand_sync_enabled:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Brand sync is not configured: set MAJIDFILM_SOURCE_ROOT and BRAND_SYNC_ENABLED=true.",
         )
-    result = sync_from_majidfilm(db)
-    return BrandSyncResultOut(
-        enabled=result.enabled,
-        new_projects=result.new_projects,
-        updated_projects=result.updated_projects,
-        new_stills=result.new_stills,
-        warnings=result.warnings,
-    )
+    from ..tasks.brand_sync_tasks import sync_brand_slides
+    from ..tasks.celery_app import send_task_safe
+    send_task_safe(sync_brand_slides)
+    return {"detail": "Sync dispatched to the maintenance queue."}
