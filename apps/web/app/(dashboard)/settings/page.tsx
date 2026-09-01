@@ -15,7 +15,7 @@ export default function SettingsPage() {
   // to home), so send them to the first settings page they can actually access.
   React.useEffect(() => {
     if (!user) return
-    router.replace(isSuperAdmin ? '/settings/admin' : '/settings/appearance')
+    router.replace(isSuperAdmin ? '/settings/admin' : '/settings/profile')
   }, [user, isSuperAdmin, router])
 
   return null

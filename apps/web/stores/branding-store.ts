@@ -49,14 +49,14 @@ interface BrandingState {
 }
 
 export const HARDCODED_DEFAULTS = {
-  orgName: 'FreeFrame',
+  orgName: 'Review',
   orgLogoDark: null,
   orgLogoLight: null,
   faviconUrl: null,
   appleIconUrl: null,
   loginLogoUrl: null,
-  poweredByFreeframe: true,
-  primaryColor: '#7c3aed',
+  poweredByFreeframe: false,
+  primaryColor: '#ff7a00',
 }
 
 // Logo URLs are presigned S3 links the API signs for an hour. They're persisted so a

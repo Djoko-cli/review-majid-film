@@ -4,28 +4,28 @@
 
 :root,
 [data-theme="dark"] {
-  /* Background — dark theme */
-  --bg-primary: #0d0d10;
-  --bg-secondary: #16161a;
-  --bg-tertiary: #1e1e24;
-  --bg-elevated: #24242c;
-  --bg-hover: #2a2a34;
+  /* Background — near-black, matching the "M family" dark palette */
+  --bg-primary: #050505;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1f1f1f;
+  --bg-elevated: #2e2e2e;
+  --bg-hover: rgba(255, 255, 255, 0.08);
 
-  /* Borders */
-  --border-primary: #2e2e3a;
-  --border-secondary: #222230;
-  --border-focus: #5b8def;
+  /* Borders — flat surfaces only; glass surfaces use --glass-border below */
+  --border-primary: #2e2e2e;
+  --border-secondary: #1f1f1f;
+  --border-focus: #ff7a00;
 
   /* Text */
-  --text-primary: #eaeaed;
-  --text-secondary: #94949e;
-  --text-tertiary: #5e5e6e;
-  --text-inverse: #0d0d10;
+  --text-primary: #c1c2c5;
+  --text-secondary: #a6a7ab;
+  --text-tertiary: #909296;
+  --text-inverse: #1a1005;
 
-  /* Accent — blue */
-  --accent: #5b8def;
-  --accent-hover: #7aa3f5;
-  --accent-muted: #253556;
+  /* Accent — the one "M family" orange, shared with Transfer */
+  --accent: #ff7a00;
+  --accent-hover: rgb(255 143 41);
+  --accent-muted: color-mix(in srgb, #ff7a00 18%, var(--bg-secondary));
 
   /* Status */
   --status-success: #34d399;
@@ -33,8 +33,10 @@
   --status-error: #f87171;
   --status-info: #60a5fa;
 
-  /* Fonts */
-  --font-sans: var(--font-geist), system-ui, -apple-system, sans-serif;
+  /* --font-sans itself comes from next/font/google's Rubik (app/layout.tsx),
+     scoped to <body> — not redeclared here, since a :root fallback
+     referencing it by a different name breaks custom-property inheritance
+     (the --font-geist reference this replaced had exactly that bug). */
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 
   /* Spacing rhythm */
@@ -45,8 +47,26 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
+  --radius-glass: 28px;
+
+  /* Liquid glass — the one recipe reused everywhere a surface floats above
+     content: cards, header/footer bars, dropdown/context menus, dialogs.
+     Blur strength varies by surface (18px bars, 22px cards/menus/modals);
+     background, border and shadow stay identical across all of them. */
+  --glass-bg: linear-gradient(
+    160deg,
+    rgba(10, 10, 10, 0.5) 0%,
+    rgba(10, 10, 10, 0.6) 55%,
+    rgba(10, 10, 10, 0.54) 100%
+  );
+  --glass-border: rgba(255, 255, 255, 0.22);
+  --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
+/* Kept only for share links: an admin can set an individual share link to
+   render light regardless of Review's own (always-dark) interface — see
+   hooks/use-share-appearance.ts. Nothing in the internal app ever sets
+   data-theme="light" any more. */
 [data-theme="light"] {
   --bg-primary: #ffffff;
   --bg-secondary: #f8f8fa;
@@ -56,16 +76,16 @@
 
   --border-primary: #e0e0e6;
   --border-secondary: #d0d0d8;
-  --border-focus: #4a7de8;
+  --border-focus: #ff7a00;
 
   --text-primary: #1a1a2e;
   --text-secondary: #5a5a6e;
   --text-tertiary: #8a8a9e;
   --text-inverse: #ffffff;
 
-  --accent: #4a7de8;
-  --accent-hover: #3a6dd8;
-  --accent-muted: #e8eef8;
+  --accent: #ff7a00;
+  --accent-hover: rgb(224 108 0);
+  --accent-muted: color-mix(in srgb, #ff7a00 12%, var(--bg-secondary));
 
   --status-success: #16a34a;
   --status-warning: #ca8a04;
@@ -114,9 +134,12 @@
 }
 
 @layer components {
-  /* Theme-aware logo switching */
-  [data-theme="dark"] .logo-dark { display: block; }
-  [data-theme="dark"] .logo-light { display: none; }
+  /* Theme-aware logo switching. Dark is the unconditional default (so the
+     internal app, which never sets data-theme, always shows the dark-
+     surface mark); [data-theme="light"] only ever applies on a share link
+     configured that way. */
+  .logo-dark { display: block; }
+  .logo-light { display: none; }
   [data-theme="light"] .logo-dark { display: none; }
   [data-theme="light"] .logo-light { display: block; }
 
@@ -128,9 +151,31 @@
     @apply ring-2 ring-[var(--accent)] ring-offset-1 ring-offset-[var(--bg-primary)];
   }
 
-  /* Glass card effect */
-  .glass-card {
-    @apply rounded-xl border border-[var(--border-primary)] bg-[var(--bg-secondary)] backdrop-blur-md shadow-lg;
+  /* Liquid glass surfaces — var(--glass-bg/border/shadow) plus a blur
+     strength: 22px for cards, dropdown menus and modals; 18px for the
+     floating header/footer/sidebar bars. Radius is deliberately not set
+     here: only cards use the full 28px (--radius-glass); bars are flush
+     with no radius, menus/dialogs use the standard rounded-lg/xl scale —
+     each consumer adds its own. */
+  .glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+  }
+  .glass-bar {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+  }
+
+  /* Text set directly over a photo rather than on a glass card: a halo
+     instead of a background keeps it legible against whatever's behind it. */
+  .text-halo {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   }
 
   /* Skeleton shimmer gradient */

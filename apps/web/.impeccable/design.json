@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-01T00:00:00Z",
+  "title": "Design System: Review",
+  "extensions": {
+    "colorMeta": {
+      "ember-signal": {
+        "role": "primary",
+        "displayName": "Ember Signal",
+        "canonical": "#ff7a00",
+        "tonalRamp": ["#1a0d00", "#4d2500", "#803d00", "#b35500", "#e66d00", "#ff7a00", "rgb(255 143 41)", "#ffab6b"]
+      },
+      "screening-black": {
+        "role": "neutral",
+        "displayName": "Screening Black",
+        "canonical": "#050505",
+        "tonalRamp": ["#000000", "#050505", "#141414", "#1f1f1f", "#2e2e2e", "#5c5f66", "#909296", "#c1c2c5"]
+      },
+      "soft-white": {
+        "role": "neutral",
+        "displayName": "Soft White",
+        "canonical": "#c1c2c5",
+        "tonalRamp": ["#5c5f66", "#909296", "#a6a7ab", "#c1c2c5", "#d5d6d8", "#e8e8ea", "#f4f4f5", "#ffffff"]
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Body", "purpose": "Default UI text, 400 weight, text-sm." },
+      "label": { "displayName": "Label", "purpose": "Buttons, nav items, form labels, 500 weight." },
+      "display": { "displayName": "Display", "purpose": "Largest headline moments only; 900 is synthetic bold, deliberately." },
+      "mono": { "displayName": "Mono", "purpose": "Code and tabular/measurement data only — never a costume for 'technical'." }
+    },
+    "shadows": [
+      { "name": "glass-shadow", "value": "0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25)", "purpose": "Every glass surface: sidebar, header, dropdown menus, dialogs, the auth card. No exceptions, no variants." }
+    ],
+    "motion": [
+      { "name": "ease-spring", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Default interactive transition (button press, sidebar width, slide/scale-in)." },
+      { "name": "ease-smooth", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Secondary transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled, brand-colored action per screen.",
+      "html": "<button class=\"ds-btn-primary\">Create admin account</button>",
+      "css": ".ds-btn-primary { background: #ff7a00; color: #1a1005; padding: 9px 16px; border-radius: 6px; font-weight: 500; font-family: Rubik, system-ui, sans-serif; border: none; box-shadow: 0 1px 2px rgba(255,122,0,0.2); transition: background 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { background: rgb(255 143 41); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(255,122,0,0.5); }"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "glass-card",
+      "description": "The auth/setup card — the flagship example of the liquid-glass recipe. 28px radius is reserved for this role.",
+      "html": "<div class=\"ds-glass-card\"><p>Welcome to Review</p></div>",
+      "css": ".ds-glass-card { background: linear-gradient(160deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0.6) 55%, rgba(10,10,10,0.54) 100%); border: 1px solid rgba(255,255,255,0.22); border-radius: 28px; box-shadow: 0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%); padding: 32px; }"
+    },
+    {
+      "name": "Glass Nav Bar",
+      "kind": "nav",
+      "refersTo": "glass-bar",
+      "description": "The sidebar rail and top header — same recipe as Glass Card at a lighter 18px blur, no radius (flush to the viewport edge).",
+      "html": "<nav class=\"ds-glass-bar\">Review</nav>",
+      "css": ".ds-glass-bar { background: linear-gradient(160deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0.6) 55%, rgba(10,10,10,0.54) 100%); border-color: rgba(255,255,255,0.22); box-shadow: 0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Deliberately flat, never glass — legibility for the value being typed outranks ambient chrome.",
+      "html": "<input class=\"ds-input\" placeholder=\"you@example.com\" />",
+      "css": ".ds-input { background: #141414; border: 1px solid #2e2e2e; border-radius: 6px; padding: 8px 12px; color: #c1c2c5; font-family: Rubik, system-ui, sans-serif; font-size: 14px; } .ds-input:focus { outline: none; border-color: #ff7a00; box-shadow: 0 0 0 2px rgba(255,122,0,0.2); } .ds-input::placeholder { color: #909296; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Frosted Screening Room",
+    "overview": "Review's whole surface reads as a dim screening room: a near-black space where the only warm light is a single tally-signal orange, and every piece of interface chrome is a pane of frosted glass floating a few inches off the wall behind it. This is a direct, brief-pinned reuse of the liquid-glass system already shipped on Review's sibling tool, Transfer — same accent hex, same near-black palette, same glass recipe, same font. The two apps are meant to read as one family.",
+    "keyCharacteristics": [
+      "Near-black ground (#050505) with one warm accent, never a second competing hue",
+      "Floating chrome is glass (blurred, translucent, bordered); form controls are not",
+      "Dark is the only mode — no light/dark toggle in the internal app",
+      "28px radius is reserved for true card surfaces; bars and menus stay on the standard scale",
+      "Rubik at 300-600, headline weight 900 riding on synthesized bold by design"
+    ],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "Ember Signal is the only saturated color anywhere in the interface. Status colors exist but are used only for their literal semantic meaning.", "section": "colors" },
+      { "name": "The Text-Inverse Rule", "body": "Text on an Ember Signal surface is near-black (#1a1005), never white — contrast wins over the reflex to put light text on a colored button.", "section": "colors" },
+      { "name": "The No-Serif Rule", "body": "Rubik is the only typeface anywhere in the product UI outside code/data contexts. No system-font fallback ever stands in as the display voice.", "section": "typography" },
+      { "name": "The Chrome-Not-Content Rule", "body": "Glass is reserved for app chrome — navigation, floating bars, menus, dialogs, and the auth card. Never buttons, badges, or arbitrary content containers.", "section": "elevation" },
+      { "name": "The Card-Only 28px Rule", "body": "28px radius means this is a card, full stop. A menu or dialog rounded to 28px would read as a card and confuse the hierarchy.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do keep Ember Signal (#ff7a00) as the only saturated color anywhere in the product.",
+      "Do reserve the 28px glass radius for actual cards; use the standard scale for bars, menus, and dialogs.",
+      "Do keep buttons, inputs, and switches flat and crisp.",
+      "Do use near-black (#1a1005), not white, as text on any Ember Signal-filled surface.",
+      "Do treat dark as the only mode inside the app; a share link may still offer its own light/dark choice for external viewers."
+    ],
+    "donts": [
+      "Don't show freeframe's own logo mark as Review's default identity.",
+      "Don't apply the glass recipe to a button, chip, or badge.",
+      "Don't add a second saturated color anywhere without revisiting the One Signal Rule first.",
+      "Don't reintroduce a user-facing light/dark toggle inside the app's own chrome without a deliberate product decision to reverse the dark-only call."
+    ]
+  }
+}

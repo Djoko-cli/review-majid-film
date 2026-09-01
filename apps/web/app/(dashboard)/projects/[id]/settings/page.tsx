@@ -192,14 +192,14 @@ function BrandingTab({ projectId }: { projectId: string }) {
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={form.primary_color ?? '#7c3aed'}
+              value={form.primary_color ?? '#ff7a00'}
               onChange={(e) => set('primary_color', e.target.value)}
               className="h-9 w-12 rounded-md border border-border bg-bg-secondary cursor-pointer"
             />
             <Input
               value={form.primary_color ?? ''}
               onChange={(e) => set('primary_color', e.target.value)}
-              placeholder="#7c3aed"
+              placeholder="#ff7a00"
               className="font-mono"
             />
           </div>

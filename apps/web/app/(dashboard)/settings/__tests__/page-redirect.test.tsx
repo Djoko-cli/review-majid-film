@@ -34,9 +34,9 @@ describe('SettingsPage index redirect', () => {
     expect(h.replace).toHaveBeenCalledWith('/settings/admin')
   })
 
-  it('sends a normal user to appearance — they cannot open /settings/admin', () => {
+  it('sends a normal user to their profile — they cannot open /settings/admin', () => {
     h.auth = { user: { id: 'u2' }, isSuperAdmin: false }
     render(<SettingsPage />)
-    expect(h.replace).toHaveBeenCalledWith('/settings/appearance')
+    expect(h.replace).toHaveBeenCalledWith('/settings/profile')
   })
 })

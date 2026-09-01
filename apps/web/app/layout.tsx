@@ -1,27 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans } from "next/font/google";
+import { Rubik } from "next/font/google";
 import { ToastProvider } from "@/components/shared/toast";
-import { ThemeInitializer } from "@/components/shared/theme-initializer";
 import { BrandingHead } from "@/components/shared/branding-head";
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const rubik = Rubik({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600"],
   preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "FreeFrame",
-  description: "Collaborative media review and approval platform",
+  title: "Review",
+  description: "Self-hosted collaborative media review and approval",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0A0A0B",
+  themeColor: "#050505",
 };
 
 export default function RootLayout({
@@ -30,18 +29,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
-        {/* Inline script to apply theme BEFORE paint — prevents flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=JSON.parse(localStorage.getItem('ff-theme')||'{}');var t=d.state&&d.state.theme||'dark';if(t==='system'){t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}})()`,
-          }}
-        />
         <BrandingHead />
       </head>
-      <body className={`${dmSans.variable} font-sans antialiased`}>
-        <ThemeInitializer />
+      <body className={`${rubik.variable} font-sans antialiased`}>
+        {/*
+          THESIS: Review reads as glass floating over the work being judged —
+          never a UI competing with the footage for attention; refuses the
+          flat dark-dashboard-plus-blue-accent default every review tool ships.
+          OWN-WORLD: near-black (#050505) ground, one warm accent (#ff7a00)
+          carried through every interactive surface via --accent, Rubik at
+          weights 300-600 (900 synthetic), translucent frosted panels (blur
+          18-22px, saturate 160%, rgba(10,10,10) gradient, 1px rgba(255,255,255,.22)
+          hairline, layered shadow) for floating chrome — cards, bars, menus,
+          dialogs — never for form controls or the media itself.
+          STORY: a reviewer opens a link, signs in through a glass card, and
+          everything that isn't the video/image itself recedes into
+          translucent chrome so the work stays the subject.
+          FIRST VIEWPORT: the sign-in/setup screen — a centered glass card
+          (28px radius, 22px blur) on near-black, brand mark above it.
+          FORM: brief-pinned — Transfer's own liquid-glass system
+          (transfer-majid-film), reused per "the brief wins"; concept-seed.mjs's
+          direction roll skipped by design, not by drift.
+          FINISH: unreviewed and undocumented is unfinished; this build ends
+          with the finish review, the verdict, DESIGN.md, and every shipping
+          raster carrying its provenance.
+        */}
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

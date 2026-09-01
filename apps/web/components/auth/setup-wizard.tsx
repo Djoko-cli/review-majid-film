@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { api, ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useBrandingStore } from '@/stores/branding-store'
 
 interface FormState {
   email: string
@@ -46,6 +47,7 @@ function validate(form: FormState): FormErrors {
 
 export function SetupWizard() {
   const router = useRouter()
+  const orgName = useBrandingStore((s) => s.orgName)
   const [form, setForm] = useState<FormState>({
     email: '',
     name: '',
@@ -114,7 +116,7 @@ export function SetupWizard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary mb-1">Welcome to FreeFrame</h1>
+        <h1 className="text-xl font-semibold text-text-primary mb-1">Welcome to {orgName}</h1>
         <p className="text-sm text-text-secondary">
           Create the super admin account to get started. This can only be done once.
         </p>

@@ -301,14 +301,14 @@ export function BrandingTab() {
                 <input
                   type="color"
                   aria-label="Accent color"
-                  value={colorValue || '#7c3aed'}
+                  value={colorValue || '#ff7a00'}
                   onChange={(e) => setColorValue(e.target.value)}
                   className="h-9 w-10 shrink-0 cursor-pointer rounded border border-border bg-transparent p-0.5"
                 />
                 <Input
                   value={colorValue}
                   onChange={(e) => setColorValue(e.target.value)}
-                  placeholder="#7c3aed"
+                  placeholder="#ff7a00"
                   maxLength={7}
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveColor()}
                   className="flex-1 font-mono text-sm"
@@ -328,7 +328,7 @@ export function BrandingTab() {
               </div>
             ) : (
               <p className="pt-1 font-mono text-sm text-text-secondary">
-                {primaryColor || '#7c3aed'}
+                {primaryColor || '#ff7a00'}
               </p>
             )}
           </div>

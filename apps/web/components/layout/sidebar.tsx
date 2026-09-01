@@ -71,8 +71,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     <>
       <aside
         className={cn(
-          'fixed left-0 top-0 z-30 flex h-screen flex-col border-r border-border',
-          'bg-bg-secondary transition-[width] duration-200 overflow-hidden',
+          'glass-bar fixed left-0 top-0 z-30 flex h-screen flex-col border-r',
+          'transition-[width] duration-200 overflow-hidden',
           collapsed ? 'w-[52px]' : 'w-[220px]',
         )}
       >
@@ -256,7 +256,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 side="top"
                 align={collapsed ? 'start' : 'end'}
                 sideOffset={8}
-                className="z-50 min-w-[180px] rounded-lg border border-border bg-bg-elevated p-1 shadow-xl animate-slide-up"
+                className="glass-panel z-50 min-w-[180px] rounded-lg p-1 animate-slide-up"
               >
                 <DropdownMenu.Item asChild>
                   <Link
@@ -269,7 +269,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild>
                   <Link
-                    href={isSuperAdmin ? '/settings/admin' : '/settings/appearance'}
+                    href={isSuperAdmin ? '/settings/admin' : '/settings/profile'}
                     className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-[13px] text-text-secondary hover:bg-bg-hover hover:text-text-primary focus:outline-none"
                   >
                     <Settings className="h-4 w-4" />

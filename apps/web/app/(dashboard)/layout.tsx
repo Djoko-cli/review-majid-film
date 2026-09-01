@@ -66,7 +66,7 @@ export default function DashboardLayout({
           so it stays put whether the rail is collapsed or expanded and doesn't
           compete with the org name for the 48px logo header. Renders nothing
           when an admin turns "Powered by FreeFrame" off. */}
-      <PoweredByBadge className="fixed bottom-4 right-4 z-20 rounded-full border border-border bg-bg-elevated/90 px-3 py-1.5 shadow-lg backdrop-blur-sm" />
+      <PoweredByBadge className="glass-panel fixed bottom-4 right-4 z-20 rounded-full px-3 py-1.5" />
 
       <UploadsPanel />
       <UploadSSEBridge />
