@@ -37,6 +37,8 @@ Inherited from freeframe and confirmed still relevant:
 - Real-time updates via SSE; email reminders on deadlines.
 - Full white-label branding already built in (org name, logos, favicon, accent color, "Powered by FreeFrame" toggle) — the mechanism Review's rebrand hooks into rather than replaces.
 
+**Planned, not yet implemented: auth architecture change.** freeframe's current login is magic-code-by-email only (passwordless, requires SMTP to work at all). Confirmed future direction, not yet scoped or started: password + passkey login as the primary path — same principle as the sibling tool, Transfer (transfer.majid.film) — backed by a real user database (not a passwordless-only model), plus OAuth support, specifically Pocket ID (self-hosted OIDC provider, running at id.majid.film). This is a backend auth rework; do not build new features on top of the current magic-code-only flow assuming it's permanent.
+
 Structural constraint carried forward deliberately: freeframe has **no organization/team layer** — `Project` is the permission root, and per-project roles (owner/editor/reviewer/viewer) plus share links are the only access model. The planned move from solo to small/medium teams should grow through this existing per-project model (adding ProjectMembers as needed) rather than requiring a new org/tenancy layer to be built.
 
 Known rough edges inherited from upstream, not yet fixed, worth keeping in mind rather than assuming solid:
