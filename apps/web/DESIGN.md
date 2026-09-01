@@ -157,6 +157,12 @@ Two radius scales, used for different things. The standard scale (4/6/8/12px, na
 - Overlay: `rgba(0,0,0,0.6)` with a light blur — a dim scrim, not glass itself.
 - Content: glass panel, 22px blur, `xl` (12px) radius.
 
+### Glint Ring (signature component)
+A specular highlight that sweeps the auth card's rounded outline once every 6.5s — a rotating conic-gradient (transparent → white → Ember Signal → transparent) masked down to a thin ring via `mask: xor`, driven by a typed `@property --glint-angle` so it interpolates smoothly instead of snapping. Reused verbatim from Transfer's own GlintBorder — the one moment of motion that makes the glass read as a physical material rather than a static translucent panel. Card only; never on bars, menus, or dialogs.
+
+### Brand Panel (signature component)
+The auth/setup screen's full-bleed rotating photo backdrop — real production stills synced from majid.film (see PRODUCT.md's Evidence on Hand), never a stock or fabricated image. A fair-rotation shuffle guarantees no two consecutive slides share a project; each slide holds a slow 1→1.07 zoom (`gentleZoom`, ~9.1s) and crosses to the next via a 900ms slide transform. Renders nothing — not a placeholder image — until sync is configured and has found real photography; the radial accent glow underneath is the only fallback backdrop.
+
 ## Do's and Don'ts
 
 ### Do:

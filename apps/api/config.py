@@ -105,6 +105,15 @@ class Settings(BaseSettings):
     smtp_password: str | None = None
     smtp_use_tls: bool = True
 
+    # Brand slide sync ("M family" liquid-glass rotating backdrop, shared with
+    # transfer.majid.film): reads majid.film's deployed brand-manifest.json +
+    # derived stills from a read-only NAS mount and uploads them to this
+    # instance's own S3 bucket. Off by default — both must be set to enable it.
+    # A path here with no real manifest at it (dev, or before the NAS mount is
+    # wired up) is a no-op, never an error: see BrandSyncService.is_enabled().
+    majidfilm_source_root: str | None = None
+    brand_sync_enabled: bool = False
+
     @model_validator(mode="after")
     def _check_s3_endpoint_consistency(self):
         """Fail loud on `S3_STORAGE=s3` + a real custom (non-AWS) `S3_ENDPOINT`.

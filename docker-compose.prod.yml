@@ -118,6 +118,17 @@ services:
   #     exit 0;
   #     "
 
+  # ─── Optional: "M family" brand slide sync ───────────────────────────────────
+  # Syncs the rotating brand backdrop on the auth/setup screen from majid.film's
+  # own deployed build output (brand-manifest.json + assets/img/derived/), the
+  # same source transfer.majid.film's BrandPanel reads. Off unless both
+  # MAJIDFILM_SOURCE_ROOT and BRAND_SYNC_ENABLED=true are set in .env.prod.
+  # To enable: mount majid.film's deploy directory read-only on `api` (boot-time
+  # self-heal + the admin manual-sync endpoint) AND `maintenance_worker` (the
+  # nightly Celery Beat task) by uncommenting the volumes block below on each,
+  # pointing MAJIDFILM_SOURCE_ROOT at the same in-container path.
+  #   volumes:
+  #     - /volume1/path/to/majidfilm/deploy:/mnt/majidfilm:ro
   api:
     build:
       context: .
@@ -192,6 +203,8 @@ services:
   # Kept off the transcoding worker (these hold a slot for minutes while a video
   # waits) and off the email worker (a magic code queued behind a full bucket
   # listing is a login someone is waiting on).
+  # Also needs the majid.film read-only mount if brand slide sync is enabled
+  # (runs the nightly sync task) — see the comment on `api` above.
   maintenance_worker:
     build:
       context: .

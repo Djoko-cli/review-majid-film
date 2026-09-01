@@ -93,6 +93,29 @@
   --status-info: #2563eb;
 }
 
+/* Liquid-glass motion, reused from Transfer verbatim (see
+   components/auth/glint-border.tsx and brand-panel.tsx). --glint-angle is
+   registered as a typed <angle> — an unregistered custom property can only
+   ever snap between values in a transition/animation, never interpolate, so
+   without this the glint would jump around the ring instead of sweeping. */
+@property --glint-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes gentleZoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+@keyframes glintSpin {
+  from { --glint-angle: 0deg; }
+  to   { --glint-angle: 360deg; }
+}
+@keyframes brandPanelFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 @layer base {
   * {
     border-color: var(--border-primary);
@@ -176,6 +199,34 @@
      instead of a background keeps it legible against whatever's behind it. */
   .text-halo {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+
+  /* The glint ring: a specular highlight that sweeps the card's rounded
+     outline. A rotating conic-gradient masked down to a thin ring (mask:
+     xor between the full box and its content-box), not an SVG stroke —
+     because the gradient sweeps by ANGLE around the box's center rather
+     than by position along its edge, every side gets an equal share of the
+     rotation for free. Radius is set inline per instance (see
+     glint-border.tsx) since it has to match its wrapped card exactly. */
+  .glint-ring {
+    position: absolute;
+    inset: -1px;
+    padding: 2px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--glint-angle),
+      transparent 0deg,
+      transparent 20deg,
+      rgba(255, 255, 255, 0.95) 46deg,
+      var(--accent) 58deg,
+      rgba(255, 255, 255, 0.35) 72deg,
+      transparent 104deg,
+      transparent 360deg);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    filter: blur(2px) drop-shadow(0 0 6px var(--accent));
+    pointer-events: none;
+    animation: glintSpin 6.5s linear infinite;
   }
 
   /* Skeleton shimmer gradient */

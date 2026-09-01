@@ -5,17 +5,43 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routers import auth, users, projects, upload, events, assets, me, comments, approvals, share, metadata, branding, instance_branding, notifications, admin, setup, folders, hls_proxy, instance_settings
+from .routers import auth, users, projects, upload, events, assets, me, comments, approvals, share, metadata, branding, instance_branding, notifications, admin, setup, folders, hls_proxy, instance_settings, brand_slides
 from .services.s3_service import run_startup_bucket_setup
 from .services.email_service import mail_is_configured
+from .services.brand_sync_service import is_enabled as brand_sync_is_enabled, sync_from_majidfilm
+from .database import SessionLocal
+from .models.brand_slide import BrandProject
 from .middleware.global_rate_limit import GlobalRateLimitMiddleware
 from .middleware.setup_guard import SetupGuardMiddleware
+
+def _initial_brand_sync_if_empty():
+    """Self-heals the "nothing synced yet" window down to however long boot
+    takes, rather than leaving it to the first nightly Celery Beat tick (up
+    to 24h) — mirrors Transfer's own BrandSyncService.onModuleInit(). Runs in
+    a background thread (see lifespan below): a slow or unreachable NAS mount
+    must never block app startup, and any failure here is logged, never
+    raised — a brand-sync hiccup at the exact moment of a container restart
+    shouldn't crash the app."""
+    db = SessionLocal()
+    try:
+        if db.query(BrandProject).count() == 0:
+            logging.getLogger("apps.api.startup").info(
+                "No BrandProject rows yet — running an initial brand sync at boot",
+            )
+            sync_from_majidfilm(db)
+    except Exception as e:
+        logging.getLogger("apps.api.startup").warning("Initial brand sync at boot failed: %s", e)
+    finally:
+        db.close()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Run bucket setup off the request path (daemon thread) so a slow or unreachable
     # object store can't block app startup (deploy-test finding #6).
     threading.Thread(target=run_startup_bucket_setup, name="s3-bucket-setup", daemon=True).start()
+    if brand_sync_is_enabled():
+        threading.Thread(target=_initial_brand_sync_if_empty, name="brand-sync-boot", daemon=True).start()
     if not mail_is_configured():
         logging.getLogger("apps.api.startup").warning(
             "Email is not configured (MAIL_PROVIDER=%s) — magic-code login and invites "
@@ -100,6 +126,7 @@ app.include_router(folders.router)
 app.include_router(hls_proxy.router)
 app.include_router(instance_settings.router)
 app.include_router(instance_branding.router)
+app.include_router(brand_slides.router)
 
 @app.get("/health")
 def health():

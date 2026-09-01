@@ -18,6 +18,7 @@ celery_app = Celery(
         "apps.api.tasks.reminder_tasks",
         "apps.api.tasks.email_tasks",
         "apps.api.tasks.cleanup_tasks",
+        "apps.api.tasks.brand_sync_tasks",
     ],
 )
 
@@ -53,6 +54,7 @@ celery_app.conf.update(
         "cleanup_soft_deleted": {"queue": "maintenance"},
         "requeue_stuck_processing": {"queue": "maintenance"},
         "sweep_orphan_s3": {"queue": "maintenance"},
+        "sync_brand_slides": {"queue": "maintenance"},
         # Not housekeeping: this one is dispatched from a request handler and
         # is a full FFmpeg re-encode, so it belongs with the other transcoding
         # work rather than behind an hour-long bucket sweep.
@@ -92,6 +94,10 @@ celery_app.conf.beat_schedule = {
     "sweep-orphan-s3": {
         "task": "sweep_orphan_s3",
         "schedule": crontab(minute=0, hour=4, day_of_week=0),  # weekly, Sunday 04:00 UTC
+    },
+    "sync-brand-slides": {
+        "task": "sync_brand_slides",
+        "schedule": crontab(minute=0, hour=2),  # daily at 02:00 UTC — before the 03:00/04:00 cleanup tasks
     },
 }
 
