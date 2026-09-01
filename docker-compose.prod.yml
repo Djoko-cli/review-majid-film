@@ -128,7 +128,7 @@ services:
   # nightly Celery Beat task) by uncommenting the volumes block below on each,
   # pointing MAJIDFILM_SOURCE_ROOT at the same in-container path.
   #   volumes:
-  #     - /volume1/path/to/majidfilm/deploy:/mnt/majidfilm:ro
+  #     - /volume2/web/majidfilm:/mnt/majidfilm:ro
   api:
     build:
       context: .
