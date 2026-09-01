@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, KeyboardEvent, ClipboardEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { api, ApiError } from '@/lib/api'
 import { setTokens } from '@/lib/auth'
 import { useAuthStore } from '@/stores/auth-store'
@@ -10,11 +10,70 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { VerifyCodeResponse, AuthTokens } from '@/types'
 
+interface OAuthProvider {
+  provider: string
+  label: string
+}
+
+/** "Sign in with <provider>" — fetches which OIDC providers (if any) this
+ *  instance has configured (see GET /oauth/providers) and renders nothing
+ *  when none are. A full browser redirect to the backend, same as
+ *  Transfer's own OAuth pattern: the backend owns the whole code exchange,
+ *  the frontend only needs to know where /oauth/complete hands off tokens. */
+function OAuthProviders() {
+  const [providers, setProviders] = useState<OAuthProvider[]>([])
+
+  useEffect(() => {
+    api.get<OAuthProvider[]>('/oauth/providers').then(setProviders).catch(() => {})
+  }, [])
+
+  if (providers.length === 0) return null
+
+  return (
+    <>
+      <div className="my-5 flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-2xs text-text-tertiary">or</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+      <div className="flex flex-col gap-2">
+        {providers.map((p) => (
+          <Button
+            key={p.provider}
+            type="button"
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            onClick={() => {
+              const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+              window.location.href = `${API_URL}/oauth/auth/${p.provider}`
+            }}
+          >
+            Sign in with {p.label}
+          </Button>
+        ))}
+      </div>
+    </>
+  )
+}
+
 type Step = 'email' | 'code' | 'password' | 'classic'
+
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  not_configured: 'Sign-in with that provider is not available.',
+  failed: "Sign-in didn't complete. Try again.",
+  no_email: "Your identity provider didn't share an email address.",
+  deactivated: 'This account has been deactivated.',
+}
 
 export function LoginForm() {
   const router = useRouter()
-  const [step, setStep] = useState<Step>('email')
+  const searchParams = useSearchParams()
+  const [step, setStep] = useState<Step>('classic')
+  const [oauthError, setOauthError] = useState(() => {
+    const reason = searchParams.get('oauth_error')
+    return reason ? OAUTH_ERROR_MESSAGES[reason] || "Sign-in didn't complete. Try again." : ''
+  })
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState('')
   const [code, setCode] = useState(['', '', '', '', '', ''])
@@ -244,9 +303,9 @@ export function LoginForm() {
         </div>
 
         <form onSubmit={handleClassicLogin} className="flex flex-col gap-4">
-          {classicError && (
+          {(classicError || oauthError) && (
             <div className="rounded-md border border-status-error/30 bg-status-error/10 px-3 py-2.5 text-sm text-status-error">
-              {classicError}
+              {classicError || oauthError}
             </div>
           )}
 
@@ -273,10 +332,12 @@ export function LoginForm() {
           </Button>
         </form>
 
+        <OAuthProviders />
+
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => { setStep('email'); setClassicError('') }}
+            onClick={() => { setStep('email'); setClassicError(''); setOauthError('') }}
             className="text-base text-text-tertiary hover:text-text-secondary transition-colors"
           >
             Sign in with magic code instead

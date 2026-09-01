@@ -114,6 +114,22 @@ class Settings(BaseSettings):
     majidfilm_source_root: str | None = None
     brand_sync_enabled: bool = False
 
+    # OIDC login (Pocket ID, or any standards-compliant OpenID Connect
+    # provider — this client is provider-agnostic, same as Transfer's own).
+    # Off unless oidc_enabled is explicitly true. redirect_uri is the exact,
+    # full callback URL — not derived, since it must match byte-for-byte
+    # whatever is registered as this client's callback URL in the provider
+    # (e.g. Pocket ID's admin UI): dev is typically
+    # http://localhost:8000/oauth/callback/oidc, prod (behind Traefik's /api
+    # prefix) is typically https://<domain>/api/oauth/callback/oidc.
+    oidc_enabled: bool = False
+    oidc_provider_label: str = "Pocket ID"
+    oidc_discovery_url: str | None = None
+    oidc_client_id: str | None = None
+    oidc_client_secret: str | None = None
+    oidc_redirect_uri: str | None = None
+    oidc_scope: str = "openid email profile"
+
     @model_validator(mode="after")
     def _check_s3_endpoint_consistency(self):
         """Fail loud on `S3_STORAGE=s3` + a real custom (non-AWS) `S3_ENDPOINT`.

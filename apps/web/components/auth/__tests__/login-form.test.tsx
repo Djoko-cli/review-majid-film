@@ -2,11 +2,17 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const push = vi.fn()
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push, replace: vi.fn() }) }))
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push, replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}))
 
 const sendMagicCode = vi.fn()
 vi.mock('@/lib/api', () => ({
-  api: { post: (...args: unknown[]) => sendMagicCode(...args) },
+  api: {
+    post: (...args: unknown[]) => sendMagicCode(...args),
+    get: () => Promise.resolve([]),
+  },
   ApiError: class ApiError extends Error {
     status: number
     constructor(status: number, message: string) {
@@ -22,6 +28,7 @@ import { LoginForm } from '../login-form'
 /** Walk the email step and land on the code screen for `email`. */
 async function requestCodeFor(email: string) {
   const view = render(<LoginForm />)
+  fireEvent.click(screen.getByRole('button', { name: /sign in with magic code instead/i }))
   fireEvent.change(screen.getByLabelText(/email/i), { target: { value: email } })
   fireEvent.click(screen.getByRole('button', { name: /send magic code/i }))
   await waitFor(() => expect(screen.getByText(/check your email/i)).toBeInTheDocument())

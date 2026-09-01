@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routers import auth, users, projects, upload, events, assets, me, comments, approvals, share, metadata, branding, instance_branding, notifications, admin, setup, folders, hls_proxy, instance_settings, brand_slides
+from .routers import auth, users, projects, upload, events, assets, me, comments, approvals, share, metadata, branding, instance_branding, notifications, admin, setup, folders, hls_proxy, instance_settings, brand_slides, oauth
 from .services.s3_service import run_startup_bucket_setup
 from .services.email_service import mail_is_configured
 from .services.brand_sync_service import is_enabled as brand_sync_is_enabled, sync_from_majidfilm
@@ -127,6 +127,7 @@ app.include_router(hls_proxy.router)
 app.include_router(instance_settings.router)
 app.include_router(instance_branding.router)
 app.include_router(brand_slides.router)
+app.include_router(oauth.router)
 
 @app.get("/health")
 def health():

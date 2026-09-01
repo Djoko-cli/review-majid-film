@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { getAccessToken } from '@/lib/auth'
@@ -38,8 +38,12 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* The branded logo + org name live in the (auth) layout, so every auth screen gets them */}
-      <LoginForm />
+      {/* The branded logo + org name live in the (auth) layout, so every auth screen gets them.
+          Suspense: LoginForm reads useSearchParams() (oauth_error) — required by Next.js
+          whenever that hook is used outside a fully dynamic route. */}
+      <Suspense fallback={null}>
+        <LoginForm />
+      </Suspense>
 
       {/* Powered by FreeFrame */}
       <PoweredByBadge className="mt-6 text-center justify-center w-full" />

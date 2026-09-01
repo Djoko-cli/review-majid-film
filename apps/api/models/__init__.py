@@ -11,3 +11,4 @@ from .instance_settings import InstanceSettings
 from .instance_branding import InstanceBranding
 from .activity import Mention, ActivityLog, Notification
 from .brand_slide import BrandProject, BrandStill, DisabledBrandSlide
+from .oauth_identity import OAuthIdentity

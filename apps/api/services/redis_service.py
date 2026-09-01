@@ -156,3 +156,56 @@ def verify_share_session(token: str, session_id: str) -> bool:
     r = get_redis()
     key = f"{SHARE_SESSION_PREFIX}{token}:{session_id}"
     return r.exists(key) > 0
+
+
+# ── OIDC login state ───────────────────────────────────────────────────────
+# Two short-lived, single-use handoffs: (1) the state/nonce/PKCE verifier
+# between /oauth/auth and /oauth/callback (a few minutes — the provider's
+# own login screen sits in between), and (2) a one-time exchange code
+# between the callback's browser redirect and the SPA's token fetch (a few
+# seconds — same shape as the magic-code / invite-token patterns above).
+
+OIDC_STATE_PREFIX = "oidc_state:"
+OIDC_STATE_EXPIRY_SECONDS = 600  # 10 minutes — generous for a provider login screen
+OIDC_EXCHANGE_PREFIX = "oidc_exchange:"
+OIDC_EXCHANGE_EXPIRY_SECONDS = 60  # the redirect + immediate fetch happens in well under this
+
+
+def store_oidc_state(state: str, nonce: str, code_verifier: str) -> None:
+    """Store the nonce + PKCE code_verifier for one in-flight OIDC login, keyed by state."""
+    import json
+    r = get_redis()
+    key = f"{OIDC_STATE_PREFIX}{state}"
+    r.setex(key, OIDC_STATE_EXPIRY_SECONDS, json.dumps({"nonce": nonce, "code_verifier": code_verifier}))
+
+
+def pop_oidc_state(state: str) -> Optional[dict]:
+    """Retrieve and delete (single-use) the nonce/code_verifier for a state. None if missing/expired/reused."""
+    import json
+    r = get_redis()
+    key = f"{OIDC_STATE_PREFIX}{state}"
+    pipe = r.pipeline()
+    pipe.get(key)
+    pipe.delete(key)
+    raw, _ = pipe.execute()
+    return json.loads(raw) if raw else None
+
+
+def store_oidc_exchange_code(code: str, access_token: str, refresh_token: str) -> None:
+    """Store the real token pair behind a one-time exchange code the callback hands the browser."""
+    import json
+    r = get_redis()
+    key = f"{OIDC_EXCHANGE_PREFIX}{code}"
+    r.setex(key, OIDC_EXCHANGE_EXPIRY_SECONDS, json.dumps({"access_token": access_token, "refresh_token": refresh_token}))
+
+
+def pop_oidc_exchange_code(code: str) -> Optional[dict]:
+    """Retrieve and delete (single-use) the token pair for an exchange code. None if missing/expired/reused."""
+    import json
+    r = get_redis()
+    key = f"{OIDC_EXCHANGE_PREFIX}{code}"
+    pipe = r.pipeline()
+    pipe.get(key)
+    pipe.delete(key)
+    raw, _ = pipe.execute()
+    return json.loads(raw) if raw else None
