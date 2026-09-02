@@ -116,7 +116,7 @@ export function SetupWizard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary mb-1">Welcome to {orgName}</h1>
+        <h1 className="text-auth-title font-black text-text-primary mb-1">Welcome to {orgName}</h1>
         <p className="text-sm text-text-secondary">
           Create the super admin account to get started. This can only be done once.
         </p>
@@ -130,6 +130,7 @@ export function SetupWizard() {
         )}
 
         <Input
+          variant="onGlass"
           label="Full name"
           type="text"
           placeholder="Alex Johnson"
@@ -140,6 +141,7 @@ export function SetupWizard() {
         />
 
         <Input
+          variant="onGlass"
           label="Email address"
           type="email"
           placeholder="you@example.com"
@@ -150,6 +152,7 @@ export function SetupWizard() {
         />
 
         <Input
+          variant="onGlass"
           label="Password"
           type="password"
           placeholder="Min. 8 characters"
@@ -160,6 +163,7 @@ export function SetupWizard() {
         />
 
         <Input
+          variant="onGlass"
           label="Confirm password"
           type="password"
           placeholder="Repeat password"

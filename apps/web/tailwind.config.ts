@@ -49,6 +49,10 @@ const config: Config = {
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+        // Auth-card step heading ("Sign in", "Create your password", …) —
+        // pixel-matched to Transfer's actual Title (order=2): Mantine's
+        // own default theme.headings.sizes.h2, not a Tailwind stock size.
+        'auth-title': ['1.625rem', { lineHeight: '1.35' }],
       },
       borderRadius: {
         glass: 'var(--radius-glass)',

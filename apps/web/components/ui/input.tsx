@@ -8,20 +8,34 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   label?: string
   error?: string
   icon?: React.ReactNode
+  /** 'onGlass': for a field sitting directly inside a glass-panel card (the
+   *  auth screen) — a lighter translucent-white tint instead of the default
+   *  opaque flat fill, so it reads as part of the same glass surface
+   *  instead of a flat opaque box floating inside translucent chrome.
+   *  Pixel-matched to Transfer's own scoped glassFormTheme, which applies
+   *  this only inside its glass cards — every other form in this app keeps
+   *  the default, deliberately opaque treatment (see DESIGN.md's
+   *  Inputs/Fields rule); don't reach for this variant outside a
+   *  glass-panel context. */
+  variant?: 'default' | 'onGlass'
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, icon, id, type, ...props }, ref) => {
+  ({ className, label, error, icon, id, type, variant = 'default', ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
     const [showPassword, setShowPassword] = React.useState(false)
     const isPassword = type === 'password'
+    const onGlass = variant === 'onGlass'
 
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-text-secondary"
+            className={cn(
+              'text-sm font-medium',
+              onGlass ? 'text-[color:var(--input-glass-label)]' : 'text-text-secondary',
+            )}
           >
             {label}
           </label>
@@ -37,8 +51,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={isPassword && showPassword ? 'text' : type}
             className={cn(
-              'flex h-10 w-full rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary',
-              'transition-all duration-150 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20',
+              'flex h-10 w-full rounded-md border px-3 py-2 text-sm transition-all duration-150 focus:outline-none focus:ring-2',
+              onGlass
+                ? 'bg-[color:var(--input-glass-bg)] border-[color:var(--input-glass-border)] text-[color:var(--input-glass-text)] placeholder:text-[color:var(--input-glass-placeholder)] focus:bg-[color:var(--input-glass-bg-focus)] focus:border-[color:var(--input-glass-border-focus)] focus:ring-[color:var(--input-glass-border-focus)]/20'
+                : 'bg-bg-secondary border-border text-text-primary placeholder:text-text-tertiary focus:border-accent focus:ring-accent/20',
               'disabled:cursor-not-allowed disabled:opacity-50',
               icon && 'pl-9',
               isPassword && 'pr-9',

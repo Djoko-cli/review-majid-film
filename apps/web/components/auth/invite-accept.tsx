@@ -137,7 +137,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
       )}
 
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-text-primary mb-1">Accept invite</h1>
+        <h1 className="text-auth-title font-black text-text-primary mb-1">Accept invite</h1>
         <p className="text-sm text-text-secondary">Set up your account to get started.</p>
       </div>
 
@@ -149,6 +149,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         )}
 
         <Input
+          variant="onGlass"
           label="Full name"
           type="text"
           placeholder="Alex Johnson"
@@ -159,6 +160,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         />
 
         <Input
+          variant="onGlass"
           label="Password"
           type="password"
           placeholder="Min. 8 characters"
@@ -169,6 +171,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         />
 
         <Input
+          variant="onGlass"
           label="Confirm password"
           type="password"
           placeholder="Repeat password"

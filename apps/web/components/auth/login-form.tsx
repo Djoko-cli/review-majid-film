@@ -317,7 +317,7 @@ export function LoginForm() {
     return (
       <div className="animate-slide-up">
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-text-primary mb-1">{t('classic.title')}</h1>
+          <h1 className="text-auth-title font-black text-text-primary mb-1">{t('classic.title')}</h1>
           <p className="text-sm text-text-secondary">{t('classic.subtitle')}</p>
         </div>
 
@@ -329,6 +329,7 @@ export function LoginForm() {
           )}
 
           <Input
+            variant="onGlass"
             label={t('common.emailLabel')}
             type="email"
             placeholder={t('common.emailPlaceholder')}
@@ -338,6 +339,7 @@ export function LoginForm() {
           />
 
           <Input
+            variant="onGlass"
             label={t('common.passwordLabel')}
             type="password"
             placeholder={t('classic.passwordPlaceholder')}
@@ -372,7 +374,7 @@ export function LoginForm() {
     return (
       <div className="animate-slide-up">
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-text-primary mb-1">{t('setPassword.title')}</h1>
+          <h1 className="text-auth-title font-black text-text-primary mb-1">{t('setPassword.title')}</h1>
           <p className="text-sm text-text-secondary">
             {t('setPassword.subtitle')}
           </p>
@@ -386,6 +388,7 @@ export function LoginForm() {
           )}
 
           <Input
+            variant="onGlass"
             label={t('common.passwordLabel')}
             type="password"
             placeholder={t('setPassword.passwordPlaceholder')}
@@ -396,6 +399,7 @@ export function LoginForm() {
           />
 
           <Input
+            variant="onGlass"
             label={t('setPassword.confirmLabel')}
             type="password"
             placeholder={t('setPassword.confirmPlaceholder')}
@@ -416,7 +420,7 @@ export function LoginForm() {
     return (
       <div className="animate-slide-up">
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-text-primary mb-1">{t('code.title')}</h1>
+          <h1 className="text-auth-title font-black text-text-primary mb-1">{t('code.title')}</h1>
           {/* The API answers identically whether or not the address has an
               account, deliberately, so that this endpoint cannot be used to
               enumerate registered emails. Claiming "we sent a code" asserts
@@ -446,9 +450,9 @@ export function LoginForm() {
                 onKeyDown={(e) => handleCodeKeyDown(i, e)}
                 onPaste={handleCodePaste}
                 className={cn(
-                  'h-12 w-full max-w-[48px] rounded-md border bg-bg-secondary text-center text-lg font-semibold text-text-primary',
-                  'transition-colors focus:outline-none focus:border-border-focus focus:ring-1 focus:ring-border-focus',
-                  codeError ? 'border-status-error' : 'border-border',
+                  'h-12 w-full max-w-[48px] rounded-md border bg-[color:var(--input-glass-bg)] text-center text-lg font-semibold text-[color:var(--input-glass-text)]',
+                  'transition-colors focus:outline-none focus:border-[color:var(--input-glass-border-focus)] focus:ring-1 focus:ring-[color:var(--input-glass-border-focus)]',
+                  codeError ? 'border-status-error' : 'border-[color:var(--input-glass-border)]',
                 )}
               />
             ))}
@@ -487,7 +491,7 @@ export function LoginForm() {
   return (
     <div className="animate-slide-up">
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary mb-1">{t('magicCode.title')}</h1>
+        <h1 className="text-auth-title font-black text-text-primary mb-1">{t('magicCode.title')}</h1>
         <p className="text-sm text-text-secondary">
           {t('magicCode.subtitle')}
         </p>
@@ -501,6 +505,7 @@ export function LoginForm() {
         )}
 
         <Input
+          variant="onGlass"
           label={t('common.emailLabel')}
           type="email"
           placeholder={t('common.emailPlaceholder')}

@@ -40,6 +40,23 @@
   --accent-tint-text: #ffd4ad;
   --accent-tint-hover-bg: rgba(199, 95, 0, 0.25);
 
+  /* Fields sitting directly inside a glass-panel card (the auth screen) —
+     pixel-matched to Transfer's own scoped glassFormTheme, which gives
+     glass-card inputs a lighter translucent-white tint instead of the flat
+     opaque fill below. Deliberately scoped (Input's variant="onGlass"),
+     not a global Input restyle: every other form in the app keeps the
+     default opaque treatment on purpose, matching both Transfer's own
+     comment on why ("every other form... still needs the standard opaque,
+     always-legible fields") and this file's own Inputs/Fields rule in
+     DESIGN.md. */
+  --input-glass-bg: rgba(255, 255, 255, 0.07);
+  --input-glass-bg-focus: rgba(255, 255, 255, 0.13);
+  --input-glass-border: rgba(255, 255, 255, 0.16);
+  --input-glass-border-focus: #ffaa5c;
+  --input-glass-text: #ffffff;
+  --input-glass-placeholder: rgba(255, 255, 255, 0.62);
+  --input-glass-label: rgba(255, 255, 255, 0.85);
+
   /* Status */
   --status-success: #34d399;
   --status-warning: #fbbf24;
@@ -108,6 +125,14 @@
   --accent-tint-bg: rgba(230, 110, 0, 0.12);
   --accent-tint-text: #a84800;
   --accent-tint-hover-bg: rgba(199, 95, 0, 0.18);
+
+  --input-glass-bg: rgba(255, 255, 255, 0.4);
+  --input-glass-bg-focus: rgba(255, 255, 255, 0.55);
+  --input-glass-border: rgba(255, 255, 255, 0.6);
+  --input-glass-border-focus: #e66e00;
+  --input-glass-text: #000000;
+  --input-glass-placeholder: rgba(0, 0, 0, 0.58);
+  --input-glass-label: rgba(0, 0, 0, 0.75);
 
   --status-success: #16a34a;
   --status-warning: #ca8a04;

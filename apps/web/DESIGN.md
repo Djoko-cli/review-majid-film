@@ -98,7 +98,7 @@ The palette is almost entirely achromatic — a five-step near-black ramp — wi
 **Character:** A geometric, slightly rounded grotesque — confident but not loud. Weight 900 is never a real font file; it's the browser's synthetic bold, used deliberately for the very largest headline moments, reproducing Transfer's own convention rather than sourcing a heavier Rubik cut.
 
 ### Hierarchy
-- **Headline** (600, text-xl–2xl): screen titles, the auth card's "Welcome to Review."
+- **Headline** (900 synthetic bold, `text-auth-title` = 1.625rem/26px): the auth card's own step heading ("Sign in," "Welcome to Review") — pixel-matched to Transfer's actual `Title order={2}`, which is Mantine's own `headings.sizes.h2` default, not a Tailwind stock size. Was previously documented (and shipped) as 600/text-xl; that was never actually checked against Transfer's real rendered value until a direct pixel-perfect pass corrected it.
 - **Title** (600, text-lg): section headers, dialog titles.
 - **Body** (400, text-sm): the default UI voice.
 - **Label** (500, text-sm–xs): form labels, nav items, buttons.
@@ -148,6 +148,7 @@ Two radius scales, used for different things. The standard scale (4/6/8/12px, na
 - **Style:** flat panel background, 1px standard border, 6px radius — deliberately not glass; legibility for the thing being typed into outranks the ambient chrome effect.
 - **Focus:** border shifts to Ember Signal, plus a 20%-opacity accent ring.
 - **Error:** border and ring shift to status-error.
+- **`variant="onGlass"` exception:** fields sitting directly inside the auth screen's glass card (login/setup/invite) use a lighter translucent-white tint instead — pixel-matched to Transfer's own scoped `glassFormTheme` (a nested theme override applied only inside its glass cards, never app-wide). Still not glass itself (no independent blur/backdrop-filter on the field) — it's a lighter fill riding on the card's own blur, letting the field read as part of the same surface instead of an opaque box floating inside translucent chrome. Every other form in the app (admin, settings, dialogs) keeps the default opaque treatment above; reach for `onGlass` only inside a glass-panel card, never elsewhere.
 
 ### Navigation
 - **Sidebar:** glass bar, 18px blur, flush right border (no radius). Active item gets a flat hover-tint fill (`rgba(255,255,255,0.08)`), never its own glass treatment — nested glass-on-glass was deliberately avoided.
