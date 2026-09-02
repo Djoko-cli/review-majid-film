@@ -363,6 +363,44 @@ def test_change_password_increments_version(client, auth_headers, test_user, moc
         assert test_user.token_version == initial_version + 1
 
 
+def test_admin_reset_password_returns_temp_password_once(client, auth_headers, mock_db, test_user):
+    """POST /admin/users/{id}/reset-password — a superadmin gets a freshly generated password
+    back, and it's the only place it's ever exposed (never re-derivable from the response,
+    never the same value the hash was checked against by test_verify_password below)."""
+    test_user.is_superadmin = True
+    target = _mock_user("forgetful@example.com")
+    target.token_version = 1
+    mock_db.first.return_value = target
+
+    resp = client.post(f"/admin/users/{target.id}/reset-password", headers=auth_headers)
+
+    assert resp.status_code == 200
+    temp_password = resp.json()["temporary_password"]
+    assert len(temp_password) >= 12
+    assert target.token_version == 2  # existing sessions invalidated, like change-password
+
+
+def test_admin_reset_password_rejects_non_admin(client, auth_headers, mock_db, test_user):
+    """POST /admin/users/{id}/reset-password — 403 for a caller who isn't a superadmin."""
+    test_user.is_superadmin = False
+    target = _mock_user("someone@example.com")
+    mock_db.first.return_value = target
+
+    resp = client.post(f"/admin/users/{target.id}/reset-password", headers=auth_headers)
+
+    assert resp.status_code == 403
+
+
+def test_admin_reset_password_unknown_user_404s(client, auth_headers, mock_db, test_user):
+    """POST /admin/users/{id}/reset-password — 404 for a user_id that doesn't resolve to a row."""
+    test_user.is_superadmin = True
+    mock_db.first.return_value = None
+
+    resp = client.post(f"/admin/users/{uuid.uuid4()}/reset-password", headers=auth_headers)
+
+    assert resp.status_code == 404
+
+
 def test_delete_user_rejects_self(client, auth_headers, test_user):
     """DELETE /users/{id} — an admin can't delete their own account. Matches the
     self-protection already on /admin/users/{id}/deactivate; without it, a superadmin

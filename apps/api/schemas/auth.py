@@ -117,6 +117,11 @@ class UpdateProfileRequest(BaseModel):
 class UpdateUserRoleRequest(BaseModel):
     is_admin: bool
 
+class AdminResetPasswordResponse(BaseModel):
+    # Shown to the admin exactly once — never stored, emailed, or logged
+    # anywhere past this response.
+    temporary_password: str
+
 class DeactivateUserRequest(BaseModel):
     user_id: uuid.UUID
 

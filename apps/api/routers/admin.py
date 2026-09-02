@@ -2,18 +2,29 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+import secrets
+import string
 import uuid
 
 from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.user import User, UserStatus
-from ..schemas.auth import UserResponse, AdminUserResponse, UpdateUserRoleRequest
+from ..schemas.auth import UserResponse, AdminUserResponse, UpdateUserRoleRequest, AdminResetPasswordResponse
+from ..services.auth_service import hash_password
 from .users import require_admin
 from ..tasks.celery_app import send_task_safe
 from ..tasks.cleanup_tasks import cleanup_soft_deleted
 from ..schemas.admin import PurgeStartResponse
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+# Unambiguous alphabet (no 0/O/1/l/I) since an admin may need to read this
+# out loud or retype it for someone, not just copy-paste it.
+_TEMP_PASSWORD_ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789"
+
+
+def _generate_temp_password(length: int = 16) -> str:
+    return "".join(secrets.choice(_TEMP_PASSWORD_ALPHABET) for _ in range(length))
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────────
@@ -113,6 +124,38 @@ def update_user_role(
     db.commit()
     db.refresh(user)
     return user
+
+@router.post("/users/{user_id}/reset-password", response_model=AdminResetPasswordResponse)
+def reset_user_password(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Set a random temporary password for a user and return it once.
+
+    The account-recovery path for this fork now that magic-link sign-in is
+    off by default (see MAGIC_LINK_ENABLED): an admin generates a temp
+    password here and hands it to the user out of band. It is never emailed
+    or logged — this response is the only place it ever appears — so copy it
+    before closing this dialog. Bumps token_version, same as a self-service
+    password change, so any session the user was already in is invalidated.
+    """
+    if not current_user.is_superadmin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can reset a user's password"
+        )
+
+    user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    temp_password = _generate_temp_password()
+    user.password_hash = hash_password(temp_password)
+    user.token_version += 1
+    db.commit()
+    db.refresh(user)
+    return AdminResetPasswordResponse(temporary_password=temp_password)
 
 @router.post("/purge", response_model=PurgeStartResponse, status_code=status.HTTP_202_ACCEPTED)
 def purge_now(current_user: User = Depends(require_admin)):

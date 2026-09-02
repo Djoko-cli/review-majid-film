@@ -3,7 +3,7 @@
 import * as React from "react";
 import useSWR, { mutate } from "swr";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Users, Plus, X, Shield, Link2, Check } from "lucide-react";
+import { Users, Plus, X, Shield, Link2, Check, KeyRound, Copy } from "lucide-react";
 import { cn, copyToClipboard } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -133,6 +133,74 @@ function BulkInviteDialog() {
   );
 }
 
+/** Shows a freshly generated temporary password exactly once. The backend
+ *  never stores or logs it past the response that created this dialog, so
+ *  closing without copying means generating a new one from scratch. */
+function ResetPasswordResultDialog({
+  result,
+  onClose,
+}: {
+  result: { user: User; password: string } | null;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    setCopied(false);
+  }, [result]);
+
+  const handleCopy = async () => {
+    if (!result) return;
+    if (await copyToClipboard(result.password)) {
+      setCopied(true);
+    }
+  };
+
+  return (
+    <Dialog.Root open={!!result} onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-bg-secondary p-6 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+          <Dialog.Close className="absolute right-4 top-4 text-text-tertiary hover:text-text-primary transition-colors">
+            <X className="h-4 w-4" />
+          </Dialog.Close>
+
+          <Dialog.Title className="text-base font-semibold text-text-primary">
+            New password for {result?.user.name}
+          </Dialog.Title>
+          <Dialog.Description className="mt-1 text-sm text-text-secondary">
+            Shown once — copy it now and share it with {result?.user.email} directly.
+            This signs them out of any session they were already in.
+          </Dialog.Description>
+
+          <div className="mt-4 flex items-center gap-2">
+            <code className="flex-1 truncate rounded-md border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary">
+              {result?.password}
+            </code>
+            <Button type="button" variant="secondary" size="sm" onClick={handleCopy} className="gap-1">
+              {copied ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-status-success" /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5" /> Copy
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="mt-5 flex justify-end">
+            <Button type="button" size="sm" onClick={onClose}>
+              Done
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
 function userStatusBadge(status: UserStatus) {
   const map: Record<UserStatus, { label: string; className: string }> = {
     active: {
@@ -213,6 +281,25 @@ export default function AdminPage() {
   };
 
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
+
+  const [resettingId, setResettingId] = React.useState<string | null>(null);
+  const [resetResult, setResetResult] = React.useState<{ user: User; password: string } | null>(null);
+
+  const handleResetPassword = async (u: User) => {
+    setResettingId(u.id);
+    try {
+      const res = await api.post<{ temporary_password: string }>(
+        `/admin/users/${u.id}/reset-password`,
+      );
+      setResetResult({ user: u, password: res.temporary_password });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to reset password";
+      alert(message);
+    } finally {
+      setResettingId(null);
+    }
+  };
 
   const handleCopyInviteLink = async (u: User) => {
     if (!u.invite_token) return;
@@ -393,6 +480,17 @@ export default function AdminPage() {
                             )}
                           </Button>
                         )}
+                        {u.status !== "pending_invite" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            loading={resettingId === u.id}
+                            onClick={() => handleResetPassword(u)}
+                            className="gap-1"
+                          >
+                            <KeyRound className="h-3.5 w-3.5" /> Reset Password
+                          </Button>
+                        )}
                         {u.id !== user?.id && (
                           <Button
                             variant="ghost"
@@ -436,6 +534,8 @@ export default function AdminPage() {
         )}
       </section>
       )}
+
+      <ResetPasswordResultDialog result={resetResult} onClose={() => setResetResult(null)} />
     </div>
   );
 }
