@@ -125,7 +125,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
     <div className="animate-fade-in">
       {/* Invite card */}
       {invite && (
-        <div className="mb-8 rounded-lg border border-border bg-bg-secondary p-4">
+        <div className="panel-glass mb-8 rounded-lg p-4">
           <p className="text-xs text-text-tertiary uppercase tracking-wider mb-2">You&apos;ve been invited to</p>
           <p className="text-base font-semibold text-text-primary mb-1">{invite.org_name}</p>
           <p className="text-sm text-text-secondary">

@@ -58,6 +58,18 @@
   --input-glass-placeholder: rgba(255, 255, 255, 0.62);
   --input-glass-label: rgba(255, 255, 255, 0.85);
 
+  /* Generic translucent content panel nested inside a glass card (e.g. the
+     invite-accept screen's "You've been invited to" summary) — pixel-
+     matched to Transfer's own scoped Paper override, same glassFormTheme
+     file as the input tokens above. Distinct from --glass-bg/-border
+     (the outer card's own recipe): a lighter, more diagonal-gradient tint
+     meant to nest inside that darker backdrop rather than repeat it,
+     with its own blur so it reads as a second, independent glass surface
+     — Transfer's own Menu-inside-a-glass-card gets the identical
+     "blur nested in blur" treatment, not something to avoid here either. */
+  --panel-glass-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.12) 0%, rgba(18, 18, 18, 0.26) 60%, rgba(255, 255, 255, 0.05) 100%);
+  --panel-glass-border: rgba(255, 255, 255, 0.18);
+
   /* Status */
   --status-success: #34d399;
   --status-warning: #fbbf24;
@@ -135,6 +147,9 @@
   --input-glass-text: #000000;
   --input-glass-placeholder: rgba(0, 0, 0, 0.58);
   --input-glass-label: rgba(0, 0, 0, 0.75);
+
+  --panel-glass-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.3) 60%, rgba(255, 255, 255, 0.4) 100%);
+  --panel-glass-border: rgba(255, 255, 255, 0.5);
 
   --status-success: #16a34a;
   --status-warning: #ca8a04;
@@ -269,6 +284,23 @@
     background-color: var(--input-glass-bg-focus);
     border-color: var(--input-glass-border-focus);
     box-shadow: 0 0 0 2px var(--input-glass-ring);
+  }
+  /* Hover-only affordance for the class's other use — a bordered button
+     sitting in the glass card (e.g. "Use a different email"), not just
+     text fields. Harmless on a plain field too (a subtle pre-focus cue). */
+  .input-glass:hover:not(:focus) {
+    background-color: var(--input-glass-bg-focus);
+    border-color: var(--input-glass-border-focus);
+  }
+
+  /* Generic translucent content panel nested inside a glass card — see
+     --panel-glass-bg/-border's own comment for what this is and isn't
+     (not a form field; use .input-glass for those). */
+  .panel-glass {
+    background: var(--panel-glass-bg);
+    border: 1px solid var(--panel-glass-border);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
   }
 
   /* Text set directly over a photo rather than on a glass card: a halo

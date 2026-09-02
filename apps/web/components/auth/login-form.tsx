@@ -477,7 +477,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => { setStep('email'); setCode(['', '', '', '', '', '']); setCodeError('') }}
-            className="block w-full rounded-md border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:border-border-focus hover:text-text-primary"
+            className="input-glass block w-full rounded-md border px-4 py-2.5 text-sm font-medium transition-colors"
           >
             {t('code.useDifferentEmail')}
           </button>
