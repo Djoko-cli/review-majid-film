@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useBrandingStore } from '@/stores/branding-store'
 import { useResolvedTheme } from '@/hooks/use-resolved-theme'
 
@@ -9,6 +10,7 @@ export function AuthBrandingHeader() {
   const { orgName, loginLogoUrl, orgLogoLight, orgLogoDark, fetchBranding, loaded } =
     useBrandingStore()
   const theme = useResolvedTheme()
+  const t = useTranslations('auth')
 
   React.useEffect(() => {
     if (!loaded) fetchBranding()
@@ -35,6 +37,7 @@ export function AuthBrandingHeader() {
         <div className="mb-3 h-2 w-2 mx-auto rounded-full bg-accent" />
       )}
       <h1 className="text-xl font-semibold text-text-primary">{orgName}</h1>
+      <p className="mt-1.5 text-sm text-text-secondary">{t('tagline')}</p>
     </div>
   )
 }

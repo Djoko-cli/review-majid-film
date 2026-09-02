@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { AuthBrandingHeader } from "@/components/auth/auth-branding-header"
+import { AnimatedHeightCard } from "@/components/auth/animated-height-card"
 import { BrandPanel } from "@/components/auth/brand-panel"
 import { GlintBorder } from "@/components/auth/glint-border"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
@@ -37,14 +38,9 @@ export default function AuthLayout({
       <div className="relative w-full max-w-[440px]" style={{ borderRadius: CARD_RADIUS }}>
         <GlintBorder radius={CARD_RADIUS} />
         <div className="glass-panel relative rounded-glass p-8 animate-fade-in">
-          {children}
+          <AnimatedHeightCard>{children}</AnimatedHeightCard>
         </div>
       </div>
-
-      {/* Footer */}
-      <p className="relative mt-8 text-2xs text-text-tertiary">
-        Self-hosted media review &amp; approval
-      </p>
     </div>
   )
 }
