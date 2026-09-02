@@ -3,10 +3,12 @@ from sqlalchemy.orm import Session
 import uuid
 import secrets
 from datetime import datetime, timedelta, timezone
+from ..config import settings
 from ..database import get_db
 from ..schemas.auth import (
     LoginRequest, TokenResponse,
     RefreshRequest, UserResponse, InviteRequest,
+    AuthConfigResponse,
     SendMagicCodeRequest, SendMagicCodeResponse,
     VerifyMagicCodeRequest, SetPasswordRequest,
     AcceptInviteRequest, InviteInfoResponse,
@@ -48,6 +50,12 @@ def _generate_invite_token() -> str:
     return secrets.token_urlsafe(48)
 
 
+@router.get("/config", response_model=AuthConfigResponse)
+def get_auth_config():
+    """Public: which non-OAuth login methods this instance offers."""
+    return AuthConfigResponse(magic_link_enabled=settings.magic_link_enabled)
+
+
 @router.post("/send-magic-code", response_model=SendMagicCodeResponse, dependencies=[Depends(rate_limit("send_magic_code", 5, 600))])
 def send_magic_code(body: SendMagicCodeRequest, db: Session = Depends(get_db)):
     """
@@ -58,6 +66,9 @@ def send_magic_code(body: SendMagicCodeRequest, db: Session = Depends(get_db)):
     gets the same response as a known one, so this endpoint can't be used to
     enumerate registered emails.
     """
+    if not settings.magic_link_enabled:
+        raise HTTPException(status_code=403, detail="Magic-link sign-in is not available.")
+
     user = get_user_by_email(db, body.email)
 
     if not user:
@@ -90,6 +101,9 @@ def verify_magic_code(body: VerifyMagicCodeRequest, db: Session = Depends(get_db
     Verify magic code and return tokens.
     Returns needs_password=True if user hasn't set a password yet.
     """
+    if not settings.magic_link_enabled:
+        raise HTTPException(status_code=403, detail="Magic-link sign-in is not available.")
+
     user = get_user_by_email(db, body.email)
 
     # "No such user" and "deactivated" get the same generic failure as a wrong/expired code —

@@ -89,7 +89,18 @@ export function LoginForm() {
   const [classicPassword, setClassicPassword] = useState('')
   const [classicError, setClassicError] = useState('')
 
+  // Starts hidden: showing the link only once the backend has confirmed
+  // magic-link sign-in is actually on avoids offering a dead end.
+  const [magicLinkEnabled, setMagicLinkEnabled] = useState(false)
+
   const codeRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  useEffect(() => {
+    api
+      .get<{ magic_link_enabled: boolean }>('/auth/config')
+      .then((cfg) => setMagicLinkEnabled(cfg.magic_link_enabled))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (step === 'code') {
@@ -334,15 +345,17 @@ export function LoginForm() {
 
         <OAuthProviders />
 
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => { setStep('email'); setClassicError(''); setOauthError('') }}
-            className="text-base text-text-tertiary hover:text-text-secondary transition-colors"
-          >
-            Sign in with magic code instead
-          </button>
-        </div>
+        {magicLinkEnabled && (
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => { setStep('email'); setClassicError(''); setOauthError('') }}
+              className="text-base text-text-tertiary hover:text-text-secondary transition-colors"
+            >
+              Sign in with magic code instead
+            </button>
+          </div>
+        )}
       </div>
     )
   }

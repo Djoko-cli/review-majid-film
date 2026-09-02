@@ -79,6 +79,9 @@ class InviteRequest(BaseModel):
     name: str
 
 # Magic code flow
+class AuthConfigResponse(BaseModel):
+    magic_link_enabled: bool
+
 class SendMagicCodeRequest(BaseModel):
     email: EmailStr
 

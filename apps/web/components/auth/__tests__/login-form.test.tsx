@@ -11,7 +11,8 @@ const sendMagicCode = vi.fn()
 vi.mock('@/lib/api', () => ({
   api: {
     post: (...args: unknown[]) => sendMagicCode(...args),
-    get: () => Promise.resolve([]),
+    get: (url: string) =>
+      Promise.resolve(url === '/auth/config' ? { magic_link_enabled: true } : []),
   },
   ApiError: class ApiError extends Error {
     status: number
@@ -28,7 +29,7 @@ import { LoginForm } from '../login-form'
 /** Walk the email step and land on the code screen for `email`. */
 async function requestCodeFor(email: string) {
   const view = render(<LoginForm />)
-  fireEvent.click(screen.getByRole('button', { name: /sign in with magic code instead/i }))
+  fireEvent.click(await screen.findByRole('button', { name: /sign in with magic code instead/i }))
   fireEvent.change(screen.getByLabelText(/email/i), { target: { value: email } })
   fireEvent.click(screen.getByRole('button', { name: /send magic code/i }))
   await waitFor(() => expect(screen.getByText(/check your email/i)).toBeInTheDocument())

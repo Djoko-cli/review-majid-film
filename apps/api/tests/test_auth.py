@@ -113,6 +113,47 @@ def test_send_magic_code_existing_user_sends_code(client, mock_db):
     mock_send.assert_called_once()
 
 
+def test_send_magic_code_disabled_returns_403(client, mock_db, monkeypatch):
+    """POST /auth/send-magic-code — 403 when this instance has magic-link sign-in off."""
+    from apps.api.config import settings
+
+    monkeypatch.setattr(settings, "magic_link_enabled", False)
+    user = _mock_user("invited@example.com")
+    mock_db.first.return_value = user
+
+    with patch("apps.api.middleware.rate_limit.check_rate_limit", return_value=(True, 0)):
+        resp = client.post("/auth/send-magic-code", json={"email": "invited@example.com"})
+
+    assert resp.status_code == 403
+
+
+def test_verify_magic_code_disabled_returns_403(client, mock_db, monkeypatch):
+    """POST /auth/verify-magic-code — 403 when this instance has magic-link sign-in off,
+    even with an otherwise-correct code."""
+    from apps.api.config import settings
+
+    monkeypatch.setattr(settings, "magic_link_enabled", False)
+    user = _mock_user("verify@example.com")
+    mock_db.first.return_value = user
+
+    with patch("apps.api.middleware.rate_limit.check_rate_limit", return_value=(True, 0)), \
+         patch("apps.api.routers.auth.redis_verify_magic_code", return_value=(True, "")):
+        resp = client.post("/auth/verify-magic-code", json={"email": "verify@example.com", "code": "123456"})
+
+    assert resp.status_code == 403
+
+
+def test_auth_config_reflects_magic_link_setting(client, monkeypatch):
+    """GET /auth/config — the frontend's only way to know whether to offer the magic-code link."""
+    from apps.api.config import settings
+
+    monkeypatch.setattr(settings, "magic_link_enabled", False)
+    assert client.get("/auth/config").json() == {"magic_link_enabled": False}
+
+    monkeypatch.setattr(settings, "magic_link_enabled", True)
+    assert client.get("/auth/config").json() == {"magic_link_enabled": True}
+
+
 def test_register_endpoint_removed(client):
     """POST /auth/register — endpoint has been removed (was an unauthenticated, un-invite-gated
     account creation path; GHSA-9m78-fww2-p89h). 404, not 405: the route no longer exists."""

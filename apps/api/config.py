@@ -114,6 +114,13 @@ class Settings(BaseSettings):
     majidfilm_source_root: str | None = None
     brand_sync_enabled: bool = False
 
+    # Magic-code-by-email login. On by default (upstream freeframe's original
+    # behavior, passwordless). Set to false to require password (or OIDC)
+    # sign-in only — this is also the account's only self-service password
+    # recovery path, so disabling it removes that; an admin must reset a
+    # forgotten password directly (e.g. via the DB) until one is built.
+    magic_link_enabled: bool = True
+
     # OIDC login (Pocket ID, or any standards-compliant OpenID Connect
     # provider — this client is provider-agnostic, same as Transfer's own).
     # Off unless oidc_enabled is explicitly true. redirect_uri is the exact,
