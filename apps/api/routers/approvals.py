@@ -15,6 +15,7 @@ from ..services.permissions import require_asset_access, require_project_role
 from ..services import event_service
 from ..tasks.email_tasks import send_approval_email
 from ..tasks.celery_app import send_task_safe
+from ..services.i18n_service import resolve_recipient_locale
 from ..config import settings
 
 router = APIRouter(tags=["approvals"])
@@ -92,6 +93,7 @@ def approve_asset(
                 status="approved",
                 asset_link=asset_link,
                 note=body.note,
+                locale=resolve_recipient_locale(creator, db),
             )
     db.commit()
 
@@ -131,6 +133,7 @@ def reject_asset(
                 status="rejected",
                 asset_link=asset_link,
                 note=body.note,
+                locale=resolve_recipient_locale(creator, db),
             )
     db.commit()
 

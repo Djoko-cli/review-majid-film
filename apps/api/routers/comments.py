@@ -41,6 +41,7 @@ from ..services.permissions import (
 )
 from ..tasks.email_tasks import send_mention_email, send_comment_email
 from ..tasks.celery_app import send_task_safe
+from ..services.i18n_service import resolve_recipient_locale
 
 log = logging.getLogger(__name__)
 
@@ -315,6 +316,7 @@ def _create_mentions(db: Session, comment: Comment, asset: Asset, body: str, aut
             asset_name=asset.name,
             comment_preview=body[:200],
             asset_link=asset_link,
+            locale=resolve_recipient_locale(user, db),
         )
 
 

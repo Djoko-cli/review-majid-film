@@ -1,15 +1,15 @@
 {% extends "email/base.html" %}
 
 {% block content %}
-<h2>New Assignment</h2>
-<p><strong>{{ assigner_name }}</strong> has assigned you to review <strong>{{ asset_name }}</strong>.</p>
+<h2>{{ t('assignment.heading', locale) }}</h2>
+<p>{{ t('assignment.intro', locale, assigner_name=assigner_name, asset_name=asset_name) }}</p>
 {% if due_date %}
-<p><strong>Due date:</strong> {{ due_date }}</p>
+<p><strong>{{ t('assignment.due_label', locale) }}</strong> {{ due_date }}</p>
 {% endif %}
 {% if project_name %}
-<p><strong>Project:</strong> {{ project_name }}</p>
+<p><strong>{{ t('assignment.project_label', locale) }}</strong> {{ project_name }}</p>
 {% endif %}
 <p>
-    <a href="{{ asset_link }}" class="button">Review Asset</a>
+    <a href="{{ asset_link }}" class="button">{{ t('assignment.button', locale) }}</a>
 </p>
 {% endblock %}

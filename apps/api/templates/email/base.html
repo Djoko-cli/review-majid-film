@@ -96,9 +96,9 @@
             {% block content %}{% endblock %}
         </div>
         <div class="footer">
-            <p>© {{ year }} {{ org_name }}. All rights reserved.</p>
+            <p>{{ t('base.footer_rights', locale, year=year, org_name=org_name) }}</p>
             <p class="muted">
-                You're receiving this email because you have an account on {{ org_name }}.
+                {{ t('base.footer_reason', locale, org_name=org_name) }}
             </p>
         </div>
     </div>

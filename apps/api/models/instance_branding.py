@@ -22,5 +22,10 @@ class InstanceBranding(Base):
     login_logo_key: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     primary_color: Mapped[Optional[str]] = mapped_column(String(7), nullable=True)
     powered_by_freeframe: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    # NULL means "use the hardcoded 'fr' floor" (see middleware.ts's locale
+    # resolution order) — an unset instance behaves identically to today,
+    # no backfill needed. "fr" | "en", not enforced at the DB level (same
+    # looseness as the rest of this table's string columns).
+    default_locale: Mapped[Optional[str]] = mapped_column(String(5), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

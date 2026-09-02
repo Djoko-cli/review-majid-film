@@ -10,6 +10,7 @@ from ..middleware.auth import get_current_user
 from ..services.auth_service import hash_password, get_user_by_email
 from ..tasks.email_tasks import send_invite_email
 from ..tasks.celery_app import send_task_safe
+from ..services.i18n_service import resolve_recipient_locale
 from ..models.instance_branding import InstanceBranding
 from ..config import settings
 from ..services import s3_service
@@ -79,7 +80,8 @@ def invite_user(body: InviteRequest, db: Session = Depends(get_db), current_user
     invite_url = f"{settings.frontend_url}/invite/{invite_token}"
     branding = db.query(InstanceBranding).first()
     org_name = branding.org_name if branding else "FreeFrame"
-    send_task_safe(send_invite_email, user.email, current_user.name or "Admin", org_name, invite_url)
+    locale = resolve_recipient_locale(user, db)
+    send_task_safe(send_invite_email, user.email, current_user.name or "Admin", org_name, invite_url, locale=locale)
     
     return user
 

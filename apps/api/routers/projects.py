@@ -11,6 +11,7 @@ from ..models.asset import Asset, AssetVersion, MediaFile, ProcessingStatus
 from ..schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectMemberResponse, AddProjectMemberRequest, UpdateProjectMemberRequest
 from ..tasks.email_tasks import send_project_added_email
 from ..tasks.celery_app import send_task_safe
+from ..services.i18n_service import resolve_recipient_locale
 from ..services.s3_service import put_object, generate_presigned_get_url, delete_object
 from ..services.storage import project_storage_used_bytes
 from ..config import settings
@@ -219,6 +220,7 @@ def add_project_member(project_id: uuid.UUID, body: AddProjectMemberRequest, db:
             project_name=project.name,
             project_link=project_link,
             role=body.role.value if body.role else None,
+            locale=resolve_recipient_locale(added_user, db),
         )
 
     return member

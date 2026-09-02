@@ -7,6 +7,10 @@ const PUBLIC_ROUTES = ['/login', '/setup', '/oauth/complete']
 const PUBLIC_PREFIXES = ['/invite/', '/share/']
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// Caches InstanceBranding.default_locale, fetched alongside ff_setup_done
+// below (same /setup/status call, no extra round trip) — same 24h TTL, same
+// reasoning: this Edge middleware never queries the DB directly.
+const INSTANCE_LOCALE_COOKIE = 'ff_instance_locale'
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname)) return true
@@ -15,10 +19,7 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 /** First supported tag in an Accept-Language header, e.g. "fr-FR,fr;q=0.9,en;q=0.8"
- *  → "fr". No instance-default lookup here (would need a DB round-trip this
- *  Edge middleware deliberately avoids, same reasoning as the ff_setup_done
- *  cache below) — that step lands once /setup/status exposes a default_locale
- *  field to cache the same way. */
+ *  → "fr". */
 function localeFromAcceptLanguage(header: string | null): Locale | null {
   if (!header) return null
   for (const tag of header.split(',')) {
@@ -30,12 +31,26 @@ function localeFromAcceptLanguage(header: string | null): Locale | null {
 
 /** Sets ff_locale on `response` only if the incoming request didn't already
  *  have one — an explicit prior choice (switcher, or a previous visit's
- *  Accept-Language resolution) is never overwritten by this. */
-function attachLocale(request: NextRequest, response: NextResponse): NextResponse {
+ *  Accept-Language resolution) is never overwritten by this. Resolution
+ *  order: Accept-Language → the cached instance default (ff_instance_locale,
+ *  or `freshInstanceDefault` when this same request just fetched it — see
+ *  the /setup/status block below, which would otherwise only benefit the
+ *  *next* request, not this one, since a cookie set on the outgoing
+ *  response isn't visible on request.cookies until the browser sends it
+ *  back) → the hardcoded 'fr' floor. */
+function attachLocale(
+  request: NextRequest,
+  response: NextResponse,
+  freshInstanceDefault?: string | null,
+): NextResponse {
   const existing = request.cookies.get(LOCALE_COOKIE)?.value
   if (isSupportedLocale(existing)) return response
 
-  const locale = localeFromAcceptLanguage(request.headers.get('accept-language')) ?? DEFAULT_LOCALE
+  const instanceDefault = freshInstanceDefault ?? request.cookies.get(INSTANCE_LOCALE_COOKIE)?.value
+  const locale =
+    localeFromAcceptLanguage(request.headers.get('accept-language')) ??
+    (isSupportedLocale(instanceDefault) ? instanceDefault : null) ??
+    DEFAULT_LOCALE
   response.cookies.set(LOCALE_COOKIE, locale, { path: '/', maxAge: 60 * 60 * 24 * 365 })
   return response
 }
@@ -59,12 +74,19 @@ export async function middleware(request: NextRequest) {
       if (res.ok) {
         const data = await res.json()
         if (data.needs_setup) {
-          return attachLocale(request, NextResponse.redirect(new URL(withBasePath('/setup'), request.url)))
+          const response = NextResponse.redirect(new URL(withBasePath('/setup'), request.url))
+          if (isSupportedLocale(data.default_locale)) {
+            response.cookies.set(INSTANCE_LOCALE_COOKIE, data.default_locale, { path: '/', maxAge: 60 * 60 * 24 })
+          }
+          return attachLocale(request, response, data.default_locale)
         }
-        // Setup is done — set cookie so we don't check again
+        // Setup is done — set cookies so we don't check again
         const response = NextResponse.next()
         response.cookies.set('ff_setup_done', '1', { path: '/', maxAge: 60 * 60 * 24 }) // 24 hours
-        return attachLocale(request, response)
+        if (isSupportedLocale(data.default_locale)) {
+          response.cookies.set(INSTANCE_LOCALE_COOKIE, data.default_locale, { path: '/', maxAge: 60 * 60 * 24 })
+        }
+        return attachLocale(request, response, data.default_locale)
       }
     } catch {
       // API unreachable — let the request through, the page will show errors

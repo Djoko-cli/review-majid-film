@@ -1,10 +1,10 @@
 {% extends "email/base.html" %}
 
 {% block content %}
-<h2>New comment on {{ asset_name }}</h2>
-<p><strong>{{ commenter_name }}</strong> commented:</p>
+<h2>{{ t('comment.heading', locale, asset_name=asset_name) }}</h2>
+<p>{{ t('comment.intro', locale, commenter_name=commenter_name) }}</p>
 <div class="quote">{{ comment_preview }}</div>
 <p>
-    <a href="{{ asset_link }}" class="button">View Comment</a>
+    <a href="{{ asset_link }}" class="button">{{ t('comment.button', locale) }}</a>
 </p>
 {% endblock %}

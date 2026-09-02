@@ -1,13 +1,14 @@
 {% extends "email/base.html" %}
 
 {% block content %}
-<h2>{{ asset_name }} has been {{ status }}</h2>
-<p><strong>{{ reviewer_name }}</strong> has <strong>{{ status }}</strong> your asset.</p>
+{% set status_label = t('status.' ~ status, locale) %}
+<h2>{{ t('approval.heading', locale, asset_name=asset_name, status=status_label) }}</h2>
+<p>{{ t('approval.intro', locale, reviewer_name=reviewer_name, status=status_label) }}</p>
 {% if note %}
-<p><strong>Note:</strong></p>
+<p><strong>{{ t('approval.note_label', locale) }}</strong></p>
 <div class="quote">{{ note }}</div>
 {% endif %}
 <p>
-    <a href="{{ asset_link }}" class="button">View Asset</a>
+    <a href="{{ asset_link }}" class="button">{{ t('approval.button', locale) }}</a>
 </p>
 {% endblock %}

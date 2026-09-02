@@ -49,6 +49,7 @@ from .hls_proxy import create_hls_token
 from ..models.project import Project, ProjectRole
 from ..tasks.email_tasks import send_share_email
 from ..tasks.celery_app import send_task_safe
+from ..services.i18n_service import resolve_recipient_locale
 from ..config import settings
 
 router = APIRouter(tags=["sharing"])
@@ -626,6 +627,7 @@ def share_project_with_user(
             asset_name=project.name,
             asset_link=project_link,
             permission=body.permission.value if body.permission else None,
+            locale=resolve_recipient_locale(shared_user, db),
         )
 
     return DirectShareResponse(
@@ -716,6 +718,7 @@ def share_folder_with_user(
             asset_name=folder.name,
             asset_link=folder_link,
             permission=body.permission.value if body.permission else None,
+            locale=resolve_recipient_locale(shared_user, db),
         )
 
     return share
@@ -881,6 +884,7 @@ def share_with_user(
             asset_name=asset.name,
             asset_link=asset_link,
             permission=body.permission.value if body.permission else None,
+            locale=resolve_recipient_locale(shared_user, db),
         )
 
     return share

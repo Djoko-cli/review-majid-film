@@ -1,12 +1,12 @@
 {% extends "email/base.html" %}
 
 {% block content %}
-<h2>You've been added to a project</h2>
-<p><strong>{{ adder_name }}</strong> has added you to the project <strong>{{ project_name }}</strong>.</p>
+<h2>{{ t('project_added.heading', locale) }}</h2>
+<p>{{ t('project_added.intro', locale, adder_name=adder_name, project_name=project_name) }}</p>
 {% if role %}
-<p><strong>Your role:</strong> {{ role }}</p>
+<p><strong>{{ t('project_added.role_label', locale) }}</strong> {{ t('role.' ~ role, locale) }}</p>
 {% endif %}
 <p>
-    <a href="{{ project_link }}" class="button">View Project</a>
+    <a href="{{ project_link }}" class="button">{{ t('project_added.button', locale) }}</a>
 </p>
 {% endblock %}
