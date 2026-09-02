@@ -257,7 +257,7 @@ export function BrandPanel({ showCaption = true }: { showCaption?: boolean }) {
               {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
             </button>
           )}
-          <span className="text-sm text-white/80 [text-shadow:0_1px_2px_rgba(0,0,0,.95),0_1px_3px_rgba(0,0,0,.8),0_1px_12px_rgba(0,0,0,.5)]">
+          <span className="text-halo text-sm text-white/80">
             <a
               href={`https://majid.film/projects/${activeSlide.slug}/`}
               target="_blank"

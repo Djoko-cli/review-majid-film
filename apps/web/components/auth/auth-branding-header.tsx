@@ -36,8 +36,8 @@ export function AuthBrandingHeader() {
         // would misrepresent this instance's brand.
         <div className="mb-3 h-2 w-2 mx-auto rounded-full bg-accent" />
       )}
-      <h1 className="text-xl font-semibold text-text-primary">{orgName}</h1>
-      <p className="mt-1.5 text-sm text-text-secondary">{t('tagline')}</p>
+      <h1 className="text-halo text-xl font-semibold text-text-primary">{orgName}</h1>
+      <p className="text-halo mt-1.5 text-sm text-text-secondary">{t('tagline')}</p>
     </div>
   )
 }

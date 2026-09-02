@@ -218,9 +218,19 @@
   }
 
   /* Text set directly over a photo rather than on a glass card: a halo
-     instead of a background keeps it legible against whatever's behind it. */
+     instead of a background keeps it legible against whatever's behind it.
+     Three stacked shadows, not one — a single soft shadow reads fine over a
+     dark patch of photo but disappears over a light or busy one, which is
+     exactly the failure mode a *rotating* backdrop guarantees you'll hit
+     sooner or later. Tight+dark, medium, and a wide soft glow together hold
+     up across the full range this backdrop actually rotates through.
+     Originally proven on the brand credit caption (brand-panel.tsx); now
+     the one shared recipe for anything sitting directly on that photo. */
   .text-halo {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.95),
+      0 1px 3px rgba(0, 0, 0, 0.8),
+      0 1px 12px rgba(0, 0, 0, 0.5);
   }
 
   /* The glint ring: a specular highlight that sweeps the card's rounded
