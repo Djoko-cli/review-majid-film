@@ -27,6 +27,18 @@
   --accent-hover: rgb(255 143 41);
   --accent-muted: color-mix(in srgb, #ff7a00 18%, var(--bg-secondary));
 
+  /* A lighter derived shade (Mantine shade-4, Transfer's own dark-mode
+     pick) — not the flat --accent hex — for accent text that has to sit
+     directly on unpredictable photography: the brand-panel credit link,
+     specifically pixel-matched to Transfer's own BrandPanel.tsx (its
+     comment there: a paler tint was tried for contrast, reverted because
+     diluting the one consistent brand hue cost more than the contrast
+     gained — shade-4 is that same considered middle ground, not a
+     fresh choice made here). Also happens to be the exact color already
+     used for the glass-input focus border below; that field now
+     references this token instead of repeating the hex. */
+  --accent-light: #ffaa5c;
+
   /* Solid CTA fill (primary button) and its "light" counterpart (OAuth /
      secondary provider buttons) — pixel-matched to Transfer's actual
      rendered values, not the raw --accent hex: Transfer's Mantine theme
@@ -52,7 +64,7 @@
   --input-glass-bg: rgba(255, 255, 255, 0.07);
   --input-glass-bg-focus: rgba(255, 255, 255, 0.13);
   --input-glass-border: rgba(255, 255, 255, 0.16);
-  --input-glass-border-focus: #ffaa5c;
+  --input-glass-border-focus: var(--accent-light);
   --input-glass-ring: rgba(255, 170, 92, 0.2);
   --input-glass-text: #ffffff;
   --input-glass-placeholder: rgba(255, 255, 255, 0.62);
@@ -139,10 +151,18 @@
   --accent-tint-text: #a84800;
   --accent-tint-hover-bg: rgba(199, 95, 0, 0.18);
 
+  /* Light mode's own manual pick in Transfer's BrandPanel.tsx is shade-6 —
+     which happens to equal --accent-strong above in this palette, unlike
+     dark mode where shade-4 (the credit-link/focus-border color) and
+     shade-8 (the solid-fill color) differ. Kept as its own token rather
+     than aliased to --accent-strong, so the two stay independently
+     traceable to their own source even though they match today. */
+  --accent-light: #e66e00;
+
   --input-glass-bg: rgba(255, 255, 255, 0.4);
   --input-glass-bg-focus: rgba(255, 255, 255, 0.55);
   --input-glass-border: rgba(255, 255, 255, 0.6);
-  --input-glass-border-focus: #e66e00;
+  --input-glass-border-focus: var(--accent-light);
   --input-glass-ring: rgba(230, 110, 0, 0.18);
   --input-glass-text: #000000;
   --input-glass-placeholder: rgba(0, 0, 0, 0.58);

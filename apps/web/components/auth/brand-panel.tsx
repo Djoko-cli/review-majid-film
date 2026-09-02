@@ -262,7 +262,7 @@ export function BrandPanel({ showCaption = true }: { showCaption?: boolean }) {
               href={`https://majid.film/projects/${activeSlide.slug}/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto font-semibold text-accent"
+              className="pointer-events-auto font-semibold text-accent-light"
             >
               {activeSlide.title}
             </a>

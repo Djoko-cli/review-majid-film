@@ -35,6 +35,7 @@ const config: Config = {
           tint: 'var(--accent-tint-bg)',
           tintText: 'var(--accent-tint-text)',
           tintHover: 'var(--accent-tint-hover-bg)',
+          light: 'var(--accent-light)',
         },
         status: {
           success: 'var(--status-success)',
