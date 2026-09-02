@@ -450,9 +450,8 @@ export function LoginForm() {
                 onKeyDown={(e) => handleCodeKeyDown(i, e)}
                 onPaste={handleCodePaste}
                 className={cn(
-                  'h-12 w-full max-w-[48px] rounded-md border bg-[color:var(--input-glass-bg)] text-center text-lg font-semibold text-[color:var(--input-glass-text)]',
-                  'transition-colors focus:outline-none focus:border-[color:var(--input-glass-border-focus)] focus:ring-1 focus:ring-[color:var(--input-glass-border-focus)]',
-                  codeError ? 'border-status-error' : 'border-[color:var(--input-glass-border)]',
+                  'input-glass h-12 w-full max-w-[48px] rounded-md border text-center text-lg font-semibold transition-colors',
+                  codeError && 'border-status-error focus:border-status-error focus:ring-2 focus:ring-status-error/20',
                 )}
               />
             ))}

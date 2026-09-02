@@ -53,6 +53,7 @@
   --input-glass-bg-focus: rgba(255, 255, 255, 0.13);
   --input-glass-border: rgba(255, 255, 255, 0.16);
   --input-glass-border-focus: #ffaa5c;
+  --input-glass-ring: rgba(255, 170, 92, 0.2);
   --input-glass-text: #ffffff;
   --input-glass-placeholder: rgba(255, 255, 255, 0.62);
   --input-glass-label: rgba(255, 255, 255, 0.85);
@@ -130,6 +131,7 @@
   --input-glass-bg-focus: rgba(255, 255, 255, 0.55);
   --input-glass-border: rgba(255, 255, 255, 0.6);
   --input-glass-border-focus: #e66e00;
+  --input-glass-ring: rgba(230, 110, 0, 0.18);
   --input-glass-text: #000000;
   --input-glass-placeholder: rgba(0, 0, 0, 0.58);
   --input-glass-label: rgba(0, 0, 0, 0.75);
@@ -240,6 +242,33 @@
     box-shadow: var(--glass-shadow);
     backdrop-filter: blur(18px) saturate(160%);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
+  }
+
+  /* Auth-card field tint (Input's variant="onGlass", and the magic-code
+     digit boxes in login-form.tsx) — a plain class, not Tailwind's
+     ring-[color:var(...)]/20 arbitrary-value utilities: those don't
+     reliably survive tailwind-merge (it groups every "ring-*" utility
+     into one conflict bucket, so a width utility like ring-2 sitting next
+     to a color one like ring-[color:var(...)] can get silently dropped),
+     and combining an arbitrary CSS-var color with an opacity modifier
+     doesn't reliably generate valid Tailwind CSS in the first place. Both
+     shipped broken the first time — a focus ring that just didn't render,
+     leaving the browser's own default outline to flash in behind the
+     border-color transition. --input-glass-ring bakes its alpha directly
+     into the token instead, so this box-shadow needs no modifier at all. */
+  .input-glass {
+    background-color: var(--input-glass-bg);
+    border-color: var(--input-glass-border);
+    color: var(--input-glass-text);
+  }
+  .input-glass::placeholder {
+    color: var(--input-glass-placeholder);
+  }
+  .input-glass:focus {
+    outline: none;
+    background-color: var(--input-glass-bg-focus);
+    border-color: var(--input-glass-border-focus);
+    box-shadow: 0 0 0 2px var(--input-glass-ring);
   }
 
   /* Text set directly over a photo rather than on a glass card: a halo
