@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { AuthBrandingHeader } from "@/components/auth/auth-branding-header"
 import { BrandPanel } from "@/components/auth/brand-panel"
 import { GlintBorder } from "@/components/auth/glint-border"
+import { LanguageSwitcher } from "@/components/shared/language-switcher"
 
 export const metadata: Metadata = {
   title: "Review — Sign in",
@@ -16,6 +17,8 @@ export default function AuthLayout({
 }) {
   return (
     <div className="relative min-h-screen bg-bg-primary flex flex-col items-center justify-center px-4">
+      <LanguageSwitcher className="absolute right-4 top-4 z-10" />
+
       {/* Radial glow standing in as the backdrop until brand slide sync is
           configured — BrandPanel renders nothing when there's no synced
           photography yet (never a placeholder image), so this stays the

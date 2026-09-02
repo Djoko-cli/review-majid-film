@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, KeyboardEvent, ClipboardEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { api, ApiError } from '@/lib/api'
 import { setTokens } from '@/lib/auth'
 import { useAuthStore } from '@/stores/auth-store'
@@ -21,6 +22,7 @@ interface OAuthProvider {
  *  Transfer's own OAuth pattern: the backend owns the whole code exchange,
  *  the frontend only needs to know where /oauth/complete hands off tokens. */
 function OAuthProviders() {
+  const t = useTranslations('auth.loginForm')
   const [providers, setProviders] = useState<OAuthProvider[]>([])
 
   useEffect(() => {
@@ -33,7 +35,7 @@ function OAuthProviders() {
     <>
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-2xs text-text-tertiary">or</span>
+        <span className="text-2xs text-text-tertiary">{t('oauth.divider')}</span>
         <div className="h-px flex-1 bg-border" />
       </div>
       <div className="flex flex-col gap-2">
@@ -49,7 +51,7 @@ function OAuthProviders() {
               window.location.href = `${API_URL}/oauth/auth/${p.provider}`
             }}
           >
-            Sign in with {p.label}
+            {t('oauth.signInWith', { provider: p.label })}
           </Button>
         ))}
       </div>
@@ -59,20 +61,26 @@ function OAuthProviders() {
 
 type Step = 'email' | 'code' | 'password' | 'classic'
 
-const OAUTH_ERROR_MESSAGES: Record<string, string> = {
-  not_configured: 'Sign-in with that provider is not available.',
-  failed: "Sign-in didn't complete. Try again.",
-  no_email: "Your identity provider didn't share an email address.",
-  deactivated: 'This account has been deactivated.',
+/** oauth_error query-param reasons (set by /oauth/complete) → translation
+ *  key. Kept as a plain lookup table, not a t()-call map, since the message
+ *  catalog isn't available at module scope — resolved against `t` inside
+ *  the component instead. */
+const OAUTH_ERROR_KEYS: Record<string, string> = {
+  not_configured: 'oauthErrors.notConfigured',
+  failed: 'oauthErrors.failed',
+  no_email: 'oauthErrors.noEmail',
+  deactivated: 'oauthErrors.deactivated',
 }
 
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('auth.loginForm')
   const [step, setStep] = useState<Step>('classic')
   const [oauthError, setOauthError] = useState(() => {
     const reason = searchParams.get('oauth_error')
-    return reason ? OAUTH_ERROR_MESSAGES[reason] || "Sign-in didn't complete. Try again." : ''
+    if (!reason) return ''
+    return t(OAUTH_ERROR_KEYS[reason] ?? 'oauthErrors.failed')
   })
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -116,11 +124,11 @@ export function LoginForm() {
     setGeneralError('')
 
     if (!email) {
-      setEmailError('Email is required')
+      setEmailError(t('validation.emailRequired'))
       return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError('Enter a valid email address')
+      setEmailError(t('validation.emailInvalid'))
       return
     }
 
@@ -132,7 +140,7 @@ export function LoginForm() {
       if (err instanceof ApiError) {
         setGeneralError(err.detail)
       } else {
-        setGeneralError('Failed to send code. Please try again.')
+        setGeneralError(t('validation.sendCodeFailed'))
       }
     } finally {
       setLoading(false)
@@ -206,7 +214,7 @@ export function LoginForm() {
       if (err instanceof ApiError) {
         setCodeError(err.detail)
       } else {
-        setCodeError('Invalid or expired code. Please try again.')
+        setCodeError(t('validation.codeInvalid'))
       }
       setCode(['', '', '', '', '', ''])
       codeRefs.current[0]?.focus()
@@ -219,7 +227,7 @@ export function LoginForm() {
     e.preventDefault()
     const codeStr = code.join('')
     if (codeStr.length < 6) {
-      setCodeError('Enter the 6-digit code')
+      setCodeError(t('validation.codeIncomplete'))
       return
     }
     await submitCode(codeStr)
@@ -233,15 +241,15 @@ export function LoginForm() {
     setGeneralError('')
 
     if (!password) {
-      setPasswordError('Password is required')
+      setPasswordError(t('validation.passwordRequired'))
       return
     }
     if (password.length < 8) {
-      setPasswordError('Password must be at least 8 characters')
+      setPasswordError(t('validation.passwordTooShort'))
       return
     }
     if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match')
+      setPasswordError(t('validation.passwordMismatch'))
       return
     }
 
@@ -260,7 +268,7 @@ export function LoginForm() {
       if (err instanceof ApiError) {
         setGeneralError(err.detail)
       } else {
-        setGeneralError('Something went wrong. Please try again.')
+        setGeneralError(t('validation.setPasswordFailed'))
       }
     } finally {
       setLoading(false)
@@ -274,11 +282,11 @@ export function LoginForm() {
     setClassicError('')
 
     if (!classicEmail || !classicPassword) {
-      setClassicError('Email and password are required')
+      setClassicError(t('validation.classicRequired'))
       return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(classicEmail)) {
-      setClassicError('Enter a valid email address')
+      setClassicError(t('validation.emailInvalid'))
       return
     }
 
@@ -296,7 +304,7 @@ export function LoginForm() {
       if (err instanceof ApiError) {
         setClassicError(err.detail)
       } else {
-        setClassicError('Invalid email or password')
+        setClassicError(t('validation.classicInvalid'))
       }
     } finally {
       setLoading(false)
@@ -309,8 +317,8 @@ export function LoginForm() {
     return (
       <div className="animate-slide-up">
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-text-primary mb-1">Sign in</h1>
-          <p className="text-sm text-text-secondary">Enter your email and password to continue.</p>
+          <h1 className="text-xl font-semibold text-text-primary mb-1">{t('classic.title')}</h1>
+          <p className="text-sm text-text-secondary">{t('classic.subtitle')}</p>
         </div>
 
         <form onSubmit={handleClassicLogin} className="flex flex-col gap-4">
@@ -321,25 +329,25 @@ export function LoginForm() {
           )}
 
           <Input
-            label="Email address"
+            label={t('common.emailLabel')}
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('common.emailPlaceholder')}
             autoComplete="email"
             value={classicEmail}
             onChange={(e) => setClassicEmail(e.target.value)}
           />
 
           <Input
-            label="Password"
+            label={t('common.passwordLabel')}
             type="password"
-            placeholder="Your password"
+            placeholder={t('classic.passwordPlaceholder')}
             autoComplete="current-password"
             value={classicPassword}
             onChange={(e) => setClassicPassword(e.target.value)}
           />
 
           <Button type="submit" size="lg" loading={loading} className="mt-2 w-full">
-            Sign in
+            {t('classic.submit')}
           </Button>
         </form>
 
@@ -352,7 +360,7 @@ export function LoginForm() {
               onClick={() => { setStep('email'); setClassicError(''); setOauthError('') }}
               className="text-base text-text-tertiary hover:text-text-secondary transition-colors"
             >
-              Sign in with magic code instead
+              {t('classic.useMagicCode')}
             </button>
           </div>
         )}
@@ -364,9 +372,9 @@ export function LoginForm() {
     return (
       <div className="animate-slide-up">
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-text-primary mb-1">Create your password</h1>
+          <h1 className="text-xl font-semibold text-text-primary mb-1">{t('setPassword.title')}</h1>
           <p className="text-sm text-text-secondary">
-            Set a password to secure your account going forward.
+            {t('setPassword.subtitle')}
           </p>
         </div>
 
@@ -378,9 +386,9 @@ export function LoginForm() {
           )}
 
           <Input
-            label="Password"
+            label={t('common.passwordLabel')}
             type="password"
-            placeholder="Min. 8 characters"
+            placeholder={t('setPassword.passwordPlaceholder')}
             autoComplete="new-password"
             value={password}
             onChange={(e) => { setPassword(e.target.value); setPasswordError('') }}
@@ -388,16 +396,16 @@ export function LoginForm() {
           />
 
           <Input
-            label="Confirm password"
+            label={t('setPassword.confirmLabel')}
             type="password"
-            placeholder="Repeat password"
+            placeholder={t('setPassword.confirmPlaceholder')}
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
           <Button type="submit" size="lg" loading={loading} className="mt-2 w-full">
-            Set password &amp; continue
+            {t('setPassword.submit')}
           </Button>
         </form>
       </div>
@@ -408,7 +416,7 @@ export function LoginForm() {
     return (
       <div className="animate-slide-up">
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-text-primary mb-1">Check your email</h1>
+          <h1 className="text-xl font-semibold text-text-primary mb-1">{t('code.title')}</h1>
           {/* The API answers identically whether or not the address has an
               account, deliberately, so that this endpoint cannot be used to
               enumerate registered emails. Claiming "we sent a code" asserts
@@ -416,9 +424,10 @@ export function LoginForm() {
               simply untrue: the person then waits for mail that cannot
               arrive. Say only what the server guarantees. (#248) */}
           <p className="text-sm text-text-secondary">
-            If{' '}
-            <span className="text-text-primary font-medium">{email}</span>
-            {' '}has an account, a 6-digit code is on its way.
+            {t.rich('code.description', {
+              email,
+              styled: (chunks) => <span className="text-text-primary font-medium">{chunks}</span>,
+            })}
           </p>
         </div>
 
@@ -452,12 +461,12 @@ export function LoginForm() {
             // and it is the one thing the person can check without us telling
             // them whether the account exists.
             <p className="text-sm text-text-tertiary -mt-3">
-              Didn&apos;t get a code? Check the address for typos.
+              {t('code.noCodeHint')}
             </p>
           )}
 
           <Button type="submit" size="lg" loading={loading} className="w-full">
-            Verify code
+            {t('code.submit')}
           </Button>
         </form>
 
@@ -467,7 +476,7 @@ export function LoginForm() {
             onClick={() => { setStep('email'); setCode(['', '', '', '', '', '']); setCodeError('') }}
             className="block w-full rounded-md border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:border-border-focus hover:text-text-primary"
           >
-            Use a different email
+            {t('code.useDifferentEmail')}
           </button>
         </div>
       </div>
@@ -478,9 +487,9 @@ export function LoginForm() {
   return (
     <div className="animate-slide-up">
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary mb-1">Magic code sign-in</h1>
+        <h1 className="text-xl font-semibold text-text-primary mb-1">{t('magicCode.title')}</h1>
         <p className="text-sm text-text-secondary">
-          Enter your email and we&apos;ll send you a sign-in code.
+          {t('magicCode.subtitle')}
         </p>
       </div>
 
@@ -492,9 +501,9 @@ export function LoginForm() {
         )}
 
         <Input
-          label="Email address"
+          label={t('common.emailLabel')}
           type="email"
-          placeholder="you@example.com"
+          placeholder={t('common.emailPlaceholder')}
           autoComplete="email"
           value={email}
           onChange={(e) => { setEmail(e.target.value); setEmailError('') }}
@@ -502,7 +511,7 @@ export function LoginForm() {
         />
 
         <Button type="submit" size="lg" loading={loading} className="mt-2 w-full">
-          Send magic code
+          {t('magicCode.submit')}
         </Button>
       </form>
 
@@ -512,7 +521,7 @@ export function LoginForm() {
           onClick={() => { setStep('classic'); setGeneralError('') }}
           className="text-base text-text-tertiary hover:text-text-secondary transition-colors"
         >
-          Back to password sign-in
+          {t('magicCode.backToPassword')}
         </button>
       </div>
     </div>

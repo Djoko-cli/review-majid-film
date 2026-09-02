@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { withBasePath } from './lib/base-path'
+import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, SUPPORTED_LOCALES, isSupportedLocale } from './lib/locale'
 
 const PUBLIC_ROUTES = ['/login', '/setup', '/oauth/complete']
 const PUBLIC_PREFIXES = ['/invite/', '/share/']
@@ -13,12 +14,38 @@ function isPublicRoute(pathname: string): boolean {
   return false
 }
 
+/** First supported tag in an Accept-Language header, e.g. "fr-FR,fr;q=0.9,en;q=0.8"
+ *  → "fr". No instance-default lookup here (would need a DB round-trip this
+ *  Edge middleware deliberately avoids, same reasoning as the ff_setup_done
+ *  cache below) — that step lands once /setup/status exposes a default_locale
+ *  field to cache the same way. */
+function localeFromAcceptLanguage(header: string | null): Locale | null {
+  if (!header) return null
+  for (const tag of header.split(',')) {
+    const lang = tag.trim().split(';')[0].split('-')[0].toLowerCase()
+    if ((SUPPORTED_LOCALES as readonly string[]).includes(lang)) return lang as Locale
+  }
+  return null
+}
+
+/** Sets ff_locale on `response` only if the incoming request didn't already
+ *  have one — an explicit prior choice (switcher, or a previous visit's
+ *  Accept-Language resolution) is never overwritten by this. */
+function attachLocale(request: NextRequest, response: NextResponse): NextResponse {
+  const existing = request.cookies.get(LOCALE_COOKIE)?.value
+  if (isSupportedLocale(existing)) return response
+
+  const locale = localeFromAcceptLanguage(request.headers.get('accept-language')) ?? DEFAULT_LOCALE
+  response.cookies.set(LOCALE_COOKIE, locale, { path: '/', maxAge: 60 * 60 * 24 * 365 })
+  return response
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Always allow public routes
   if (isPublicRoute(pathname)) {
-    return NextResponse.next()
+    return attachLocale(request, NextResponse.next())
   }
 
   // Check if setup is needed — redirect to /setup if no superadmin exists
@@ -32,12 +59,12 @@ export async function middleware(request: NextRequest) {
       if (res.ok) {
         const data = await res.json()
         if (data.needs_setup) {
-          return NextResponse.redirect(new URL(withBasePath('/setup'), request.url))
+          return attachLocale(request, NextResponse.redirect(new URL(withBasePath('/setup'), request.url)))
         }
         // Setup is done — set cookie so we don't check again
         const response = NextResponse.next()
         response.cookies.set('ff_setup_done', '1', { path: '/', maxAge: 60 * 60 * 24 }) // 24 hours
-        return response
+        return attachLocale(request, response)
       }
     } catch {
       // API unreachable — let the request through, the page will show errors
@@ -51,10 +78,10 @@ export async function middleware(request: NextRequest) {
   if (!accessToken && !refreshToken) {
     const loginUrl = new URL(withBasePath('/login'), request.url)
     loginUrl.searchParams.set('from', pathname)
-    return NextResponse.redirect(loginUrl)
+    return attachLocale(request, NextResponse.redirect(loginUrl))
   }
 
-  return NextResponse.next()
+  return attachLocale(request, NextResponse.next())
 }
 
 export const config = {

@@ -1,4 +1,99 @@
 import '@testing-library/jest-dom/vitest'
+import React from 'react'
+import { vi } from 'vitest'
+
+// Every existing test asserts on rendered English text (e.g.
+// screen.getByText(/sign in/i)) written before i18n existed. Rather than
+// touch all of them or wrap every render() call in a provider, stub
+// next-intl globally so useTranslations()/useLocale()/useFormatter() resolve
+// against the English message catalog without needing NextIntlClientProvider
+// in the tree at all. Namespaces not yet translated (empty {} in
+// messages/en/*.json — see the i18n rollout plan) fall back to the key
+// itself, same as next-intl's own missing-message behavior.
+vi.mock('next-intl', async () => {
+  const namespaces = [
+    'dashboard', 'projects', 'review', 'share', 'layout',
+    'auth', 'settings', 'shared', 'ui', 'upload', 'errors',
+  ] as const
+  const catalogs: Record<string, unknown> = {}
+  for (const ns of namespaces) {
+    catalogs[ns] = (await import(`../messages/en/${ns}.json`)).default
+  }
+
+  function resolveMessage(namespace: string | undefined, key: string): string | undefined {
+    const full = namespace ? `${namespace}.${key}` : key
+    const parts = full.split('.')
+    let node: unknown = catalogs
+    for (const part of parts) {
+      if (typeof node !== 'object' || node === null) return undefined
+      node = (node as Record<string, unknown>)[part]
+    }
+    return typeof node === 'string' ? node : undefined
+  }
+
+  function interpolate(template: string, values: Record<string, unknown> = {}): string {
+    return template.replace(/\{(\w+)\}/g, (_match, name) =>
+      name in values ? String(values[name]) : `{${name}}`,
+    )
+  }
+
+  /** Handles at most one level of <tag>...</tag> markup — the only shape
+   *  t.rich() is used for in this codebase today. */
+  function richInterpolate(template: string, values: Record<string, unknown>): React.ReactNode {
+    const tagRegex = /<(\w+)>(.*?)<\/\1>/g
+    const nodes: React.ReactNode[] = []
+    let lastIndex = 0
+    let match: RegExpExecArray | null
+    let key = 0
+    while ((match = tagRegex.exec(template))) {
+      if (match.index > lastIndex) nodes.push(interpolate(template.slice(lastIndex, match.index), values))
+      const [, tagName, inner] = match
+      const renderFn = values[tagName]
+      const innerText = interpolate(inner, values)
+      nodes.push(
+        typeof renderFn === 'function'
+          ? React.createElement(React.Fragment, { key: key++ }, renderFn(innerText))
+          : innerText,
+      )
+      lastIndex = tagRegex.lastIndex
+    }
+    nodes.push(interpolate(template.slice(lastIndex), values))
+    return nodes
+  }
+
+  function useTranslations(namespace?: string) {
+    const t = (key: string, values?: Record<string, unknown>) => {
+      const message = resolveMessage(namespace, key)
+      return message === undefined ? key : interpolate(message, values)
+    }
+    t.rich = (key: string, values: Record<string, unknown>) => {
+      const message = resolveMessage(namespace, key)
+      return message === undefined ? key : richInterpolate(message, values)
+    }
+    return t
+  }
+
+  function useLocale() {
+    return 'en'
+  }
+
+  function useFormatter() {
+    return {
+      dateTime: (value: Date | number, _opts?: Intl.DateTimeFormatOptions) =>
+        new Intl.DateTimeFormat('en').format(value),
+      number: (value: number, _opts?: Intl.NumberFormatOptions) =>
+        new Intl.NumberFormat('en').format(value),
+      relativeTime: (_value: Date | number) => new Intl.RelativeTimeFormat('en').format(0, 'second'),
+    }
+  }
+
+  return {
+    useTranslations,
+    useLocale,
+    useFormatter,
+    NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => children,
+  }
+})
 
 type ChangeListener = (event: { matches: boolean; media: string }) => void
 

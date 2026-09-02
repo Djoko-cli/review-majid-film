@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { ToastProvider } from "@/components/shared/toast";
 import { BrandingHead } from "@/components/shared/branding-head";
 import "./globals.css";
@@ -23,13 +25,16 @@ export const viewport: Viewport = {
   themeColor: "#050505",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <BrandingHead />
       </head>
@@ -56,7 +61,9 @@ export default function RootLayout({
           with the finish review, the verdict, DESIGN.md, and every shipping
           raster carrying its provenance.
         */}
-        <ToastProvider>{children}</ToastProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ToastProvider>{children}</ToastProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
