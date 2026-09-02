@@ -88,7 +88,7 @@ The palette is almost entirely achromatic — a five-step near-black ramp — wi
 ### Named Rules
 **The One Signal Rule.** Ember Signal is the only saturated color anywhere in the interface. Status colors (success/warning/error/info) exist but are used exclusively for their literal semantic meaning — never as a second decorative accent.
 
-**The Text-Inverse Rule.** Text on an Ember Signal surface is near-black (#1a1005), never white. White-on-orange measures roughly 2.5:1; near-black-on-orange measures roughly 8:1. Contrast wins over the reflex to put light text on a colored button.
+**The Text-Inverse Rule.** `--text-inverse` (near-black, #1a1005) is for text sitting directly on the flat `--accent` hex (#ff7a00) — badges, active nav/toggle states, small chips — where its ~8:1 contrast beats white's ~2.5:1. It does **not** apply to a solid CTA fill: pixel-matched against Transfer's own live buttons (2026-09-02), a primary button's actual fill is a darker derived shade (`--accent-strong`, #a85100 — Mantine's dark-mode `primaryShade` index applied to the same accent hex, not the flat hex itself) with white text, which is what "Ember Signal fill" below now means for buttons specifically.
 
 ## Typography
 
@@ -119,7 +119,7 @@ Hybrid, by design: **flat base, floating glass**. The page ground and simple non
 - **Glass shadow** (`box-shadow: 0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25)`): every glass surface, no exceptions. The inset highlight is what reads as "glass edge" rather than "dark card with a shadow."
 
 ### Named Rules
-**The Chrome-Not-Content Rule.** Glass is reserved for app chrome — navigation, floating bars, menus, dialogs, and the auth card. It is never applied to buttons, badges, or arbitrary content containers; doing so would make it decoration instead of a structural signal for "this floats above the page."
+**The Chrome-Not-Content Rule.** Glass is reserved for app chrome — navigation, floating bars, menus, dialogs, and the auth card. It is never applied to buttons, badges, or arbitrary content containers; doing so would make it decoration instead of a structural signal for "this floats above the page." One narrow, deliberate exception: the language switcher (`components/shared/language-switcher.tsx`), which sits persistently over the auth screen's photo backdrop — a flat pill read poorly against a busy image, where every other floating element already gets glass specifically to stay legible over whatever is behind it. Still not a general license to glass other small controls; this one earns it because it's genuinely floating chrome over unpredictable content, not a form control or a content-area badge.
 
 ## Shapes
 
@@ -132,7 +132,8 @@ Two radius scales, used for different things. The standard scale (4/6/8/12px, na
 
 ### Buttons
 - **Shape:** 6px radius (`md`), 8px (`sm`) for compact contexts — never glass, never blurred.
-- **Primary:** Ember Signal fill, near-black text (#1a1005), soft accent-tinted shadow (`shadow-accent/20`).
+- **Primary:** solid fill in `--accent-strong` (#a85100, a darker derived shade of Ember Signal — see the Text-Inverse Rule), white text, soft accent-tinted shadow (`shadow-accent/20`).
+- **Tinted** (OAuth / provider sign-in buttons): `--accent-tint-bg`, a ~20%-opacity wash of the same `--accent-strong` shade, with `--accent-tint-text` (a pale peach, #ffd4ad) — reads as "accent-flavored" without competing with the primary button's solid fill. Pixel-matched to Transfer's own OAuth buttons the same way Primary was.
 - **Hover / Focus:** background shifts to the lightened hover shade; focus-visible gets a 2px accent ring at 50% opacity with a 1px offset.
 - **Secondary / Ghost / Destructive:** flat panel fill with a border / transparent with hover fill / status-error fill — none of them glass.
 

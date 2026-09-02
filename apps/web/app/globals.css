@@ -27,6 +27,19 @@
   --accent-hover: rgb(255 143 41);
   --accent-muted: color-mix(in srgb, #ff7a00 18%, var(--bg-secondary));
 
+  /* Solid CTA fill (primary button) and its "light" counterpart (OAuth /
+     secondary provider buttons) — pixel-matched to Transfer's actual
+     rendered values, not the raw --accent hex: Transfer's Mantine theme
+     resolves its primaryColor through Mantine's own dark-mode shade index
+     (8 for a solid fill, with white text; a 20%-alpha tint of that same
+     shade-8 color for the "light" buttons), not the flat brand hex. Values
+     below are that shade-8/-9 derivation, computed once and pinned here. */
+  --accent-strong: #a85100;
+  --accent-strong-hover: #8a4200;
+  --accent-tint-bg: rgba(168, 81, 0, 0.2);
+  --accent-tint-text: #ffd4ad;
+  --accent-tint-hover-bg: rgba(199, 95, 0, 0.25);
+
   /* Status */
   --status-success: #34d399;
   --status-warning: #fbbf24;
@@ -86,6 +99,15 @@
   --accent: #ff7a00;
   --accent-hover: rgb(224 108 0);
   --accent-muted: color-mix(in srgb, #ff7a00 12%, var(--bg-secondary));
+
+  /* Light-mode equivalents of the shade-8/-9 pair above — used only by
+     share links, which are the one place this app's chrome still renders
+     light (see the --text-inverse comment above). */
+  --accent-strong: #e66e00;
+  --accent-strong-hover: #c75f00;
+  --accent-tint-bg: rgba(230, 110, 0, 0.12);
+  --accent-tint-text: #a84800;
+  --accent-tint-hover-bg: rgba(199, 95, 0, 0.18);
 
   --status-success: #16a34a;
   --status-warning: #ca8a04;

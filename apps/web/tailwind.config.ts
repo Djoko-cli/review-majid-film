@@ -30,6 +30,11 @@ const config: Config = {
           DEFAULT: 'var(--accent)',
           hover: 'var(--accent-hover)',
           muted: 'var(--accent-muted)',
+          strong: 'var(--accent-strong)',
+          strongHover: 'var(--accent-strong-hover)',
+          tint: 'var(--accent-tint-bg)',
+          tintText: 'var(--accent-tint-text)',
+          tintHover: 'var(--accent-tint-hover-bg)',
         },
         status: {
           success: 'var(--status-success)',

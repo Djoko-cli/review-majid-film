@@ -43,7 +43,7 @@ function OAuthProviders() {
           <Button
             key={p.provider}
             type="button"
-            variant="secondary"
+            variant="tinted"
             size="lg"
             className="w-full"
             onClick={() => {
