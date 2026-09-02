@@ -121,8 +121,8 @@ export function KeyboardShortcuts({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-fade-in" />
         <Dialog.Content
           className={cn(
-            'fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2',
-            'rounded-2xl border border-border bg-bg-elevated shadow-2xl',
+            'glass-panel fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2',
+            'rounded-xl',
             'data-[state=open]:animate-slide-down',
             'max-h-[80vh] flex flex-col',
           )}

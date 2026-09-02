@@ -211,7 +211,7 @@ function ShareInviteInput({ token, shareLink }: { token: string; shareLink: { as
         className="flex h-9 w-full rounded-md border border-border bg-bg-secondary px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
       />
       {showDrop && (
-        <div className="absolute z-[100] left-0 right-0 mt-1 rounded-lg border border-border bg-bg-secondary shadow-xl overflow-hidden">
+        <div className="glass-panel absolute z-[100] left-0 right-0 mt-1 rounded-lg overflow-hidden">
           {suggestions.map((u) => (
             <button
               key={u.id}
@@ -1149,8 +1149,8 @@ export function ShareCreateDialog({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content
           className={cn(
-            'fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2',
-            'rounded-xl border border-border bg-bg-secondary shadow-xl',
+            'glass-panel fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2',
+            'rounded-xl',
             'max-h-[90vh] flex flex-col',
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',

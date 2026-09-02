@@ -932,7 +932,7 @@ export function FolderShareViewer({
                 {viewerName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
               </button>
               {/* Dropdown */}
-              <div className="hidden group-hover:block absolute left-0 top-full mt-1 z-50 w-56 rounded-lg border border-border bg-bg-elevated shadow-xl py-1">
+              <div className="glass-panel hidden group-hover:block absolute left-0 top-full mt-1 z-50 w-56 rounded-lg py-1">
                 <div className="px-3 py-2 border-b border-border">
                   <p className="text-sm font-medium text-text-primary">{viewerName}</p>
                 </div>

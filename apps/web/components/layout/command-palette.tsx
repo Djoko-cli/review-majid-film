@@ -186,7 +186,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         <Dialog.Content className="fixed left-1/2 top-[20%] z-50 w-full max-w-lg -translate-x-1/2 -translate-y-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:duration-200">
           <Dialog.Title className="sr-only">Command Palette</Dialog.Title>
           <Command
-            className="overflow-hidden rounded-xl border border-border bg-bg-elevated shadow-2xl"
+            className="glass-panel overflow-hidden rounded-xl"
             loop
             shouldFilter={true}
           >

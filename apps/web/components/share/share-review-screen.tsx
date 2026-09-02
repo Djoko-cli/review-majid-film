@@ -277,7 +277,7 @@ function GuestIdentityPrompt({ onSave, onCancel }: { onSave: (name: string, emai
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-xl border border-border bg-bg-secondary p-5 shadow-xl">
+      <div className="glass-panel w-full max-w-sm rounded-xl p-5">
         <h3 className="text-sm font-semibold text-text-primary mb-1">Leave a comment</h3>
         <p className="text-xs text-text-tertiary mb-4">Enter your name and email to comment on this shared asset.</p>
         <div className="space-y-3">

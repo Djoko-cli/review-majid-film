@@ -150,7 +150,7 @@ function Dropdown({
     <div
       ref={ref}
       className={cn(
-        "absolute top-full mt-1 z-50 rounded-xl border border-border bg-bg-elevated shadow-2xl py-1.5 animate-in fade-in zoom-in-95 duration-100",
+        "glass-panel absolute top-full mt-1 z-50 rounded-lg py-1.5 animate-in fade-in zoom-in-95 duration-100",
         align === "right" ? "right-0" : "left-0",
         className,
       )}
@@ -312,7 +312,7 @@ function InlineReplyInput({
               <Smile className="h-4 w-4" />
             </button>
             {emojiOpen && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 rounded-lg border border-border bg-bg-elevated shadow-2xl p-1.5 animate-in fade-in zoom-in-95 duration-100 w-[200px]">
+              <div className="glass-panel absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 rounded-lg p-1.5 animate-in fade-in zoom-in-95 duration-100 w-[200px]">
                 <div className="grid grid-cols-8 gap-px">
                   {REPLY_EMOJIS.map((e) => (
                     <button
@@ -640,7 +640,7 @@ function CommentItem({
                   <Smile className="h-4 w-4" />
                 </button>
                 {showEmojiPicker && (
-                  <div className="absolute bottom-full right-0 mb-1 z-50 flex gap-0.5 rounded-xl border border-border bg-bg-elevated p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100">
+                  <div className="glass-panel absolute bottom-full right-0 mb-1 z-50 flex gap-0.5 rounded-lg p-1.5 animate-in fade-in zoom-in-95 duration-100">
                     {QUICK_EMOJIS.map((e) => (
                       <button
                         key={e}

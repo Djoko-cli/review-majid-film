@@ -129,8 +129,8 @@ export function ShareDialog({
         {dropdownOpen && (
           <div
             className={cn(
-              "absolute right-0 top-full mt-1.5 z-50 w-80",
-              "rounded-xl border border-border bg-bg-elevated shadow-xl",
+              "glass-panel absolute right-0 top-full mt-1.5 z-50 w-80",
+              "rounded-lg",
               "animate-in fade-in-0 zoom-in-95 duration-150",
             )}
           >

@@ -460,7 +460,7 @@ export function AssetGrid({
                       <DropdownMenu.Content
                         align="end"
                         sideOffset={4}
-                        className="z-[100] min-w-[160px] rounded-xl border border-border bg-bg-elevated shadow-2xl py-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+                        className="glass-panel z-[100] min-w-[160px] rounded-lg py-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {onFolderShare && (
@@ -583,7 +583,7 @@ export function AssetGrid({
                       <DropdownMenu.Content
                         align="end"
                         sideOffset={4}
-                        className="z-[100] min-w-[200px] rounded-xl border border-border bg-bg-elevated shadow-2xl py-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+                        className="glass-panel z-[100] min-w-[200px] rounded-lg py-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <DropdownMenu.Item
@@ -638,7 +638,7 @@ export function AssetGrid({
 
       {/* Bottom selection action bar (Frame.io style) */}
       {!shareMode && totalSelected > 0 && (
-        <div className="sticky bottom-0 z-20 flex items-center gap-3 rounded-lg border border-border bg-bg-elevated px-4 py-2.5 shadow-xl">
+        <div className="glass-panel sticky bottom-0 z-20 flex items-center gap-3 rounded-lg px-4 py-2.5">
           <button onClick={clearSelection} className="text-text-tertiary hover:text-text-primary transition-colors">
             <X className="h-4 w-4" />
           </button>

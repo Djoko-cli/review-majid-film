@@ -120,7 +120,7 @@ export function ProjectCard({
 
             <DropdownMenu.Portal>
               <DropdownMenu.Content
-                className="z-50 min-w-[180px] rounded-xl border border-border bg-bg-secondary p-1 shadow-xl"
+                className="glass-panel z-50 min-w-[180px] rounded-lg p-1"
                 sideOffset={4}
                 align="end"
               >

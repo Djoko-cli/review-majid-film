@@ -52,7 +52,7 @@ export function CompareVersionSelect({ versions, value, onChange, accentClass, e
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 top-full z-[100] mt-1 min-w-[140px] rounded-lg border border-border bg-bg-elevated p-1 shadow-xl"
+          className="glass-panel absolute left-0 top-full z-[100] mt-1 min-w-[140px] rounded-lg p-1"
         >
           {sorted.map((v) => {
             const status = versionStatusConfig[v.processing_status]

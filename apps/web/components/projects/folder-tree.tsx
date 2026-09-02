@@ -167,7 +167,7 @@ function FolderNode({
 
       {/* Context menu */}
       {menuOpen && (
-        <div className="ml-8 mt-0.5 mb-1 rounded-lg border border-border bg-bg-elevated shadow-xl py-1 z-50 w-44">
+        <div className="glass-panel ml-8 mt-0.5 mb-1 rounded-lg py-1 z-50 w-44">
           <button
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-text-secondary hover:bg-bg-hover hover:text-text-primary"
             onClick={() => {

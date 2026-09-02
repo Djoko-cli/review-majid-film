@@ -113,7 +113,7 @@ function CustomFieldInput({
           <ChevronDown className="h-3.5 w-3.5 text-text-tertiary shrink-0" />
         </Select.Trigger>
         <Select.Portal>
-          <Select.Content className="z-50 min-w-[160px] overflow-hidden rounded-md border border-border bg-bg-secondary shadow-xl">
+          <Select.Content className="glass-panel z-50 min-w-[160px] overflow-hidden rounded-lg">
             <Select.Viewport className="p-1">
               {opts.map((opt) => (
                 <Select.Item

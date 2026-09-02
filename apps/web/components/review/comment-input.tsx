@@ -482,7 +482,7 @@ export function CommentInput({
 
           {/* Mention dropdown */}
           {mentionQuery !== null && (
-            <div className="absolute bottom-full left-0 right-0 mb-1 z-50 rounded-lg border border-border bg-bg-elevated shadow-xl max-h-48 overflow-y-auto">
+            <div className="glass-panel absolute bottom-full left-0 right-0 mb-1 z-50 rounded-lg max-h-48 overflow-y-auto">
               <MentionDropdown
                 query={mentionQuery}
                 projectId={projectId}
@@ -611,7 +611,7 @@ export function CommentInput({
                   <Smile className="h-4 w-4" />
                 </button>
                 {emojiOpen && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 rounded-lg border border-border bg-bg-elevated shadow-2xl p-1.5 animate-in fade-in zoom-in-95 duration-100 w-[200px]">
+                  <div className="glass-panel absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 rounded-lg p-1.5 animate-in fade-in zoom-in-95 duration-100 w-[200px]">
                     <div className="grid grid-cols-8 gap-px">
                       {EMOJIS.map((e) => (
                         <button
@@ -653,7 +653,7 @@ export function CommentInput({
                   <ChevronDown className="h-3 w-3" />
                 </button>
                 {visDropdownOpen && (
-                  <div className="absolute bottom-full right-0 mb-1 z-50 w-44 rounded-xl border border-border bg-bg-elevated shadow-2xl py-1.5 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="glass-panel absolute bottom-full right-0 mb-1 z-50 w-44 rounded-lg py-1.5 animate-in fade-in zoom-in-95 duration-100">
                     <button
                       className={cn(
                         "flex w-full items-center gap-2.5 px-3 py-2 text-[13px] transition-colors",

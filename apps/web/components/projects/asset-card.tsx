@@ -176,7 +176,7 @@ export function AssetCard({
                 <DropdownMenu.Content
                   align="end"
                   sideOffset={4}
-                  className="z-[100] min-w-[200px] rounded-xl border border-border bg-bg-elevated shadow-2xl py-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+                  className="glass-panel z-[100] min-w-[200px] rounded-lg py-1.5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <DropdownMenu.Item

@@ -147,7 +147,7 @@ export function AppearancePopover() {
           side="bottom"
           align="start"
           sideOffset={6}
-          className="z-50 w-72 rounded-xl border border-white/10 bg-[#1a1a1f] shadow-2xl p-4 space-y-4
+          className="glass-panel z-50 w-72 rounded-lg p-4 space-y-4
             data-[state=open]:animate-in data-[state=closed]:animate-out
             data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
             data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
