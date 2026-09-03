@@ -1,16 +1,123 @@
 # Changelog
 
-All notable changes to FreeFrame are documented in this file.
+All notable changes to Review are documented in this file. Review is a fork of
+[freeframe](https://github.com/Techiebutler/freeframe) (MIT); the version
+history below starts from `1.12.0`, the point at which it diverged.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed
-- **A share link to a single asset now opens the same review screen as one inside a folder** — the two paths rendered entirely different component trees, so sharing an asset on its own gave a plain video element and a bare comment box, while sharing the same asset inside a folder gave the real review stack. The single-asset path now renders that stack too, which brings it timecode-attached comments, annotation and mention controls, and a version switcher with version-scoped streams and comments. (#117, #123)
+## [2.0.0] - 2026-09-03
 
-  Two consequences worth knowing. Guests who had identified themselves on a single-asset link will be asked once more, because the two paths stored that identity under different keys and the shared one wins. And the single-asset page no longer shows the instance's logo and share name above the player, since the folder path's asset view never did; making both show branding is tracked separately.
+The first release under Review's own identity — a rebrand, a redesign, a real
+auth system, full French/English support, and a database-backed admin console
+for everything that used to require editing `.env` and restarting a
+container. Versioned `2.0.0` rather than continuing freeframe's own `1.x`
+line: from here, this project's releases are its own, independent of
+upstream's.
+
+### Added
+
+- **Rebrand and "liquid glass" redesign.** New name, new logo (a real mark now,
+  not a placeholder — see Fixed), and a full visual pass across every surface:
+  near-black ground with a single warm accent color, frosted-glass chrome
+  (sidebar, top bar, menus, dialogs, the auth card) floating over a flat base,
+  a signature glint-ring animation and rotating brand-photo backdrop on the
+  auth/setup screen synced from real production stills. Documented in
+  `apps/web/DESIGN.md`. Dark mode only inside the app; public share links keep
+  their own independent light/dark choice for external viewers.
+- **Password authentication, alongside OIDC.** Login now defaults to a real
+  password (backed by a real user table), rather than magic-code-by-email
+  only. OIDC (authorization code + PKCE, JWKS-verified ID tokens) is built and
+  provider-agnostic, tested end-to-end against a mock identity provider and
+  ready to point at any standards-compliant IdP (built for a self-hosted
+  Pocket ID instance). An admin can generate a one-time temporary password for
+  any user from the Users tab, invalidating their existing session.
+- **Full French/English internationalization.** Every user-facing surface —
+  the authenticated app, the public share-link pages, and all transactional
+  emails — is translated, with a persistent language switcher. ~1,600 UI
+  strings across ~90 files, and all ~190 backend error responses now carry a
+  stable machine-readable code (translated on the frontend) instead of a
+  fixed English string.
+- **A generic, database-backed instance-configuration console**
+  (Settings → Admin → Config), covering authentication, OIDC, email (SMTP/SES),
+  upload & retention limits, and transcoder tuning — roughly 30 settings that
+  previously required editing `.env` and restarting a container. Changes are
+  stored as a DB-only override on top of the existing `.env` defaults, applied
+  live to the running API and worker processes with no restart. Secrets (OIDC
+  client secret, SMTP/SES credentials) are encrypted at rest.
+- **Auto-generated project thumbnails.** A project card now falls back to the
+  most recently added asset's own thumbnail when no poster has been set
+  manually, instead of a plain color gradient.
+- **Drag-and-drop onto an empty project.** The "No media" empty state is now a
+  real dropzone, feeding the same review-before-upload flow as the Upload
+  button.
+
+### Changed
+
+- **A share link to a single asset now opens the same review screen as one
+  inside a folder** — the two paths rendered entirely different component
+  trees, so sharing an asset on its own gave a plain video element and a bare
+  comment box, while sharing the same asset inside a folder gave the real
+  review stack. The single-asset path now renders that stack too, which
+  brings it timecode-attached comments, annotation and mention controls, and
+  a version switcher with version-scoped streams and comments.
+
+  Two consequences worth knowing. Guests who had identified themselves on a
+  single-asset link will be asked once more, because the two paths stored
+  that identity under different keys and the shared one wins. And the
+  single-asset page no longer shows the instance's logo and share name above
+  the player, since the folder path's asset view never did; making both show
+  branding is tracked separately.
+- **Avatar colors are now consistent everywhere.** Five independent
+  implementations of the same name→color hash, each with its own palette (and
+  one with a different algorithm entirely), meant the same person could show
+  up in four different colors depending on which screen you were looking at
+  (Settings, comments, activity feed, compare timeline). Centralized into one
+  shared module.
+- **Transcoding is CPU-only by default on this deployment.** Hardware
+  acceleration auto-detects and falls back to software encoding when no GPU
+  is present, but the pipeline, output codec, and worker concurrency are now
+  explicitly pinned to CPU-friendly defaults rather than left on "auto."
+
+### Fixed
+
+- **The production Docker build was broken.** `apps/web`'s standalone
+  lockfile had drifted from `package.json` since internationalization work
+  began, so `pnpm install --frozen-lockfile` failed outright in the build
+  stage. Regenerated; all six production images (`api`, `web`, `worker`,
+  `beat`, `email_worker`, `maintenance_worker`) now build cleanly end to end,
+  including `next build`'s static-page generation.
+- **Every leftover freeframe-branded asset is gone.** The default logo shown
+  before a custom one is uploaded — on the sidebar, the login screen, the
+  favicon, the branding admin screen's own upload-slot preview — still
+  quietly fell back to freeframe's literal logo file in several places, months
+  after the rebrand. All replaced with Review's own mark; the unused source
+  files (which still contained the old wordmark) are deleted rather than left
+  around unreferenced.
+- **A failed login no longer wipes its own error message.** Any 401 response
+  triggered a blind refresh-token retry that fell through to a full-page
+  redirect to `/login` on failure — including from the login form itself,
+  silently discarding the "Invalid credentials" message the exact moment it
+  appeared. Auth-establishing endpoints (login, magic-code, set-password,
+  accept-invite, OAuth exchange) now opt out of that retry.
+- Several latent bugs surfaced and fixed along the way: a backend `NameError`
+  that would 500 on an invalid-logo-type upload; a bulk-invite "already
+  registered" check that string-matched English error text and silently broke
+  in French; an admin-config override that failed to revert to its `.env`
+  default once cleared; an OIDC discovery-document cache that never
+  invalidated on a config change.
+
+### Removed
+
+- **The Personalization admin screen now covers only logo uploads.**
+  Workspace name, accent color, the live app/login/email preview panel, and
+  the "Powered by FreeFrame" toggle are gone — this instance's identity is
+  fixed rather than admin-configurable, so editing UI for settings nobody
+  needs to change no longer exists. The upload mechanism for all five logo
+  slots (light/dark/favicon/apple-touch-icon/login) is unchanged.
 
 ## [1.12.0] - 2026-08-29
 
