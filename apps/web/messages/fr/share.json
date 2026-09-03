@@ -11,5 +11,41 @@
       "cancel": "Annuler",
       "continue": "Continuer"
     }
+  },
+  "folderViewer": {
+    "itemCount": "{count, plural, one {# élément} other {# éléments}}",
+    "folder": "Dossier",
+    "folders": "Dossiers",
+    "asset": "Média",
+    "assets": "Médias",
+    "versionsTitle": "{count, plural, one {# version} other {# versions}}",
+    "download": "Télécharger",
+    "header": {
+      "backToDashboard": "Retour au tableau de bord",
+      "logOut": "Se déconnecter",
+      "downloadAll": "Tout télécharger",
+      "hidePanel": "Masquer le panneau",
+      "showPanel": "Afficher le panneau"
+    },
+    "createdBy": "Créé par {name}",
+    "emptyFolder": "Dossier vide",
+    "root": "Racine",
+    "searchPlaceholder": "Rechercher des médias…",
+    "noResultsFound": "Aucun résultat trouvé",
+    "folderEmpty": "Ce dossier est vide",
+    "columnName": "Nom",
+    "columnSize": "Taille",
+    "columnDate": "Date",
+    "loading": "Chargement…",
+    "loadMore": "Charger plus",
+    "failedToLoadContents": "Impossible de charger le contenu",
+    "selectAssetPrompt": "Sélectionnez un média pour voir les commentaires",
+    "commentsCount": "Commentaires ({count})",
+    "commentList": {
+      "emptyTitle": "Aucun commentaire pour l'instant",
+      "emptyDescription": "Soyez le premier à laisser un commentaire",
+      "reply": "Répondre",
+      "unknownAuthor": "Utilisateur"
+    }
   }
 }

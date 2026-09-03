@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Folder,
   File,
@@ -167,6 +168,7 @@ interface SubfolderCardProps {
 }
 
 function SubfolderCard({ subfolder, onClick }: SubfolderCardProps) {
+  const t = useTranslations('share.folderViewer')
   const thumbs = subfolder.thumbnail_urls ?? []
 
   return (
@@ -215,7 +217,7 @@ function SubfolderCard({ subfolder, onClick }: SubfolderCardProps) {
       <div className="px-3 py-2.5">
         <p className="text-sm font-medium text-text-primary truncate">{subfolder.name}</p>
         <p className="text-xs text-text-tertiary mt-0.5">
-          {subfolder.item_count} {subfolder.item_count === 1 ? 'Item' : 'Items'}
+          {t('itemCount', { count: subfolder.item_count })}
         </p>
       </div>
     </button>
@@ -254,6 +256,7 @@ interface AssetGridCardProps {
 }
 
 function AssetGridCard({ asset, allowDownload, token, shareSession, isSelected, onSelect, onOpen, aspectClass = 'aspect-[16/10]', thumbnailScale = 'fill', showCardInfo = true }: AssetGridCardProps) {
+  const t = useTranslations('share.folderViewer')
   const TypeIcon = getAssetTypeIcon(asset.asset_type)
   const [imgError, setImgError] = React.useState(false)
 
@@ -289,7 +292,7 @@ function AssetGridCard({ asset, allowDownload, token, shareSession, isSelected, 
 
         {/* Version count badge — top left (only when multiple versions exist) */}
         {(asset.version_count ?? 1) > 1 && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 bg-bg-primary/80 backdrop-blur-sm rounded-md px-1.5 py-0.5" title={`${asset.version_count} versions`}>
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-bg-primary/80 backdrop-blur-sm rounded-md px-1.5 py-0.5" title={t('versionsTitle', { count: asset.version_count ?? 1 })}>
             <Layers className="h-3 w-3 text-text-primary" />
             <span className="text-[10px] font-medium text-text-primary tabular-nums">{asset.version_count}</span>
           </div>
@@ -320,7 +323,7 @@ function AssetGridCard({ asset, allowDownload, token, shareSession, isSelected, 
               e.stopPropagation()
               handleDownload(token, asset.id, shareSession)
             }}
-            title="Download"
+            title={t('download')}
           >
             <Download className="h-3 w-3" />
           </button>
@@ -392,6 +395,7 @@ interface GuestComment {
 }
 
 function RightPanel({ selectedAsset, token, permission, allowDownload, onOpenAsset }: RightPanelProps) {
+  const t = useTranslations('share.folderViewer')
   const [comments, setComments] = React.useState<GuestComment[]>([])
   const [loadingComments, setLoadingComments] = React.useState(false)
   const [commentRefresh, setCommentRefresh] = React.useState(0)
@@ -418,7 +422,7 @@ function RightPanel({ selectedAsset, token, permission, allowDownload, onOpenAss
         <div className="h-14 w-14 rounded-full bg-bg-tertiary flex items-center justify-center mb-3">
           <MessageSquare className="h-7 w-7 text-text-tertiary" />
         </div>
-        <p className="text-sm font-medium text-text-primary">Select an asset to view comments</p>
+        <p className="text-sm font-medium text-text-primary">{t('selectAssetPrompt')}</p>
       </div>
     )
   }
@@ -434,7 +438,7 @@ function RightPanel({ selectedAsset, token, permission, allowDownload, onOpenAss
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-            Comments ({comments.length})
+            {t('commentsCount', { count: comments.length })}
           </h4>
         </div>
         <ShareCommentList comments={comments} loading={loadingComments} canComment={canComment} />
@@ -466,6 +470,7 @@ interface ShareCommentListProps {
 }
 
 function ShareCommentList({ comments, loading, canComment, onReply }: ShareCommentListProps) {
+  const t = useTranslations('share.folderViewer.commentList')
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -478,8 +483,8 @@ function ShareCommentList({ comments, loading, canComment, onReply }: ShareComme
     return (
       <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
         <MessageSquare className="h-8 w-8 text-text-tertiary mb-2" />
-        <p className="text-sm font-medium text-text-primary">No comments yet</p>
-        {canComment && <p className="text-xs text-text-tertiary mt-1">Be the first to leave feedback</p>}
+        <p className="text-sm font-medium text-text-primary">{t('emptyTitle')}</p>
+        {canComment && <p className="text-xs text-text-tertiary mt-1">{t('emptyDescription')}</p>}
       </div>
     )
   }
@@ -487,7 +492,7 @@ function ShareCommentList({ comments, loading, canComment, onReply }: ShareComme
   return (
     <div className="px-4 py-3 space-y-1">
       {comments.map((comment, i) => {
-        const name = comment.author?.name || comment.guest_author?.name || comment.guest_name || comment.author_name || 'User'
+        const name = comment.author?.name || comment.guest_author?.name || comment.guest_name || comment.author_name || t('unknownAuthor')
         const color = getAvatarColor(name)
         return (
           <div key={comment.id} className="py-3 border-b border-border last:border-0">
@@ -510,7 +515,7 @@ function ShareCommentList({ comments, loading, canComment, onReply }: ShareComme
                 )}
                 {canComment && onReply && (
                   <button onClick={() => onReply(comment.id)} className="block mt-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors">
-                    Reply
+                    {t('reply')}
                   </button>
                 )}
               </div>
@@ -520,7 +525,7 @@ function ShareCommentList({ comments, loading, canComment, onReply }: ShareComme
             {comment.replies && comment.replies.length > 0 && (
               <div className="ml-11 mt-2 space-y-2 border-l-2 border-border pl-3">
                 {comment.replies.map((r) => {
-                  const rName = r.author?.name || r.guest_author?.name || r.guest_name || r.author_name || 'User'
+                  const rName = r.author?.name || r.guest_author?.name || r.guest_name || r.author_name || t('unknownAuthor')
                   const rColor = getAvatarColor(rName)
                   return (
                     <div key={r.id} className="flex items-start gap-2.5 py-1">
@@ -726,6 +731,7 @@ export function FolderShareViewer({
   branding,
   onAssetClick,
 }: FolderShareViewerProps) {
+  const t = useTranslations('share.folderViewer')
   // Build share_session query param for all API calls
   const sessionParam = shareSession ? `&share_session=${encodeURIComponent(shareSession)}` : ''
   const [currentSubfolderId, setCurrentSubfolderId] = React.useState<string | null>(null)
@@ -823,13 +829,17 @@ export function FolderShareViewer({
         setPage(1)
       })
       .catch(() => {
-        if (!cancelled) setError('Failed to load contents')
+        if (!cancelled) setError(t('failedToLoadContents'))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
 
     return () => { cancelled = true }
+    // `t` intentionally omitted: next-intl's translator isn't referentially
+    // stable across renders, and including it here would retrigger this
+    // fetch effect on every render — an infinite loop, not just a lint nitpick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, currentSubfolderId])
 
   async function loadMore() {
@@ -892,10 +902,10 @@ export function FolderShareViewer({
   // Summary text
   const summaryParts: string[] = []
   if (subfolders.length > 0) {
-    summaryParts.push(`${subfolders.length} Folder${subfolders.length === 1 ? '' : 's'}`)
+    summaryParts.push(`${subfolders.length} ${subfolders.length === 1 ? t('folder') : t('folders')}`)
   }
   if (assets.length > 0) {
-    summaryParts.push(`${assets.length} Asset${assets.length === 1 ? '' : 's'}`)
+    summaryParts.push(`${assets.length} ${assets.length === 1 ? t('asset') : t('assets')}`)
   }
   const summaryText = summaryParts.join(', ')
 
@@ -949,7 +959,7 @@ export function FolderShareViewer({
                   }}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-tertiary transition-colors"
                 >
-                  Back to Dashboard
+                  {t('header.backToDashboard')}
                 </button>
                 <button
                   onClick={() => {
@@ -962,7 +972,7 @@ export function FolderShareViewer({
                   }}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                 >
-                  Log out
+                  {t('header.logOut')}
                 </button>
               </div>
             </div>
@@ -994,13 +1004,13 @@ export function FolderShareViewer({
               onClick={() => handleDownloadAll(token, currentSubfolderId ?? null, shareSession)}
             >
               <Download className="h-3 w-3" />
-              Download All
+              {t('header.downloadAll')}
             </button>
           )}
           <button
             onClick={() => setPanelOpen((v) => !v)}
             className="flex items-center justify-center h-7 w-7 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors"
-            title={panelOpen ? 'Hide panel' : 'Show panel'}
+            title={panelOpen ? t('header.hidePanel') : t('header.showPanel')}
           >
             {panelOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
           </button>
@@ -1016,8 +1026,8 @@ export function FolderShareViewer({
             <h1 className="text-lg font-bold text-text-primary leading-tight">{title || folderName}</h1>
             {!loading && (
               <p className="mt-0.5 text-sm text-text-tertiary">
-                {createdByName && <>Created by {createdByName} &middot; </>}
-                {summaryText || 'Empty folder'}
+                {createdByName && <>{t('createdBy', { name: createdByName })} &middot; </>}
+                {summaryText || t('emptyFolder')}
               </p>
             )}
 
@@ -1031,7 +1041,7 @@ export function FolderShareViewer({
                   )}
                   onClick={() => navigateToBreadcrumb(-1)}
                 >
-                  Root
+                  {t('root')}
                 </button>
                 {breadcrumbs.map((crumb, i) => (
                   <React.Fragment key={crumb.id}>
@@ -1059,7 +1069,7 @@ export function FolderShareViewer({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search assets…"
+                  placeholder={t('searchPlaceholder')}
                   className="h-8 w-52 pl-8 pr-3 rounded-md text-sm border bg-bg-tertiary border-border text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus"
                 />
               </div>
@@ -1080,7 +1090,7 @@ export function FolderShareViewer({
               <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <Folder className="h-12 w-12 text-text-tertiary" />
                 <p className="text-sm text-text-tertiary">
-                  {searchQuery.trim() ? 'No results found' : 'This folder is empty'}
+                  {searchQuery.trim() ? t('noResultsFound') : t('folderEmpty')}
                 </p>
               </div>
             ) : (
@@ -1089,7 +1099,7 @@ export function FolderShareViewer({
                 {filteredSubfolders.length > 0 && (
                   <section className="mb-6">
                     <SectionHeader
-                      label={filteredSubfolders.length === 1 ? 'Folder' : 'Folders'}
+                      label={filteredSubfolders.length === 1 ? t('folder') : t('folders')}
                       count={filteredSubfolders.length}
                       totalSize={totalFolderSize}
                       expanded={foldersExpanded}
@@ -1113,7 +1123,7 @@ export function FolderShareViewer({
                 {filteredAssets.length > 0 && (
                   <section>
                     <SectionHeader
-                      label={filteredAssets.length === 1 ? 'Asset' : 'Assets'}
+                      label={filteredAssets.length === 1 ? t('asset') : t('assets')}
                       count={filteredAssets.length}
                       totalSize={totalAssetSize}
                       expanded={assetsExpanded}
@@ -1145,9 +1155,9 @@ export function FolderShareViewer({
                             {/* Column headers */}
                             <div className="flex items-center gap-4 px-1 py-2 border-b border-border bg-bg-secondary/50 text-[10px] text-text-tertiary font-medium uppercase tracking-wider">
                               <div className="h-14 w-14 shrink-0" />
-                              <div className="flex-1 min-w-0">Name</div>
-                              <div className="hidden sm:block w-24 text-right shrink-0">Size</div>
-                              <div className="hidden sm:block w-28 shrink-0">Date</div>
+                              <div className="flex-1 min-w-0">{t('columnName')}</div>
+                              <div className="hidden sm:block w-24 text-right shrink-0">{t('columnSize')}</div>
+                              <div className="hidden sm:block w-28 shrink-0">{t('columnDate')}</div>
                               {allowDownload && <div className="w-7 shrink-0" />}
                             </div>
                             {filteredAssets.map((asset, i) => {
@@ -1186,7 +1196,7 @@ export function FolderShareViewer({
                                     <button
                                       className="w-7 shrink-0 flex items-center justify-center h-7 rounded text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-text-primary transition-all"
                                       onClick={(e) => { e.stopPropagation(); handleDownload(token, asset.id, shareSession) }}
-                                      title="Download"
+                                      title={t('download')}
                                     >
                                       <Download className="h-4 w-4" />
                                     </button>
@@ -1206,7 +1216,7 @@ export function FolderShareViewer({
                               className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium border border-border text-text-primary hover:bg-bg-tertiary hover:border-border-focus disabled:opacity-50 transition-colors"
                             >
                               {loadingMore && <Loader2 className="h-4 w-4 animate-spin" />}
-                              {loadingMore ? 'Loading…' : 'Load more'}
+                              {loadingMore ? t('loading') : t('loadMore')}
                             </button>
                           </div>
                         )}
@@ -1228,7 +1238,7 @@ export function FolderShareViewer({
               )}
               {!loading && (
                 <p className="text-xs tabular-nums text-text-tertiary">
-                  {assets.length + subfolders.length} item{assets.length + subfolders.length === 1 ? '' : 's'}
+                  {t('itemCount', { count: assets.length + subfolders.length })}
                 </p>
               )}
             </div>

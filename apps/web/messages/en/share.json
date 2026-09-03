@@ -11,5 +11,41 @@
       "cancel": "Cancel",
       "continue": "Continue"
     }
+  },
+  "folderViewer": {
+    "itemCount": "{count, plural, one {# item} other {# items}}",
+    "folder": "Folder",
+    "folders": "Folders",
+    "asset": "Asset",
+    "assets": "Assets",
+    "versionsTitle": "{count, plural, one {# version} other {# versions}}",
+    "download": "Download",
+    "header": {
+      "backToDashboard": "Back to Dashboard",
+      "logOut": "Log out",
+      "downloadAll": "Download All",
+      "hidePanel": "Hide panel",
+      "showPanel": "Show panel"
+    },
+    "createdBy": "Created by {name}",
+    "emptyFolder": "Empty folder",
+    "root": "Root",
+    "searchPlaceholder": "Search assets…",
+    "noResultsFound": "No results found",
+    "folderEmpty": "This folder is empty",
+    "columnName": "Name",
+    "columnSize": "Size",
+    "columnDate": "Date",
+    "loading": "Loading…",
+    "loadMore": "Load more",
+    "failedToLoadContents": "Failed to load contents",
+    "selectAssetPrompt": "Select an asset to view comments",
+    "commentsCount": "Comments ({count})",
+    "commentList": {
+      "emptyTitle": "No comments yet",
+      "emptyDescription": "Be the first to leave feedback",
+      "reply": "Reply",
+      "unknownAuthor": "User"
+    }
   }
 }
