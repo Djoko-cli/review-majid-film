@@ -4,14 +4,19 @@
 # own reverse-proxy management has repeatedly stepped on a Traefik
 # container's Let's Encrypt HTTP challenge on this host, so this stack
 # deliberately never tries to own port 80/443 or a certificate — it just
-# splits one plain-HTTP port between the two app containers, exactly the
-# role Transfer's own bundled Caddy plays behind the same DSM proxy.
-:80 {
+# splits one plain-HTTP port between web and api, exactly the role
+# Transfer's own bundled Caddy plays behind the same DSM proxy.
+#
+# 8080, not 80: this runs as a non-root user (see the Dockerfile), which
+# can't bind a privileged port. web and api are reached over localhost —
+# baked into the same image/container as this Caddy, not separate
+# containers reached by Compose DNS name.
+:8080 {
 	handle /api/* {
 		uri strip_prefix /api
-		reverse_proxy api:8000
+		reverse_proxy localhost:8000
 	}
 	handle {
-		reverse_proxy web:3000
+		reverse_proxy localhost:3000
 	}
 }

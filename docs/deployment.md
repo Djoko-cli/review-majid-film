@@ -67,10 +67,15 @@ FreeFrame is fully self-contained. Install Docker on any Linux server (Ubuntu 22
 
 ## Quick Setup
 
+Review is a **pull-based deploy**: [`docker-build-push.yml`](../.github/workflows/docker-build-push.yml)
+already builds and publishes the image to GHCR on every release — the server
+you deploy to never needs the source tree, just two files.
+
 ```bash
-# 1. Clone the repository
-git clone https://github.com/Djoko-cli/review-majid-film.git
-cd review-majid-film
+# 1. Create a deploy directory and grab the two files you actually need
+mkdir review && cd review
+curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/.env.example
 
 # 2. Create your production environment file
 cp .env.example .env.prod
@@ -79,20 +84,31 @@ cp .env.example .env.prod
 #    At minimum: change passwords, configure S3, email, and JWT_SECRET
 nano .env.prod
 
-# 4. Build and start all services
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+# 4. Pull the image and start everything
+docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
 
 # 5. Check that everything is running
 docker compose --env-file .env.prod -f docker-compose.prod.yml ps
 ```
 
-The app is now listening on `localhost:${PROXY_PORT}` (default `6200`) — see [Reverse Proxy / SSL Setup](#reverse-proxy--ssl-setup) below to put a domain in front of it. The first user to sign up becomes the super admin via the setup wizard.
+Four containers: `review` (the whole app tier — web, api, and every Celery
+process, behind an internal Caddy that splits one port between them),
+`review-postgres`, `review-redis`, `review-minio`. The app is now listening
+on `localhost:${PROXY_PORT}` (default `6200`) — see [Reverse Proxy / SSL
+Setup](#reverse-proxy--ssl-setup) below to put a domain in front of it. The
+first user to sign up becomes the super admin via the setup wizard.
+
+Building the image yourself instead of pulling from GHCR (a fork, an
+air-gapped host, testing an unreleased change) — clone the repo and run
+`docker build -t <your-tag> -f Dockerfile .` from its root, then point
+`image:` in `docker-compose.prod.yml` at your own tag.
 
 ---
 
 ## Reverse Proxy / SSL Setup
 
-`docker-compose.prod.yml` has **no built-in reverse proxy or TLS layer** — it starts a small internal `proxy` container (Caddy, config at `docker/Caddyfile`) that only splits one plain-HTTP port (`PROXY_PORT`, default `6200`) between the `web` and `api` containers. It never tries to own port 80/443 or manage a certificate. You point a reverse proxy you already run — or start one just for this — at that port, and it handles the domain and TLS.
+`docker-compose.prod.yml` has **no built-in reverse proxy or TLS layer** — the `review` container runs a small internal Caddy (config baked into the image from `docker/Caddyfile`) that only splits one plain-HTTP port (`PROXY_PORT`, default `6200`) between web and api, both running inside that same container. It never tries to own port 80/443 or manage a certificate. You point a reverse proxy you already run — or start one just for this — at that port, and it handles the domain and TLS.
 
 This is deliberate, not a missing feature: a Traefik container fighting another reverse proxy already on the host (a NAS's own proxy, a Cloudflare tunnel, an existing nginx) for ports 80/443 or the ACME HTTP challenge is a common, hard-to-debug source of broken deploys. One proxy owns the edge; this stack never tries to be it.
 
@@ -100,9 +116,9 @@ Set `FRONTEND_URL` in `.env.prod` to your public `https://` URL either way, and 
 
 ### Synology DSM (what this fork actually runs on)
 
-No Docker reverse proxy at all — DSM's own **Control Panel → Login Portal → Advanced → Reverse Proxy** terminates TLS (DSM's own Let's Encrypt integration) and forwards to this stack's `proxy` container:
+No Docker reverse proxy at all — DSM's own **Control Panel → Login Portal → Advanced → Reverse Proxy** terminates TLS (DSM's own Let's Encrypt integration) and forwards to the `review` container's internal Caddy:
 
-1. Bring the stack up first (`docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build`) so `localhost:${PROXY_PORT}` (default `6200`) is actually listening.
+1. Bring the stack up first (`docker compose --env-file .env.prod -f docker-compose.prod.yml pull && docker compose --env-file .env.prod -f docker-compose.prod.yml up -d`) so `localhost:${PROXY_PORT}` (default `6200`) is actually listening.
 2. In DSM, add a reverse-proxy rule: source `https://review.your-domain.com` (port 443) → destination `http://localhost:6200`.
 3. If you're also self-hosting MinIO (see [Bring Your Own Infrastructure](#bring-your-own-infrastructure)), add a second rule for `storage.your-domain.com` → `http://localhost:${MINIO_PORT}` (default `6201`) — presigned upload/download URLs are handed to the browser directly, so this one needs its own public hostname, not just an internal Docker network path.
 4. DSM manages renewal on its own certificates; nothing in this stack needs to know about them.
@@ -125,23 +141,23 @@ FreeFrame's Docker Compose includes PostgreSQL and Redis by default, but you can
 
 Works with: **AWS RDS, Google Cloud SQL, Supabase, Neon, DigitalOcean Managed DB, or any PostgreSQL 15+ instance.**
 
-1. Remove the `postgres` service and `pgdata` volume from `docker-compose.prod.yml`
-2. Remove `postgres` from the `depends_on` of the `api`, `worker`, and `maintenance_worker` services
+1. Remove the `review-postgres` service from `docker-compose.prod.yml` (and its bind-mount directory)
+2. Remove `review-postgres` from `review`'s `depends_on`
 3. In `.env.prod`, set `DATABASE_URL` to your external database:
    ```
    DATABASE_URL=postgresql://user:password@your-db-host:5432/freeframe
    ```
-4. Run migrations once manually on first deploy:
+4. Migrations run automatically whenever `review` starts (see `docker/entrypoint.sh`) — nothing to run manually. To check ahead of time:
    ```bash
-   docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api sh -c "cd /workspace/apps/api && alembic upgrade head"
+   docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm review sh -c "cd /workspace/apps/api && alembic upgrade head"
    ```
 
 ### External Redis / Valkey
 
 Works with: **AWS ElastiCache, Upstash, Redis Cloud, DigitalOcean Managed Redis, or any Redis 7+ / Valkey instance.** Valkey is a drop-in Redis replacement and works out of the box.
 
-1. Remove the `redis` service and `redisdata` volume from `docker-compose.prod.yml`
-2. Remove `redis` from the `depends_on` of the `api`, `worker`, `email_worker`, `maintenance_worker`, and `beat` services
+1. Remove the `review-redis` service from `docker-compose.prod.yml` (and its bind-mount directory)
+2. Remove `review-redis` from `review`'s `depends_on`
 3. In `.env.prod`, set `REDIS_URL` to your external instance:
    ```
    REDIS_URL=redis://:password@your-redis-host:6379/0
@@ -244,8 +260,6 @@ All environment variables are documented in [`.env.example`](../.env.example). K
 | `S3_ENDPOINT` | Custom S3 endpoint (non-AWS) | (empty = AWS) |
 | `JWT_SECRET` | Auth token signing key | (required, generate with `openssl rand -hex 64`) |
 | `FRONTEND_URL` | Your FreeFrame URL (with https://) | (required) |
-| `DOMAIN` | Your domain for auto SSL | (optional) |
-| `ACME_EMAIL` | Email for Let's Encrypt notifications | (optional) |
 | `MAIL_PROVIDER` | `smtp` or `ses` | `smtp` |
 | `API_WORKERS` | Gunicorn worker processes | `4` |
 | `TRANSCODING_CONCURRENCY` | Parallel transcoding jobs | `2` |
@@ -285,13 +299,16 @@ automatically falls back to software (CPU) transcoding if no GPU is present or a
 hardware attempt fails at runtime. This is entirely opt-in — the default build and
 default runtime behavior are unchanged.
 
-To enable it:
-1. Build the API image with `--build-arg ENABLE_HWACCEL=true` (Intel/VAAPI only —
-   NVENC needs no extra packages in the image, just the host driver).
-2. Give the `worker` service access to the GPU: pass through `/dev/dri` for VAAPI,
-   or install `nvidia-container-toolkit` and add a GPU reservation for NVENC.
-3. Set `TRANSCODER_PIPELINE` to `NVIDIA`, `Intel`, or leave it as `Auto` to detect
-   automatically.
+To enable it, build your own image (see [Quick Setup](#quick-setup) — the
+published GHCR image is CPU-only) instead of pulling from GHCR:
+1. `docker build --build-arg ENABLE_HWACCEL=true -t <your-tag> -f Dockerfile .`
+   (Intel/VAAPI only — NVENC needs no extra packages in the image, just the
+   host driver).
+2. Give the `review` service access to the GPU: pass through `/dev/dri` for
+   VAAPI, or install `nvidia-container-toolkit` and add a GPU reservation for
+   NVENC.
+3. Set `TRANSCODER_PIPELINE` to `NVIDIA`, `Intel`, or leave it as `Auto` to
+   detect automatically.
 
 > Compose-file examples for GPU device passthrough aren't included yet — that's a
 > known follow-up.
@@ -341,10 +358,10 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail 100 a
 |--------|-------------|--------------|
 | Disk space | `df -h` | > 80% used |
 | Memory | `free -m` | Swap in use |
-| API response | `curl -s localhost/health` | Non-200 response |
-| Queue depth | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec redis sh -c 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning LLEN transcoding'` (repeat for `email_high`, `email_low`, `maintenance`, `default`) | Any queue growing steadily; **any depth at all on `default`** |
-| Busy workers | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec api celery -A apps.api.tasks.celery_app inspect active` | Tasks stuck for hours |
-| Database connections | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec postgres psql -U freeframe -c "SELECT count(*) FROM pg_stat_activity;"` | > 80% of max |
+| API response | `curl -s localhost:${PROXY_PORT:-6200}/api/health` | Non-200 response |
+| Queue depth | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-redis sh -c 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning LLEN transcoding'` (repeat for `email_high`, `email_low`, `maintenance`, `default`) | Any queue growing steadily; **any depth at all on `default`** |
+| Busy workers | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec review celery -A apps.api.tasks.celery_app inspect active` | Tasks stuck for hours |
+| Database connections | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-postgres psql -U freeframe -c "SELECT count(*) FROM pg_stat_activity;"` | > 80% of max |
 
 Check depth with `LLEN`, not `inspect active`. `inspect active` reports what
 connected workers are executing right now, so a queue that no worker subscribes
@@ -364,14 +381,17 @@ ever run.
 ### Queue Topology
 
 Each worker subscribes to an explicit `-Q` list, so a task whose queue has no
-subscriber is silently never executed. The shipped topology is:
+subscriber is silently never executed. All four Celery processes below run
+inside the single `review` container (see `docker/entrypoint.sh`), not
+separate services — the queue names and routing are unchanged from when they
+were separate containers. The shipped topology is:
 
 | Queue | Consumed by | Carries |
 |-------|-------------|---------|
-| `transcoding` | `worker` | Video/audio/image processing, metadata backfill, watermarking |
-| `email_high` | `email_worker` | Magic codes, invites |
-| `email_low` | `email_worker` | Mentions, comments, approvals, share notices |
-| `maintenance` | `maintenance_worker` | Retention GC, stale-upload reaper, orphan sweep |
+| `transcoding` | worker process | Video/audio/image processing, metadata backfill, watermarking |
+| `email_high` | email worker process | Magic codes, invites |
+| `email_low` | email worker process | Mentions, comments, approvals, share notices |
+| `maintenance` | maintenance worker process | Retention GC, stale-upload reaper, orphan sweep |
 | `default` | nobody, by design | Should always be empty |
 
 If you add a task, route it in `apps/api/tasks/celery_app.py` to one of the
@@ -386,12 +406,12 @@ registered task routes somewhere no compose worker consumes.
 
 ```bash
 # One-time backup
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec postgres \
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-postgres \
   pg_dump -U freeframe freeframe | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz
 
 # Restore from backup
 gunzip -c backup_20260403_120000.sql.gz | \
-  docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T postgres \
+  docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T review-postgres \
   psql -U freeframe freeframe
 ```
 
@@ -404,7 +424,7 @@ Add a cron job on your server:
 crontab -e
 
 # Add this line (runs daily at 2 AM, keeps 30 days)
-0 2 * * * cd /path/to/freeframe && docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T postgres pg_dump -U freeframe freeframe | gzip > /path/to/backups/freeframe_$(date +\%Y\%m\%d).sql.gz && find /path/to/backups -name "freeframe_*.sql.gz" -mtime +30 -delete
+0 2 * * * cd /path/to/review && docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T review-postgres pg_dump -U freeframe freeframe | gzip > /path/to/backups/freeframe_$(date +\%Y\%m\%d).sql.gz && find /path/to/backups -name "freeframe_*.sql.gz" -mtime +30 -delete
 ```
 
 ### S3 Media Backup
@@ -428,12 +448,11 @@ Your media files are already in S3. For redundancy:
 ## Updating
 
 ```bash
-cd freeframe
-git pull origin main
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
 ```
 
-Database migrations run automatically on API startup. Always check the [CHANGELOG](../CHANGELOG.md) before updating.
+Database migrations run automatically whenever `review` starts. Always check the [CHANGELOG](../CHANGELOG.md) before updating.
 
 ### Upgrading past the maintenance-queue fix ([#240](https://github.com/Techiebutler/freeframe/issues/240))
 
@@ -452,7 +471,7 @@ retention window, all at once. Count it first, substituting your own
 `SOFT_DELETE_RETENTION_DAYS` for the `30` below:
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec postgres \
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-postgres \
   psql -U freeframe -c "
 WITH cutoff AS (SELECT now() - interval '30 days' AS t)
 SELECT 'projects'        AS root, count(*) FROM projects,        cutoff WHERE deleted_at < t
@@ -485,8 +504,8 @@ roughly 49 orphaned messages a day. The new worker consumes `maintenance`, not
 memory:
 
 ```bash
-docker compose exec redis redis-cli -a "$REDIS_PASSWORD" LLEN default
-docker compose exec redis redis-cli -a "$REDIS_PASSWORD" RENAME default default-old-240
+docker compose exec review-redis redis-cli -a "$REDIS_PASSWORD" LLEN default
+docker compose exec review-redis redis-cli -a "$REDIS_PASSWORD" RENAME default default-old-240
 ```
 
 `RENAME` rather than `DEL` so the messages can be inspected or restored. Delete
@@ -495,15 +514,15 @@ draining normally.
 
 ### Upgrading past the media-metadata fix ([#124](https://github.com/Techiebutler/freeframe/issues/124))
 
-If you're upgrading past the media-metadata fix ([#124](https://github.com/Techiebutler/freeframe/issues/124)), backfill missing `duration_seconds`/`width`/`height`/`fps` on already-processed files with: `docker exec freeframe-api-1 python -m apps.api.scripts.backfill_media_metadata`. The backfill runs as a Celery task on the `transcoding` queue, so it occupies one worker slot and can run long on large libraries (up to ~300s per file); new uploads keep transcoding normally on the remaining slots.
+If you're upgrading past the media-metadata fix ([#124](https://github.com/Techiebutler/freeframe/issues/124)), backfill missing `duration_seconds`/`width`/`height`/`fps` on already-processed files with: `docker exec review python -m apps.api.scripts.backfill_media_metadata`. The backfill runs as a Celery task on the `transcoding` queue, so it occupies one worker slot and can run long on large libraries (up to ~300s per file); new uploads keep transcoding normally on the remaining slots.
 
 ### Update Checklist
 
 1. **Read the changelog** — check for breaking changes or new env vars
 2. **Backup the database** — `pg_dump` before updating (see [Backups](#backups))
-3. **Pull and rebuild** — `git pull && docker compose up -d --build`
-4. **Verify** — check `/health`, test login, spot-check a share link
-5. **Rollback if needed** — `git checkout v1.x.x && docker compose up -d --build`
+3. **Pull and restart** — `docker compose --env-file .env.prod -f docker-compose.prod.yml pull && docker compose --env-file .env.prod -f docker-compose.prod.yml up -d`
+4. **Verify** — check `/api/health`, test login, spot-check a share link
+5. **Rollback if needed** — set `image: ghcr.io/djoko-cli/review-majid-film:v1.x.x` in `docker-compose.prod.yml`, then pull and restart again
 
 ---
 
@@ -512,33 +531,50 @@ If you're upgrading past the media-metadata fix ([#124](https://github.com/Techi
 ### Services not starting
 
 ```bash
-# Check logs for a specific service
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs api
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs worker
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs web
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs proxy
+# review runs web, api, and every Celery process — one log stream for all of it
+docker compose --env-file .env.prod -f docker-compose.prod.yml logs review
+docker compose --env-file .env.prod -f docker-compose.prod.yml logs review-postgres
+docker compose --env-file .env.prod -f docker-compose.prod.yml logs review-redis
+docker compose --env-file .env.prod -f docker-compose.prod.yml logs review-minio
 
 # Check all service statuses
 docker compose --env-file .env.prod -f docker-compose.prod.yml ps
 ```
 
+If `review` itself keeps restarting, check which of its internal processes is
+crashing — `docker/entrypoint.sh` runs api (gunicorn) as the primary process,
+so its crash takes the whole container down (by design, see the Dockerfile);
+a crash in one of the backgrounded processes (web, a Celery worker, beat)
+shows up in the same log stream but doesn't restart the container on its own.
+
 ### Database migration failures
 
 ```bash
 # Run migrations manually
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api sh -c "cd /workspace/apps/api && alembic upgrade head"
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm review sh -c "cd /workspace/apps/api && alembic upgrade head"
 
 # Check migration status
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api sh -c "cd /workspace/apps/api && alembic current"
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm review sh -c "cd /workspace/apps/api && alembic current"
 ```
 
 ### SSL certificate not working
 
-- Verify `DOMAIN` and `ACME_EMAIL` are set in `.env.prod`
-- Check that DNS A record points to your server: `dig your-domain.com`
-- Ensure ports 80 and 443 are open: `sudo ufw allow 80,443/tcp`
-- Check Traefik logs: `docker compose --env-file .env.prod -f docker-compose.prod.yml logs proxy`
-- Let's Encrypt has rate limits — if you hit them, wait an hour and retry
+This stack never manages a certificate itself (see [Reverse Proxy / SSL
+Setup](#reverse-proxy--ssl-setup)) — TLS is entirely your reverse proxy's
+job, so a broken certificate is almost always something to check there
+first:
+
+- **Synology DSM**: Control Panel → Security → Certificate — check the
+  certificate assigned to your domain's reverse-proxy rule, and DSM's own
+  renewal status. Let's Encrypt has rate limits — if you hit them, wait an
+  hour and retry.
+- **Any reverse proxy**: verify DNS actually resolves to your server
+  (`dig your-domain.com`) and that ports 80/443 are open on the host
+  running the proxy — not on this stack, which never binds those ports.
+- If the certificate itself is fine but requests aren't reaching the app,
+  check `review`'s own logs for its internal Caddy — it's the same log
+  stream as everything else in that container (see above), look for the
+  `http`/`tls` logger lines.
 
 ### S3 connection issues
 
@@ -546,12 +582,16 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api sh -
 - Ensure your bucket exists and has proper CORS configuration
 - For non-AWS providers, double-check the `S3_ENDPOINT` URL
 
-### Port 80/443 already in use
+### `PROXY_PORT`/`MINIO_PORT` already in use
+
+This stack never binds port 80/443 directly — only the plain ports set by
+`PROXY_PORT` (default `6200`) and, if self-hosting MinIO, `MINIO_PORT`
+(default `6201`).
 
 ```bash
 # Find what's using the port
-sudo lsof -i :80
-# Stop that service or change the port mapping in docker-compose.prod.yml
+sudo lsof -i :6200
+# Stop that service, or change PROXY_PORT/MINIO_PORT in .env.prod
 ```
 
 ### Large file uploads failing

@@ -1,0 +1,26 @@
+# Build context for the root Dockerfile is the whole repo — keep it lean and
+# keep secrets out of it. macOS AppleDouble/.DS_Store cruft is excluded here
+# too: it once got tar-transferred to the NAS and broke Alembic's migration
+# loader (a "*.py" file it isn't), so it must never end up inside an image
+# either.
+
+.git
+.github
+
+**/node_modules
+**/.next
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+
+.env
+.env.*
+!.env.example
+
+**/.DS_Store
+**/._*
+
+docs
+*.md
+!README.md

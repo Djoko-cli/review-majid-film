@@ -114,12 +114,17 @@ Then browse to `http://192.168.1.50:3000` from any device on the network. Server
 
 ## Production Deployment
 
+Pull-based: the image is built and published to GHCR on every release, so
+the server you deploy to only ever needs two files, never the source tree.
+
 ```bash
-git clone https://github.com/Djoko-cli/review-majid-film.git
-cd review-majid-film
+mkdir review && cd review
+curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/.env.example
 cp .env.example .env.prod
 # Edit .env.prod — set your credentials, S3, email config
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
 # Then point a reverse proxy you run (or your NAS's own) at localhost:6200 —
 # no bundled Traefik/ACME here, see docs/deployment.md
 ```
@@ -131,40 +136,38 @@ Release notes for each tagged version are on the [Releases page](https://github.
 ## Architecture
 
 ```
-                    ┌──────────────┐
-                    │ Your reverse  │
-                    │ proxy (TLS)  │
-                    └──────┬───────┘
-                           │
-                    ┌──────┴───────┐
-                    │    Caddy     │
-                    │ (path split) │
-                    └──────┬───────┘
-                           │
-               ┌───────────┴───────────┐
-               ▼                       ▼
-        ┌─────────────┐        ┌─────────────┐
-        │   Next.js    │        │   FastAPI    │
-        │   Frontend   │        │   Backend    │
-        └─────────────┘        └──────┬───────┘
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    ▼                 ▼                  ▼
-             ┌───────────┐    ┌───────────┐     ┌───────────────┐
-             │ PostgreSQL │    │   Redis    │     │  S3 Storage   │
-             │            │    │           │     │ (AWS/R2/MinIO) │
-             └───────────┘    └─────┬─────┘     └───────────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-             ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-             │   Celery     │ │   Celery     │ │   Celery     │
-             │  Transcoder  │ │   Email      │ │ Maintenance  │
-             └─────────────┘ └─────────────┘ └─────────────┘
-                                                     ▲
-                                              ┌─────────────┐
-                                              │ Celery Beat  │
-                                              └─────────────┘
+                          ┌───────────────┐
+                          │ Your reverse   │
+                          │ proxy (TLS)   │
+                          └───────┬───────┘
+                                  │
+ ┌────────────────────────────── │ ─────────────────────────────────┐
+ │  review — one container       ▼                                   │
+ │                          ┌───────────┐                             │
+ │                          │   Caddy    │                             │
+ │                          │(path split)│                             │
+ │                          └─────┬─────┘                             │
+ │                    ┌───────────┴───────────┐                       │
+ │                    ▼                       ▼                       │
+ │             ┌─────────────┐        ┌─────────────┐                 │
+ │             │   Next.js    │        │   FastAPI    │                 │
+ │             │   Frontend   │        │   Backend    │                 │
+ │             └─────────────┘        └──────┬───────┘                 │
+ │                                            │                         │
+ │                     ┌──────────┬───────────┼────────────┐            │
+ │                     ▼          ▼           ▼            ▼            │
+ │              ┌───────────┐┌───────────┐┌───────────┐┌───────────┐   │
+ │              │  Celery   ││  Celery   ││  Celery   ││  Celery   │   │
+ │              │Transcoder ││  Email    ││Maintenance││   Beat    │   │
+ │              └───────────┘└───────────┘└───────────┘└───────────┘   │
+ └──────────────────────────┬──────────────────────────────────────────┘
+                             │
+             ┌───────────────┼───────────────┐
+             ▼               ▼               ▼
+      ┌───────────┐   ┌───────────┐   ┌───────────────┐
+      │ PostgreSQL │   │   Redis    │   │  S3 Storage   │
+      │            │   │           │   │ (AWS/R2/MinIO) │
+      └───────────┘   └───────────┘   └───────────────┘
 ```
 
 ## Tech Stack
@@ -177,7 +180,7 @@ Release notes for each tagged version are on the [Releases page](https://github.
 | Queue        | Celery + Redis                                    |
 | Transcoding  | FFmpeg (multi-bitrate HLS), CPU by default, optional NVENC/VAAPI |
 | Storage      | Any S3-compatible (AWS, R2, B2, MinIO)           |
-| Proxy        | Internal Caddy (path routing only); TLS is your own reverse proxy's job — see [docs/deployment.md](docs/deployment.md) |
+| Proxy        | Caddy, baked into the `review` image (path routing only); TLS is your own reverse proxy's job — see [docs/deployment.md](docs/deployment.md) |
 | Auth         | JWT sessions — password login and OIDC (PKCE), magic-code-by-email available but off by default |
 
 ## Documentation

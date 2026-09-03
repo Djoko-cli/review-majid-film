@@ -248,14 +248,11 @@ jobs:
       - name: Build API image (dev)
         run: docker build -t freeframe-api:test -f apps/api/Dockerfile .
 
-      - name: Build API image (prod)
-        run: docker build -t freeframe-api:prod -f apps/api/Dockerfile.prod .
-
       - name: Build Web image (dev)
         run: docker build -t freeframe-web:test -f apps/web/Dockerfile apps/web/
 
-      - name: Build Web image (prod)
-        run: docker build -t freeframe-web:prod -f apps/web/Dockerfile.prod apps/web/
+      - name: Build review image (prod)
+        run: docker build -t review:prod -f Dockerfile .
 
       - name: Verify docker-compose syntax
         run: |

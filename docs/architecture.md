@@ -9,45 +9,58 @@ This document explains how FreeFrame's components work together.
 FreeFrame is a monorepo with two main applications and supporting infrastructure:
 
 ```
-                         ┌──────────────┐
-           Users ──────▶ │   Traefik    │
-                         │   :80/:443   │
-                         └──────┬───────┘
-                                │
-                    ┌───────────┴───────────┐
-                    ▼                       ▼
-             ┌─────────────┐        ┌─────────────┐
-             │   Next.js    │        │   FastAPI    │──── SSE ──▶ Clients
-             │   Frontend   │        │   Backend    │
-             └─────────────┘        └──────┬───────┘
-                                           │
-                     ┌─────────────────────┼────────────────────┐
-                     ▼                     ▼                    ▼
-              ┌───────────┐         ┌───────────┐       ┌──────────────┐
-              │ PostgreSQL │         │   Redis    │       │  S3 Storage   │
-              │            │         │           │       │              │
-              └───────────┘         └─────┬─────┘       └──────────────┘
-                                          │
-                               ┌──────────┴──────────┐
-                               ▼                     ▼
-                        ┌─────────────┐       ┌─────────────┐
-                        │  Transcoding │       │    Email     │
-                        │   Workers    │       │   Workers    │
-                        └─────────────┘       └─────────────┘
+                          ┌───────────────┐
+            Users ──────▶ │ Your reverse   │
+                          │ proxy (TLS)   │
+                          └───────┬───────┘
+                                  │
+ ┌────────────────────────────── │ ─────────────────────────────────┐
+ │  review — one container       ▼                                   │
+ │                          ┌───────────┐                             │
+ │                          │   Caddy    │                             │
+ │                          │(path split)│                             │
+ │                          └─────┬─────┘                             │
+ │                    ┌───────────┴───────────┐                       │
+ │                    ▼                       ▼                       │
+ │             ┌─────────────┐        ┌─────────────┐                 │
+ │             │   Next.js    │        │   FastAPI    │──── SSE ──▶ Clients
+ │             │   Frontend   │        │   Backend    │                 │
+ │             └─────────────┘        └──────┬───────┘                 │
+ │                                            │                         │
+ │                     ┌──────────┬───────────┼────────────┐            │
+ │                     ▼          ▼           ▼            ▼            │
+ │              ┌───────────┐┌───────────┐┌───────────┐┌───────────┐   │
+ │              │  Celery   ││  Celery   ││  Celery   ││  Celery   │   │
+ │              │Transcoder ││  Email    ││Maintenance││   Beat    │   │
+ │              └───────────┘└───────────┘└───────────┘└───────────┘   │
+ └──────────────────────────┬──────────────────────────────────────────┘
+                             │
+             ┌───────────────┼───────────────┐
+             ▼               ▼               ▼
+      ┌───────────┐   ┌───────────┐   ┌───────────────┐
+      │ PostgreSQL │   │   Redis    │   │  S3 Storage   │
+      │            │   │           │   │              │
+      └───────────┘   └───────────┘   └───────────────┘
 ```
+
+`review` is one container: Caddy, Next.js, FastAPI, and all four Celery
+processes below run as separate processes inside it, supervised by
+`docker/entrypoint.sh` (see [Production Deployment](deployment.md)).
+PostgreSQL, Redis, and S3 storage stay separate containers/services — real
+stateful dependencies with their own upgrade and backup lifecycle.
 
 | Component | Role |
 |-----------|------|
-| **Traefik** | Reverse proxy, automatic SSL via Let's Encrypt, routes `/api/*` to backend and `/` to frontend |
+| **Caddy** | Internal reverse proxy inside the `review` container — routes `/api/*` to FastAPI and `/` to Next.js. TLS termination is your own reverse proxy's job, in front of this. |
 | **Next.js** | Server-rendered frontend, handles UI, auth cookies, client-side media playback |
 | **FastAPI** | REST API, auth, business logic, SSE events, S3 presigned URLs |
 | **PostgreSQL** | Primary datastore for all entities (users, projects, assets, comments, etc.) |
 | **Redis** | Message broker for Celery task queues, magic code TTL storage |
 | **S3 Storage** | Stores all media files (originals, transcoded outputs, thumbnails) |
-| **Transcoding Workers** | Celery workers that process video/audio/image files via FFmpeg |
-| **Email Workers** | Celery workers that send transactional emails (invites, magic codes, notifications) |
-| **Maintenance Worker** | Celery worker for scheduled housekeeping: retention GC, stale-upload reaper, orphan sweep |
-| **Beat** | Celery scheduler that publishes the periodic maintenance tasks |
+| **Celery Transcoder** | Processes video/audio/image files via FFmpeg |
+| **Celery Email** | Sends transactional emails (invites, magic codes, notifications) |
+| **Celery Maintenance** | Scheduled housekeeping: retention GC, stale-upload reaper, orphan sweep |
+| **Celery Beat** | Scheduler that publishes the periodic maintenance tasks |
 
 ---
 
