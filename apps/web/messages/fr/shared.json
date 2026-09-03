@@ -4,6 +4,11 @@
     "defaultSubmitLabel": "Créer",
     "cancel": "Annuler"
   },
+  "moveToDialog": {
+    "noSubfolders": "Aucun sous-dossier",
+    "cancel": "Annuler",
+    "moveHere": "Déplacer ici"
+  },
   "sortPopover": {
     "sortedBy": "Trié par",
     "ascending": "A-Z",

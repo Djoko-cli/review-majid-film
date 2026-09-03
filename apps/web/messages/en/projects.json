@@ -17,6 +17,27 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "card": {
+    "deleteConfirm": "Delete \"{name}\"? This action cannot be undone.",
+    "public": "Public",
+    "itemCountWithSize": "{count, plural, one {# item} other {# items}} · {size}",
+    "updated": "Updated {time}",
+    "menuLabel": "Project",
+    "projectSettings": "Project Settings",
+    "delete": "Delete"
+  },
+  "settingsDialog": {
+    "title": "Project settings",
+    "namePlaceholder": "Project name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Optional project description...",
+    "publicProject": "Public Project",
+    "privateProject": "Private Project",
+    "publicHint": "All users in the system can view this project.",
+    "privateHint": "Only invited members can access this project.",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "sections": {
     "myProjects": "My Projects",
     "sharedWithMe": "Shared with Me",

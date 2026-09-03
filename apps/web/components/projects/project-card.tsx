@@ -4,6 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { MoreHorizontal, ImagePlus, Settings, Trash2, Globe, Lock } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn, formatRelativeTime, formatBytes } from '@/lib/utils'
 import { getGradientForProject } from '@/lib/gradient-utils'
 import { api } from '@/lib/api'
@@ -25,13 +26,14 @@ export function ProjectCard({
   className,
   onMutate,
 }: ProjectCardProps) {
+  const t = useTranslations('projects.card')
   const gradient = getGradientForProject(project.id)
   const assetCount = project.asset_count ?? 0
   const [settingsOpen, setSettingsOpen] = React.useState(false)
   const [deleting, setDeleting] = React.useState(false)
 
   const handleDelete = async () => {
-    if (!confirm(`Delete "${project.name}"? This action cannot be undone.`)) return
+    if (!confirm(t('deleteConfirm', { name: project.name }))) return
     setDeleting(true)
     try {
       await api.delete(`/projects/${project.id}`)
@@ -85,7 +87,7 @@ export function ProjectCard({
               {project.is_public && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-black/30 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white/90">
                   <Globe className="h-2.5 w-2.5" />
-                  Public
+                  {t('public')}
                 </span>
               )}
               {showRole && project.role && project.role !== 'owner' && (
@@ -100,8 +102,8 @@ export function ProjectCard({
           <div className="flex items-center justify-between px-3 py-2.5">
             <span className="text-2xs text-text-tertiary">
               {assetCount > 0
-                ? `${assetCount} item${assetCount !== 1 ? 's' : ''} · ${formatBytes(project.storage_bytes ?? 0)}`
-                : `Updated ${formatRelativeTime(project.created_at)}`}
+                ? t('itemCountWithSize', { count: assetCount, size: formatBytes(project.storage_bytes ?? 0) })
+                : t('updated', { time: formatRelativeTime(project.created_at) })}
             </span>
           </div>
         </Link>
@@ -125,7 +127,7 @@ export function ProjectCard({
                 align="end"
               >
                 <DropdownMenu.Label className="px-3 py-1.5 text-[10px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Project
+                  {t('menuLabel')}
                 </DropdownMenu.Label>
 
                 <DropdownMenu.Item
@@ -133,7 +135,7 @@ export function ProjectCard({
                   onSelect={() => setSettingsOpen(true)}
                 >
                   <Settings className="h-4 w-4 text-text-tertiary" />
-                  Project Settings
+                  {t('projectSettings')}
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Separator className="my-1 h-px bg-border" />
@@ -144,7 +146,7 @@ export function ProjectCard({
                   disabled={deleting}
                 >
                   <Trash2 className="h-4 w-4" />
-                  Delete
+                  {t('delete')}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>

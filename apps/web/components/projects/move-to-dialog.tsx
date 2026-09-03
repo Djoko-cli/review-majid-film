@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ChevronRight, Folder as FolderIcon, X, ArrowLeft, FolderInput } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import type { FolderTreeNode } from '@/types'
@@ -57,6 +58,7 @@ export function MoveToDialog({
   movingFolderIds = [],
   onMove,
 }: MoveToDialogProps) {
+  const t = useTranslations('shared.moveToDialog')
   // The folder we're browsing inside the dialog
   const [browseFolderId, setBrowseFolderId] = React.useState<string | null>(null)
 
@@ -132,7 +134,7 @@ export function MoveToDialog({
           {/* Folder list */}
           <div className="max-h-64 overflow-y-auto py-1">
             {children.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-text-tertiary">No subfolders</p>
+              <p className="px-4 py-6 text-center text-sm text-text-tertiary">{t('noSubfolders')}</p>
             ) : (
               children.map((folder) => {
                 const disabled = movingFolderIds.includes(folder.id)
@@ -161,7 +163,7 @@ export function MoveToDialog({
           {/* Footer */}
           <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border">
             <Button variant="secondary" size="sm" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               size="sm"
@@ -171,7 +173,7 @@ export function MoveToDialog({
                 onOpenChange(false)
               }}
             >
-              Move here
+              {t('moveHere')}
             </Button>
           </div>
         </Dialog.Content>

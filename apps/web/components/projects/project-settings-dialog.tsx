@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Switch from '@radix-ui/react-switch'
 import { X, ImagePlus, Globe, Lock } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { getGradientForProject } from '@/lib/gradient-utils'
 import { api } from '@/lib/api'
@@ -23,6 +24,7 @@ export function ProjectSettingsDialog({
   onOpenChange,
   onUpdated,
 }: ProjectSettingsDialogProps) {
+  const t = useTranslations('projects.settingsDialog')
   const [name, setName] = React.useState(project.name)
   const [description, setDescription] = React.useState(project.description || '')
   const [isPublic, setIsPublic] = React.useState(project.is_public ?? false)
@@ -83,7 +85,7 @@ export function ProjectSettingsDialog({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <Dialog.Title className="text-base font-semibold text-text-primary">
-              Project settings
+              {t('title')}
             </Dialog.Title>
             <Dialog.Close className="text-text-tertiary hover:text-text-primary transition-colors">
               <X className="h-4 w-4" />
@@ -130,7 +132,7 @@ export function ProjectSettingsDialog({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full text-center text-sm font-semibold text-text-primary bg-bg-tertiary rounded-lg px-3 py-2 border border-border focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
-                  placeholder="Project name"
+                  placeholder={t('namePlaceholder')}
                 />
               </div>
 
@@ -138,12 +140,12 @@ export function ProjectSettingsDialog({
               <div className="flex-1 space-y-5">
                 {/* Description */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-text-tertiary uppercase tracking-wider">Description</label>
+                  <label className="text-xs font-medium text-text-tertiary uppercase tracking-wider">{t('descriptionLabel')}</label>
                   <textarea
                     rows={2}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Optional project description..."
+                    placeholder={t('descriptionPlaceholder')}
                     className="w-full rounded-lg border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary resize-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
@@ -160,7 +162,7 @@ export function ProjectSettingsDialog({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-text-primary">
-                          {isPublic ? 'Public Project' : 'Private Project'}
+                          {isPublic ? t('publicProject') : t('privateProject')}
                         </span>
                         <Switch.Root
                           checked={isPublic}
@@ -179,8 +181,8 @@ export function ProjectSettingsDialog({
                       </div>
                       <p className="text-xs text-text-tertiary mt-0.5">
                         {isPublic
-                          ? 'All users in the system can view this project.'
-                          : 'Only invited members can access this project.'}
+                          ? t('publicHint')
+                          : t('privateHint')}
                       </p>
                     </div>
                   </div>
@@ -192,10 +194,10 @@ export function ProjectSettingsDialog({
           {/* Footer */}
           <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border">
             <Dialog.Close asChild>
-              <Button variant="secondary" size="sm">Cancel</Button>
+              <Button variant="secondary" size="sm">{t('cancel')}</Button>
             </Dialog.Close>
             <Button size="sm" onClick={handleSave} loading={saving} disabled={!name.trim()}>
-              Save
+              {t('save')}
             </Button>
           </div>
         </Dialog.Content>

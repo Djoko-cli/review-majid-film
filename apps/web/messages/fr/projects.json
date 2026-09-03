@@ -17,6 +17,27 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "card": {
+    "deleteConfirm": "Supprimer « {name} » ? Cette action est irréversible.",
+    "public": "Public",
+    "itemCountWithSize": "{count, plural, one {# élément} other {# éléments}} · {size}",
+    "updated": "Mis à jour {time}",
+    "menuLabel": "Projet",
+    "projectSettings": "Paramètres du projet",
+    "delete": "Supprimer"
+  },
+  "settingsDialog": {
+    "title": "Paramètres du projet",
+    "namePlaceholder": "Nom du projet",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Description facultative du projet...",
+    "publicProject": "Projet public",
+    "privateProject": "Projet privé",
+    "publicHint": "Tous les utilisateurs du système peuvent voir ce projet.",
+    "privateHint": "Seuls les membres invités peuvent accéder à ce projet.",
+    "cancel": "Annuler",
+    "save": "Enregistrer"
+  },
   "sections": {
     "myProjects": "Mes projets",
     "sharedWithMe": "Partagés avec moi",
