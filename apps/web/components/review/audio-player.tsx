@@ -120,6 +120,11 @@ export function AudioPlayer({ asset, version, comments = [], className }: AudioP
 
     fetchUrl()
     return () => { cancelled = true }
+    // `t`/`tErrors` intentionally omitted: next-intl's translator isn't referentially
+    // stable across renders, and including it here would retrigger this fetch effect
+    // on every render — an infinite loop, not just a lint nitpick. (`shareSession` was
+    // already omitted before this effect used `t`/`tErrors` at all — left as-is.)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [asset.id, shareToken, version])
 
   // Initialize WaveSurfer

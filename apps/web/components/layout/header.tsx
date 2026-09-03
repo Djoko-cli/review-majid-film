@@ -13,7 +13,7 @@ interface HeaderProps {
   onSearchOpen: () => void
 }
 
-const KNOWN_LABEL_SEGMENTS = new Set(['projects', 'notifications', 'settings', 'new', 'upload'])
+const KNOWN_LABEL_SEGMENTS = new Set(['projects', 'notifications', 'settings', 'new', 'upload', 'profile'])
 
 /** Looks like a UUID (8-4-4-4-12 hex) */
 function isUuid(s: string): boolean {
