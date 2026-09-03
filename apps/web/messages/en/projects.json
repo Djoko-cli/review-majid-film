@@ -17,6 +17,70 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "shareCreateDialog": {
+    "copyButton": {
+      "urlCopied": "URL copied to clipboard",
+      "copyFailed": "Copy failed",
+      "copied": "Copied!",
+      "failed": "Failed"
+    },
+    "inviteInput": {
+      "placeholder": "Send to name or email",
+      "invited": "Invited {name}",
+      "hint": "Type to search or enter email",
+      "remove": "Remove",
+      "fallbackName": "user"
+    },
+    "visibility": "Visibility",
+    "visibilityPublic": "🌐 Public",
+    "visibilitySecure": "🔒 Secure",
+    "allowComments": "Allow comments",
+    "allowDownloads": "Allow downloads",
+    "passphrase": "Passphrase",
+    "passphrasePlaceholder": "Enter passphrase",
+    "hide": "Hide",
+    "show": "Show",
+    "expirationDate": "Expiration date",
+    "watermark": "Watermark",
+    "layout": "Layout",
+    "layoutGrid": "grid",
+    "layoutList": "list",
+    "configure": {
+      "title": "Configure Share Link",
+      "linkNameLabel": "Link name",
+      "back": "Back",
+      "create": "Create"
+    },
+    "selection": {
+      "title": "Create Share Link",
+      "shareFolder": "Share this folder",
+      "shareProject": "Share project",
+      "oneLinkHint": "One link with all contents included",
+      "folderCount": "{count, plural, one {# folder} other {# folders}}",
+      "assetCount": "{count, plural, one {# asset} other {# assets}}",
+      "empty": "Empty — no items to share",
+      "cancel": "Cancel",
+      "next": "Next"
+    },
+    "created": {
+      "multipleLinksCreated": "{count, plural, one {# share link created} other {# share links created}}",
+      "copyUrlFailed": "Copy failed",
+      "copyShareUrl": "Copy share URL",
+      "settingsTitle": "Settings",
+      "settingsSummary": "Anyone with the link can {actions}.",
+      "actionView": "view",
+      "actionDownload": "download",
+      "actionComment": "comment",
+      "back": "Back",
+      "advancedSettings": "Advanced settings",
+      "copyLink": "Copy Link",
+      "done": "Done",
+      "defaultSharedFolder": "Shared Folder",
+      "defaultSharedProject": "Shared Project"
+    },
+    "srDescription": "Select items to share and create a public share link.",
+    "createError": "Failed to create share link"
+  },
   "assetGrid": {
     "selectItemsToShare": "Select items to share",
     "cancel": "Cancel",

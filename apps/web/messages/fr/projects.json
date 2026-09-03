@@ -17,6 +17,70 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "shareCreateDialog": {
+    "copyButton": {
+      "urlCopied": "URL copiée dans le presse-papiers",
+      "copyFailed": "Échec de la copie",
+      "copied": "Copié !",
+      "failed": "Échec"
+    },
+    "inviteInput": {
+      "placeholder": "Envoyer à un nom ou un email",
+      "invited": "{name} invité(e)",
+      "hint": "Tapez pour rechercher ou saisissez un email",
+      "remove": "Retirer",
+      "fallbackName": "utilisateur"
+    },
+    "visibility": "Visibilité",
+    "visibilityPublic": "🌐 Public",
+    "visibilitySecure": "🔒 Sécurisé",
+    "allowComments": "Autoriser les commentaires",
+    "allowDownloads": "Autoriser les téléchargements",
+    "passphrase": "Phrase secrète",
+    "passphrasePlaceholder": "Saisir une phrase secrète",
+    "hide": "Masquer",
+    "show": "Afficher",
+    "expirationDate": "Date d'expiration",
+    "watermark": "Filigrane",
+    "layout": "Disposition",
+    "layoutGrid": "grille",
+    "layoutList": "liste",
+    "configure": {
+      "title": "Configurer le lien de partage",
+      "linkNameLabel": "Nom du lien",
+      "back": "Retour",
+      "create": "Créer"
+    },
+    "selection": {
+      "title": "Créer un lien de partage",
+      "shareFolder": "Partager ce dossier",
+      "shareProject": "Partager le projet",
+      "oneLinkHint": "Un seul lien avec tout le contenu inclus",
+      "folderCount": "{count, plural, one {# dossier} other {# dossiers}}",
+      "assetCount": "{count, plural, one {# média} other {# médias}}",
+      "empty": "Vide — aucun élément à partager",
+      "cancel": "Annuler",
+      "next": "Suivant"
+    },
+    "created": {
+      "multipleLinksCreated": "{count, plural, one {# lien de partage créé} other {# liens de partage créés}}",
+      "copyUrlFailed": "Échec de la copie",
+      "copyShareUrl": "Copier l'URL de partage",
+      "settingsTitle": "Paramètres",
+      "settingsSummary": "Toute personne disposant du lien peut {actions}.",
+      "actionView": "consulter",
+      "actionDownload": "télécharger",
+      "actionComment": "commenter",
+      "back": "Retour",
+      "advancedSettings": "Paramètres avancés",
+      "copyLink": "Copier le lien",
+      "done": "Terminé",
+      "defaultSharedFolder": "Dossier partagé",
+      "defaultSharedProject": "Projet partagé"
+    },
+    "srDescription": "Sélectionnez les éléments à partager et créez un lien de partage public.",
+    "createError": "Impossible de créer le lien de partage"
+  },
   "assetGrid": {
     "selectItemsToShare": "Sélectionnez les éléments à partager",
     "cancel": "Annuler",
