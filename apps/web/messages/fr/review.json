@@ -1,1 +1,17 @@
-{}
+{
+  "versionLabel": "Version :",
+  "versionStatus": {
+    "uploading": "Import en cours",
+    "processing": "Traitement en cours",
+    "ready": "Prêt",
+    "failed": "Échec"
+  },
+  "shownOnOtherSide": "Affiché de l'autre côté",
+  "inUse": "en cours d'utilisation",
+  "fpsPrompt": {
+    "title": "Cadence d'images nécessaire",
+    "description": "Cette vidéo a été importée avant que FreeFrame ne commence à capturer automatiquement la cadence d'images, donc son fps n'est pas connu. Choisissez la cadence d'origine de la vidéo pour que les marqueurs exportés correspondent aux bonnes images. (Les vidéos nouvellement importées ne poseront pas cette question.)",
+    "cancel": "Annuler",
+    "export": "Exporter"
+  }
+}

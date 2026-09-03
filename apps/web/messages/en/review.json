@@ -1,1 +1,17 @@
-{}
+{
+  "versionLabel": "Version:",
+  "versionStatus": {
+    "uploading": "Uploading",
+    "processing": "Processing",
+    "ready": "Ready",
+    "failed": "Failed"
+  },
+  "shownOnOtherSide": "Shown on the other side",
+  "inUse": "in use",
+  "fpsPrompt": {
+    "title": "Frame rate needed",
+    "description": "This video was uploaded before FreeFrame started capturing frame rates automatically, so its fps isn't on file. Pick the video's original frame rate so exported markers land on the correct frames. (Newly uploaded videos won't ask this.)",
+    "cancel": "Cancel",
+    "export": "Export"
+  }
+}

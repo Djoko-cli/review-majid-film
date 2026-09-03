@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -18,6 +19,7 @@ export function FpsPromptDialog({
   onOpenChange,
   onConfirm,
 }: FpsPromptDialogProps) {
+  const t = useTranslations('review.fpsPrompt')
   const [fps, setFps] = React.useState<number>(25)
 
   return (
@@ -26,13 +28,10 @@ export function FpsPromptDialog({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="glass-panel fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl p-5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
           <Dialog.Title className="text-sm font-semibold text-text-primary">
-            Frame rate needed
+            {t('title')}
           </Dialog.Title>
           <Dialog.Description className="mt-1 text-xs text-text-tertiary">
-            This video was uploaded before FreeFrame started capturing frame
-            rates automatically, so its fps isn&apos;t on file. Pick the
-            video&apos;s original frame rate so exported markers land on the
-            correct frames. (Newly uploaded videos won&apos;t ask this.)
+            {t('description')}
           </Dialog.Description>
 
           <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -61,7 +60,7 @@ export function FpsPromptDialog({
               size="sm"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               type="button"
@@ -71,7 +70,7 @@ export function FpsPromptDialog({
                 onOpenChange(false)
               }}
             >
-              Export
+              {t('export')}
             </Button>
           </div>
         </Dialog.Content>

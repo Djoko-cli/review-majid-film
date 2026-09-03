@@ -3,31 +3,31 @@
 import * as React from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { AlertCircle, Loader2, CheckCircle2, ChevronDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useReviewStore } from '@/stores/review-store'
 import type { AssetVersion, AssetVersionStatus } from '@/types'
 
+/** Icon/color per status — the label itself is translated at each call site
+ *  via t(`versionStatus.${status}`), since this module-level object can't
+ *  call a hook. */
 export const versionStatusConfig: Record<
   AssetVersionStatus,
-  { label: string; className: string; icon: React.ReactNode }
+  { className: string; icon: React.ReactNode }
 > = {
   uploading: {
-    label: 'Uploading',
     className: 'text-status-info',
     icon: <Loader2 className="h-2.5 w-2.5 animate-spin" />,
   },
   processing: {
-    label: 'Processing',
     className: 'text-status-warning',
     icon: <Loader2 className="h-2.5 w-2.5 animate-spin" />,
   },
   ready: {
-    label: 'Ready',
     className: 'text-status-success',
     icon: <CheckCircle2 className="h-2.5 w-2.5" />,
   },
   failed: {
-    label: 'Failed',
     className: 'text-status-error',
     icon: <AlertCircle className="h-2.5 w-2.5" />,
   },
@@ -39,6 +39,7 @@ interface VersionSwitcherProps {
 }
 
 export function VersionSwitcher({ versions, className }: VersionSwitcherProps) {
+  const t = useTranslations('review')
   const currentVersion = useReviewStore((s) => s.currentVersion)
   const setCurrentVersion = useReviewStore((s) => s.setCurrentVersion)
 
@@ -57,10 +58,11 @@ export function VersionSwitcher({ versions, className }: VersionSwitcherProps) {
     latestStatus === 'uploading' || latestStatus === 'processing'
       ? versionStatusConfig[latestStatus]
       : null
+  const inFlightLabel = latestStatus ? t(`versionStatus.${latestStatus}`) : ''
 
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
-      <span className="text-xs text-text-tertiary shrink-0">Version:</span>
+      <span className="text-xs text-text-tertiary shrink-0">{t('versionLabel')}</span>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 bg-accent text-white text-xs font-medium hover:bg-accent/90 transition-colors outline-none">
@@ -69,10 +71,10 @@ export function VersionSwitcher({ versions, className }: VersionSwitcherProps) {
               <span
                 data-testid="version-status-indicator"
                 className="inline-flex items-center gap-1 text-[11px] text-white/90"
-                title={`v${latest.version_number} — ${inFlightCfg.label}`}
+                title={`v${latest.version_number} — ${inFlightLabel}`}
               >
                 {inFlightCfg.icon}
-                {inFlightCfg.label}
+                {inFlightLabel}
               </span>
             )}
             {sorted.length > 1 && <ChevronDown className="h-3 w-3 opacity-70" />}
@@ -107,10 +109,10 @@ export function VersionSwitcher({ versions, className }: VersionSwitcherProps) {
                     <span>v{version.version_number}</span>
                     <span
                       className={cn('inline-flex items-center gap-1 text-[11px]', statusCfg.className)}
-                      title={statusCfg.label}
+                      title={t(`versionStatus.${version.processing_status}`)}
                     >
                       {statusCfg.icon}
-                      {statusCfg.label}
+                      {t(`versionStatus.${version.processing_status}`)}
                     </span>
                   </DropdownMenu.Item>
                 )
