@@ -17,6 +17,28 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "membersDialog": {
+    "srDescription": "Ajouter ou gérer les membres du projet",
+    "addTo": "Ajouter à {projectName}",
+    "nameOrEmailPlaceholder": "Nom ou email",
+    "addMemberHint": "Ajoutez un membre nouveau ou existant",
+    "suggested": "Suggestions",
+    "messagePlaceholder": "Ajouter un message (facultatif)",
+    "cancel": "Annuler",
+    "add": "Ajouter",
+    "addMemberFailed": "Impossible d'ajouter le membre",
+    "memberCount": "{count, plural, one {# membre} other {# membres}}",
+    "manage": "Gérer",
+    "membersOf": "Membres de {projectName}",
+    "you": "(vous)",
+    "noMembersYet": "Aucun membre pour l'instant",
+    "roles": {
+      "owner": { "label": "Accès complet", "description": "Peut gérer toutes les ressources du projet" },
+      "editor": { "label": "Modifier et partager", "description": "Peut gérer les ressources, les télécharger et les partager" },
+      "reviewer": { "label": "Commentaire uniquement", "description": "Peut consulter et commenter les ressources concernées" },
+      "viewer": { "label": "Consultation uniquement", "description": "Peut consulter les ressources concernées" }
+    }
+  },
   "assetMetadata": {
     "enterField": "Saisir {field}",
     "selectField": "Sélectionner {field}",
