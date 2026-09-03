@@ -1,18 +1,14 @@
-# FreeFrame
+# Review
 
-**Self-hostable, open-source media review platform. A collaborative alternative to Frame.io.**
+**Self-hosted media review — frame-accurate feedback, real-time collaboration, and a client-facing review experience that never leaves your own infrastructure.**
 
-[![CI](https://github.com/Techiebutler/freeframe/actions/workflows/ci.yml/badge.svg)](https://github.com/Techiebutler/freeframe/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](docker-compose.prod.yml)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/contributing.md)
-[![Discussions](https://img.shields.io/github/discussions/Techiebutler/freeframe)](https://github.com/Techiebutler/freeframe/discussions)
+[![Latest release](https://img.shields.io/github/v/release/Djoko-cli/review-majid-film)](https://github.com/Djoko-cli/review-majid-film/releases)
 
-FreeFrame gives production houses and creative teams a self-hosted platform for reviewing video, image, and audio assets with frame-accurate commenting, annotations, and approval workflows. Your media stays on your infrastructure.
+Review gives production houses and creative teams a self-hosted platform for reviewing video, image, and audio assets with frame-accurate commenting, annotations, and approval workflows. Your media stays on your infrastructure — Postgres, Redis, and S3-compatible storage all run wherever you deploy this.
 
-![FreeFrame review player — frame-accurate timecoded comments, threads with guest replies, and timeline markers](docs/images/review-player.png)
-
-<p align="center"><em>Frame-accurate review: timecoded comment threads, guest replies, resolved ranges, and SMPTE timecode — on your own infrastructure.</em></p>
+Review is a fork of [freeframe](https://github.com/Techiebutler/freeframe) (MIT), rebranded and redesigned as part of the "M family" of self-hosted tools alongside [Transfer](https://github.com/Djoko-cli/transfer-majid-film): same liquid-glass visual language, same self-hosting philosophy. See [`CHANGELOG.md`](CHANGELOG.md) for what changed since the fork.
 
 ---
 
@@ -25,24 +21,24 @@ FreeFrame gives production houses and creative teams a self-hosted platform for 
 - **Threaded comments** with mentions, reactions, and attachments
 - **Approval workflows** with per-reviewer status tracking
 - **Version compare** — put any two versions side-by-side or under a wipe slider, with per-version comments and annotations
-- **Folder organization** within projects
-- **Team collaboration** with role-based permissions (org, team, project levels)
-- **Share links** for external reviewers (password-protected, expiring)
+- **Folder organization** within projects, with per-project roles (owner/editor/reviewer/viewer)
+- **Share links** for external reviewers (password-protected, expiring, with per-link light/dark appearance)
 - **Guest commenting** via share links (no account required)
 - **Due date tracking** with email reminders
 - **Real-time updates** via Server-Sent Events
-- **White-label it completely** — your workspace name, logos, favicon and accent colour across the app, share links and emails; the "Powered by FreeFrame" badge switches off
-- **Self-hosted** with Docker Compose — runs on any server or cloud VM
+- **Password and OIDC authentication** — sign in with a real password, or against any standards-compliant OpenID Connect provider (built for a self-hosted [Pocket ID](https://github.com/pocket-id/pocket-id) instance, but provider-agnostic)
+- **French and English**, throughout the app, the public share pages, and every transactional email
+- **A database-backed admin console** (Settings → Admin → Config) for instance settings — auth, OIDC, email, upload limits, transcoder tuning — editable live, no `.env` editing or container restart required
+- **White-label logo** — your own mark on the sidebar, sign-in screen, favicon, and share links; the "Powered by FreeFrame" badge can be switched off
+- **Self-hosted** with Docker Compose — runs on any server, cloud VM, or NAS
+
+### Frame-accurate review
+
+Timecoded comment threads, guest replies, resolved ranges, and SMPTE timecode — reviewers mark up the exact frame they mean, not a rough timestamp.
 
 ### Compare any two versions
 
 Put two cuts or revisions on screen at once and see exactly what changed. Video plays in frame-accurate sync with per-side audio and offset trim for re-edited cuts; images compare side-by-side or under a draggable wipe. Each version keeps its own comment thread and annotations, and the whole view is shareable by URL.
-
-![Version compare — two synced video versions side by side, each with its own timecoded comment thread, per-side audio, and frame-offset trim](docs/images/video-version-screen.png)
-
-| Images side-by-side | Wipe slider |
-|---|---|
-| ![Image version compare, side-by-side — v1 and v2 of an illustration, each with its own comments](docs/images/image-version-compare-sidebyside.png) | ![Image version compare, wipe — a draggable divider reveals v1 on the left and v2 on the right](docs/images/image-version-compare-wipe.png) |
 
 ### Take comments straight into your edit
 
@@ -50,42 +46,40 @@ Export a version's timecoded comments as timeline markers your editor can import
 
 See [Export comments to an NLE](docs/comment-export.md) for the export workflow, format choices, and frame-rate troubleshooting.
 
-<p align="center">
-  <img src="docs/images/comment-export.png" alt="Export comments menu — DaVinci Resolve (EDL), Final Cut Pro (FCPXML), Premiere Pro (XML), and CSV" width="480">
-</p>
-
 ### Share with clients — no accounts needed
 
-Send a link; clients review and comment without signing up. You stay in control of every link: comments/downloads permissions, passphrase, expiration date, watermarking, and appearance.
+Send a link; clients review and comment without signing up. Every link controls its own comment/download permissions, passphrase, expiration date, watermarking, and appearance.
+
+> The feature screenshots below are inherited from upstream freeframe and predate this fork's redesign — the accent color and chrome you'll actually see are different (near-black, warm orange, frosted glass throughout). The functionality they show is current.
+
+![Review player — frame-accurate timecoded comments, threads with guest replies, and timeline markers](docs/images/review-player.png)
+
+![Version compare — two synced video versions side by side, each with its own timecoded comment thread, per-side audio, and frame-offset trim](docs/images/video-version-screen.png)
+
+| Images side-by-side | Wipe slider |
+|---|---|
+| ![Image version compare, side-by-side — v1 and v2 of an illustration, each with its own comments](docs/images/image-version-compare-sidebyside.png) | ![Image version compare, wipe — a draggable divider reveals v1 on the left and v2 on the right](docs/images/image-version-compare-wipe.png) |
 
 | Client view (no login) | Your share-link controls |
 |---|---|
 | ![Public share link — clients browse assets and comment without an account](docs/images/share-client-view.png) | ![Share link settings — permissions, passphrase, expiration, watermark](docs/images/share-link-settings.png) |
 
-### Make it yours, not ours
-
-Set your workspace name, logos and accent colour once, and the whole platform follows — sign-in screen, sidebar, browser tab, share links, and the emails your clients receive. Switch off the "Powered by FreeFrame" badge (left on in the shots below) and nothing identifies the software your studio runs on.
-
-![A branded sign-in screen — the studio's own logo, workspace name and accent colour throughout](docs/images/branding-login.png)
-
-A live preview shows the app, the sign-in screen and an email side by side with the controls, so you can see what a change does before saving it.
-
-| Live preview of the branded app | The controls |
-|---|---|
-| ![Settings → Branding preview — a faithful mock of the app shell carrying the studio's logo, name and accent](docs/images/branding-preview.png) | ![Settings → Branding — workspace name, accent colour picker, and light and dark logo slots](docs/images/branding-settings.png) |
+<p align="center">
+  <img src="docs/images/comment-export.png" alt="Export comments menu — DaVinci Resolve (EDL), Final Cut Pro (FCPXML), Premiere Pro (XML), and CSV" width="480">
+</p>
 
 ## Quick Start (Development)
 
 **Prerequisites:** Docker and Docker Compose
 
 ```bash
-git clone https://github.com/Techiebutler/freeframe.git
-cd freeframe
+git clone https://github.com/Djoko-cli/review-majid-film.git
+cd review-majid-film
 cp .env.example .env
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to access FreeFrame. The first user to sign up becomes the super admin.
+Open [http://localhost:3000](http://localhost:3000) to access Review. The first user to sign up becomes the super admin.
 
 **Services running in dev:**
 
@@ -98,7 +92,7 @@ Open [http://localhost:3000](http://localhost:3000) to access FreeFrame. The fir
 
 ### Access from other devices on your network (LAN)
 
-By default the dev stack is reachable only from the host machine (`localhost`). To open FreeFrame from a phone or another computer on the same network, point a few URLs at your machine's LAN IP — find it with `ipconfig getifaddr en0` (macOS) or `hostname -I` (Linux) — then recreate the containers.
+By default the dev stack is reachable only from the host machine (`localhost`). To open Review from a phone or another computer on the same network, point a few URLs at your machine's LAN IP — find it with `ipconfig getifaddr en0` (macOS) or `hostname -I` (Linux) — then recreate the containers.
 
 In `.env` (replace `192.168.1.50` with your IP):
 
@@ -118,31 +112,18 @@ Then browse to `http://192.168.1.50:3000` from any device on the network. Server
 
 > The `*` wildcards are LAN-testing conveniences — don't use them in production. See [docs/deployment.md](docs/deployment.md) for a locked-down setup.
 
-## Release channels
-
-Production self-hosters should run a **released** version, not `main`:
-
-| Ref | What it is | Use it if… |
-|-----|-----------|------------|
-| `stable` | The latest release we've validated — a bad release is never promoted here. | **Production (safe default):** `git clone -b stable …`, then `git pull` to update. |
-| `latest` | The newest published release (moves on every release). | You want new features sooner and can tolerate the occasional regression. |
-| `v1.3.1` (any `vX.Y.Z`) | An immutable, pinned release. | You want to pin an exact version: `git checkout v1.3.1`. |
-| `main` | Active development; may be unreleased or unstable. | You're developing or contributing to FreeFrame. |
-
-Release notes are on the [Releases page](https://github.com/Techiebutler/freeframe/releases). Maintainers: see [docs/RELEASING.md](docs/RELEASING.md).
-
 ## Production Deployment
 
 ```bash
-git clone -b stable https://github.com/Techiebutler/freeframe.git
-cd freeframe
+git clone https://github.com/Djoko-cli/review-majid-film.git
+cd review-majid-film
 cp .env.example .env.prod
 # Edit .env.prod — set your credentials, S3, email config
 # For SSL: also set DOMAIN and ACME_EMAIL (Traefik auto-provisions Let's Encrypt certs)
 docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 ```
 
-For the full guide including **SSL setup**, **bring-your-own infrastructure** (external database, Redis, S3, SMTP), scaling, and troubleshooting, see:
+Release notes for each tagged version are on the [Releases page](https://github.com/Djoko-cli/review-majid-film/releases). For the full deployment guide including **SSL setup**, **bring-your-own infrastructure** (external database, Redis, S3, SMTP), scaling, and troubleshooting, see:
 
 **[Production Deployment Guide](docs/deployment.md)**
 
@@ -184,14 +165,14 @@ For the full guide including **SSL setup**, **bring-your-own infrastructure** (e
 
 | Component    | Technology                                       |
 |--------------|--------------------------------------------------|
-| Frontend     | Next.js 14, React 18, Tailwind CSS, Zustand      |
+| Frontend     | Next.js 14, React 18, Tailwind CSS, Zustand, next-intl (FR/EN) |
 | Backend      | FastAPI, SQLAlchemy, Pydantic                    |
 | Database     | PostgreSQL 15                                     |
 | Queue        | Celery + Redis                                    |
-| Transcoding  | FFmpeg (multi-bitrate HLS)                        |
+| Transcoding  | FFmpeg (multi-bitrate HLS), CPU by default, optional NVENC/VAAPI |
 | Storage      | Any S3-compatible (AWS, R2, B2, MinIO)           |
 | Proxy        | Traefik (auto SSL via Let's Encrypt)              |
-| Auth         | JWT + magic code email login                      |
+| Auth         | JWT sessions — password login and OIDC (PKCE), magic-code-by-email available but off by default |
 
 ## Documentation
 
@@ -200,38 +181,9 @@ For the full guide including **SSL setup**, **bring-your-own infrastructure** (e
 | [Production Deployment](docs/deployment.md) | SSL, bring-your-own infra, scaling, troubleshooting |
 | [Architecture](docs/architecture.md) | System design, data flow, media pipeline, permissions |
 | [Export comments to an NLE](docs/comment-export.md) | Export review notes for Resolve, Final Cut Pro, Premiere Pro, or CSV |
-| [Contributing](docs/contributing.md) | Dev setup, testing, code style, PR process |
+| [Changelog](CHANGELOG.md) | What changed, release by release |
 | [Environment Variables](.env.example) | Full config reference with comments |
-
-## Contributing
-
-We welcome contributions of every kind — **not just code**. Testing a release against your NLE and reporting what you find, improving docs, filing detailed bug reports, and suggesting workflow features from real production experience all move FreeFrame forward.
-
-- Read the [Contributing Guide](docs/contributing.md) for dev setup and conventions
-- Grab a [`good first issue`](https://github.com/Techiebutler/freeframe/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to make your first PR
-- Ask questions or propose ideas in [Discussions](https://github.com/Techiebutler/freeframe/discussions)
-
-We aim to respond to new issues and PRs **within 48 hours**.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-## Contact & Support
-
-<div align="center">
-
-**A project by [Techiebutler](https://techiebutler.com)**
-
-Have questions? Need help?
-
-**Email:** [support@techiebutler.com](mailto:support@techiebutler.com)
-
-[![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/techie_butler/)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/techiebutler/)
-
-Star the repo if FreeFrame is useful to you!
-
-</div>
+MIT License — see [LICENSE](LICENSE) for details. Review is a fork of [Techiebutler/freeframe](https://github.com/Techiebutler/freeframe); upstream attribution is preserved per the original license.
