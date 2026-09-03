@@ -1,1 +1,6 @@
-{}
+{
+  "zone": {
+    "dragToUpload": "Drag files and folders to upload.",
+    "upload": "Upload"
+  }
+}

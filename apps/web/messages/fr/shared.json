@@ -41,5 +41,33 @@
       "status": "Statut",
       "type": "Type"
     }
+  },
+  "avatar": {
+    "fallbackAlt": "Avatar"
+  },
+  "badge": {
+    "draft": "Brouillon",
+    "in_review": "En révision",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "archived": "Archivé"
+  },
+  "poweredByBadge": {
+    "poweredBy": "Propulsé par {name}",
+    "githubTitle": "FreeFrame sur GitHub"
+  },
+  "storageUsage": {
+    "titleUnlimited": "Stockage utilisé : {used}",
+    "titleLimited": "Stockage {used} / {limit}",
+    "usedLabel": "Stockage utilisé",
+    "label": "Stockage"
+  },
+  "toast": {
+    "notificationsLabel": "Notifications",
+    "dismissLabel": "Ignorer la notification"
+  },
+  "confirmDialog": {
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
   }
 }

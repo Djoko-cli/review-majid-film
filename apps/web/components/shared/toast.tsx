@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -123,12 +124,13 @@ interface ToastContainerProps {
 }
 
 function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
+  const t = useTranslations('shared.toast')
   if (toasts.length === 0) return null
 
   return (
     <div
       aria-live="polite"
-      aria-label="Notifications"
+      aria-label={t('notificationsLabel')}
       className="pointer-events-none fixed bottom-4 right-4 z-[9999] flex flex-col-reverse gap-2"
     >
       {toasts.map((t) => (
@@ -146,6 +148,7 @@ interface ToastTileProps {
 }
 
 function ToastTile({ toast, onDismiss }: ToastTileProps) {
+  const t = useTranslations('shared.toast')
   const config = TOAST_CONFIG[toast.type]
   const Icon = config.icon
 
@@ -163,7 +166,7 @@ function ToastTile({ toast, onDismiss }: ToastTileProps) {
       <button
         onClick={() => onDismiss(toast.id)}
         className="mt-0.5 shrink-0 rounded p-0.5 text-text-tertiary transition-colors hover:bg-bg-hover hover:text-text-primary"
-        aria-label="Dismiss notification"
+        aria-label={t('dismissLabel')}
       >
         <X className="h-3.5 w-3.5" />
       </button>

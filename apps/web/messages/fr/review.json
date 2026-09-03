@@ -207,5 +207,50 @@
     "description": "Cette vidéo a été importée avant que FreeFrame ne commence à capturer automatiquement la cadence d'images, donc son fps n'est pas connu. Choisissez la cadence d'origine de la vidéo pour que les marqueurs exportés correspondent aux bonnes images. (Les vidéos nouvellement importées ne poseront pas cette question.)",
     "cancel": "Annuler",
     "export": "Exporter"
+  },
+  "assetPage": {
+    "loadingAsset": "Chargement du média...",
+    "processingAsset": {
+      "title": "Traitement du média",
+      "description": "Cela peut prendre quelques minutes selon la taille du fichier."
+    },
+    "processingFailed": {
+      "title": "Échec du traitement",
+      "description": "Essayez d'importer une nouvelle version de ce média."
+    },
+    "versionNotReady": {
+      "title": "Version non prête",
+      "description": "Cette version est encore en cours de préparation."
+    },
+    "previousAsset": "Média précédent (←)",
+    "nextAsset": "Média suivant (→)",
+    "assetCounter": "{current} sur {total}",
+    "compareVersionsTitle": "Comparer les versions",
+    "compare": "Comparer",
+    "uploadNewVersionTitle": "Importer une nouvelle version",
+    "newVersion": "Nouvelle version",
+    "toggleSidebar": "Afficher/masquer la barre latérale",
+    "tabs": {
+      "comments": "Commentaires",
+      "fields": "Champs"
+    },
+    "fields": {
+      "name": "Nom",
+      "type": "Type",
+      "version": "Version",
+      "processing": "Traitement"
+    },
+    "assetTypeLabels": {
+      "image": "image",
+      "imageCarousel": "carrousel d'images",
+      "audio": "audio",
+      "video": "vidéo"
+    },
+    "processingStatusLabels": {
+      "uploading": "Import en cours",
+      "processing": "Traitement en cours",
+      "ready": "Prêt",
+      "failed": "Échec"
+    }
   }
 }

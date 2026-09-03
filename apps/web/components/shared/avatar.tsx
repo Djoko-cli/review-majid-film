@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import * as RadixAvatar from '@radix-ui/react-avatar'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 
 type AvatarSize = 'sm' | 'md' | 'lg'
@@ -27,6 +28,7 @@ function getInitials(name?: string | null): string {
 }
 
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
+  const t = useTranslations('shared.avatar')
   return (
     <RadixAvatar.Root
       className={cn(
@@ -38,7 +40,7 @@ export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
       {src && (
         <RadixAvatar.Image
           src={src}
-          alt={name ?? 'Avatar'}
+          alt={name ?? t('fallbackAlt')}
           className="h-full w-full object-cover"
         />
       )}

@@ -1,1 +1,6 @@
-{}
+{
+  "zone": {
+    "dragToUpload": "Glissez des fichiers et dossiers à importer.",
+    "upload": "Importer"
+  }
+}

@@ -1,4 +1,5 @@
 import { HardDrive } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn, formatBytes, storageMeterState } from '@/lib/utils'
 
 const FILL: Record<'ok' | 'warn' | 'critical', string> = {
@@ -13,10 +14,10 @@ const RING_TEXT: Record<'ok' | 'warn' | 'critical', string> = {
   critical: 'text-status-error',
 }
 
-function usageTitle(used: number, limit: number, unlimited: boolean): string {
+function usageTitle(used: number, limit: number, unlimited: boolean, t: (key: string, values?: Record<string, string>) => string): string {
   return unlimited
-    ? `Storage used ${formatBytes(used)}`
-    : `Storage ${formatBytes(used)} / ${formatBytes(limit)}`
+    ? t('titleUnlimited', { used: formatBytes(used) })
+    : t('titleLimited', { used: formatBytes(used), limit: formatBytes(limit) })
 }
 
 /** Full "used / limit" row + meter bar — for expanded surfaces (sidebar / admin panel). */
@@ -29,6 +30,7 @@ export function StorageUsage({
   limit: number
   variant?: 'sidebar' | 'panel'
 }) {
+  const t = useTranslations('shared.storageUsage')
   const { unlimited, pct, level } = storageMeterState(used, limit)
   const labelCls = variant === 'sidebar' ? 'text-[11px]' : 'text-sm'
   const valueCls = variant === 'sidebar' ? 'text-[10px]' : 'text-xs'
@@ -37,7 +39,7 @@ export function StorageUsage({
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <span className={cn(labelCls, 'font-medium text-text-secondary')}>
-          {unlimited ? 'Storage used' : 'Storage'}
+          {unlimited ? t('usedLabel') : t('label')}
         </span>
         <span className={cn(valueCls, 'tabular-nums text-text-tertiary')}>
           {unlimited ? formatBytes(used) : `${formatBytes(used)} / ${formatBytes(limit)}`}
@@ -61,8 +63,9 @@ export function StorageUsage({
 /** Compact circular gauge — for the collapsed sidebar rail. Ring colored by usage level
  *  when a cap is set; a plain disk icon when unlimited. Hover title shows used/limit. */
 export function StorageRing({ used, limit }: { used: number; limit: number }) {
+  const t = useTranslations('shared.storageUsage')
   const { unlimited, pct, level } = storageMeterState(used, limit)
-  const title = usageTitle(used, limit, unlimited)
+  const title = usageTitle(used, limit, unlimited, t)
 
   if (unlimited) {
     return (

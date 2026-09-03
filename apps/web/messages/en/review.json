@@ -207,5 +207,50 @@
     "description": "This video was uploaded before FreeFrame started capturing frame rates automatically, so its fps isn't on file. Pick the video's original frame rate so exported markers land on the correct frames. (Newly uploaded videos won't ask this.)",
     "cancel": "Cancel",
     "export": "Export"
+  },
+  "assetPage": {
+    "loadingAsset": "Loading asset...",
+    "processingAsset": {
+      "title": "Processing asset",
+      "description": "This may take a few minutes depending on file size."
+    },
+    "processingFailed": {
+      "title": "Processing failed",
+      "description": "Try uploading a new version of this asset."
+    },
+    "versionNotReady": {
+      "title": "Version not ready",
+      "description": "This version is still being prepared."
+    },
+    "previousAsset": "Previous asset (←)",
+    "nextAsset": "Next asset (→)",
+    "assetCounter": "{current} of {total}",
+    "compareVersionsTitle": "Compare versions",
+    "compare": "Compare",
+    "uploadNewVersionTitle": "Upload new version",
+    "newVersion": "New Version",
+    "toggleSidebar": "Toggle sidebar",
+    "tabs": {
+      "comments": "Comments",
+      "fields": "Fields"
+    },
+    "fields": {
+      "name": "Name",
+      "type": "Type",
+      "version": "Version",
+      "processing": "Processing"
+    },
+    "assetTypeLabels": {
+      "image": "image",
+      "imageCarousel": "image carousel",
+      "audio": "audio",
+      "video": "video"
+    },
+    "processingStatusLabels": {
+      "uploading": "Uploading",
+      "processing": "Processing",
+      "ready": "Ready",
+      "failed": "Failed"
+    }
   }
 }

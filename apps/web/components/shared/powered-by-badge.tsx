@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useBrandingStore } from '@/stores/branding-store'
 import { cn } from '@/lib/utils'
 
@@ -33,6 +34,7 @@ export function PoweredByBadge({
   showOrgName,
   showIcon = true,
 }: PoweredByBadgeProps) {
+  const t = useTranslations('shared.poweredByBadge')
   const { poweredByFreeframe, orgName } = useBrandingStore()
 
   if (!poweredByFreeframe) return null
@@ -45,7 +47,7 @@ export function PoweredByBadge({
     <>
       {showIcon && <FreeFrameMark />}
       <span>
-        Powered by {showOrgName ? orgName || 'FreeFrame' : 'FreeFrame'}
+        {t('poweredBy', { name: showOrgName ? orgName || 'FreeFrame' : 'FreeFrame' })}
       </span>
     </>
   )
@@ -62,7 +64,7 @@ export function PoweredByBadge({
       href={FREEFRAME_REPO_URL}
       target="_blank"
       rel="noopener noreferrer"
-      title="FreeFrame on GitHub"
+      title={t('githubTitle')}
       className={cn(classes, 'transition-colors hover:text-text-secondary')}
     >
       {content}

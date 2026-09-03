@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { AlertTriangle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 
@@ -25,13 +26,14 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'default',
   loading = false,
   error,
   onConfirm,
 }: ConfirmDialogProps) {
+  const t = useTranslations('shared.confirmDialog')
   const [isLoading, setIsLoading] = React.useState(false)
 
   async function handleConfirm() {
@@ -90,7 +92,7 @@ export function ConfirmDialog({
               onClick={() => onOpenChange(false)}
               disabled={busy}
             >
-              {cancelLabel}
+              {cancelLabel ?? t('cancel')}
             </Button>
             <Button
               variant={variant === 'danger' ? 'destructive' : 'primary'}
@@ -98,7 +100,7 @@ export function ConfirmDialog({
               onClick={handleConfirm}
               loading={busy}
             >
-              {confirmLabel}
+              {confirmLabel ?? t('confirm')}
             </Button>
           </div>
         </Dialog.Content>

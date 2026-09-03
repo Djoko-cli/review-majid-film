@@ -47,5 +47,25 @@
       "reply": "Reply",
       "unknownAuthor": "User"
     }
+  },
+  "landingPage": {
+    "incorrectPassword": "Incorrect password",
+    "sharedFallbackName": "Shared",
+    "passwordGate": {
+      "passwordRequired": "Password required to access this link",
+      "passwordPlaceholder": "Enter password…",
+      "accessLink": "Access link"
+    },
+    "errorState": {
+      "linkExpiredTitle": "Link expired",
+      "linkNotFoundTitle": "Link not found",
+      "linkExpiredDescription": "This share link has expired and is no longer accessible.",
+      "linkNotFoundDescription": "This share link is invalid or has been removed."
+    },
+    "authRequired": {
+      "defaultTitle": "Secure Share Link",
+      "description": "This link is private. Please sign in to view the shared content.",
+      "signIn": "Sign in to continue"
+    }
   }
 }

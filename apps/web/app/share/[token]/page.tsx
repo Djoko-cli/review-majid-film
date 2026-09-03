@@ -7,6 +7,7 @@ import {
   Clock,
   Loader2,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { withBasePath } from '@/lib/base-path'
 import { Button } from '@/components/ui/button'
 import { FolderShareViewer } from '@/components/share/folder-share-viewer'
@@ -55,6 +56,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 async function fetchShareInfo(
   token: string,
+  t: (key: string) => string,
   password?: string,
   logOpen?: boolean,
 ): Promise<ShareValidateResponse> {
@@ -95,7 +97,7 @@ async function fetchShareInfo(
         if (typeof detail === 'string' && detail.includes('Authentication required')) {
           return { requires_auth: true }
         }
-        return { requires_password: true, error: 'Incorrect password' }
+        return { requires_password: true, error: t('incorrectPassword') }
       }
       if (resp.status === 410) return { expired: true }
       return {}
@@ -126,6 +128,7 @@ interface PasswordGateProps {
 }
 
 function PasswordGate({ onSubmit, error, loading }: PasswordGateProps) {
+  const t = useTranslations('share.landingPage')
   const [password, setPassword] = React.useState('')
 
   function handleSubmit(e: React.FormEvent) {
@@ -155,7 +158,7 @@ function PasswordGate({ onSubmit, error, loading }: PasswordGateProps) {
           )}
           <div className="text-center">
             <h1 className="text-sm font-semibold text-text-primary">{orgName}</h1>
-            <p className="text-xs text-text-tertiary mt-1">Password required to access this link</p>
+            <p className="text-xs text-text-tertiary mt-1">{t('passwordGate.passwordRequired')}</p>
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -163,13 +166,13 @@ function PasswordGate({ onSubmit, error, loading }: PasswordGateProps) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password…"
+            placeholder={t('passwordGate.passwordPlaceholder')}
             autoFocus
             className="flex h-9 w-full rounded-md border border-border bg-bg-tertiary px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus"
           />
           {error && <p className="text-xs text-status-error">{error}</p>}
           <Button type="submit" size="sm" className="w-full" loading={loading}>
-            Access link
+            {t('passwordGate.accessLink')}
           </Button>
         </form>
         <PoweredByBadge className="mt-6 text-center justify-center" />
@@ -185,6 +188,7 @@ interface ErrorStateProps {
 }
 
 function ErrorState({ expired }: ErrorStateProps) {
+  const t = useTranslations('share.landingPage')
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-primary p-4">
@@ -199,12 +203,12 @@ function ErrorState({ expired }: ErrorStateProps) {
           </div>
         </div>
         <h1 className="text-sm font-semibold text-text-primary">
-          {expired ? 'Link expired' : 'Link not found'}
+          {expired ? t('errorState.linkExpiredTitle') : t('errorState.linkNotFoundTitle')}
         </h1>
         <p className="mt-1 text-xs text-text-tertiary">
           {expired
-            ? 'This share link has expired and is no longer accessible.'
-            : 'This share link is invalid or has been removed.'}
+            ? t('errorState.linkExpiredDescription')
+            : t('errorState.linkNotFoundDescription')}
         </p>
         <PoweredByBadge className="mt-6" showOrgName />
       </div>
@@ -241,6 +245,7 @@ export default function SharePage({
   params: { token: string }
 }) {
   const { token } = params
+  const t = useTranslations('share.landingPage')
 
   type PageState =
     | { stage: 'loading' }
@@ -291,7 +296,7 @@ export default function SharePage({
       // requires_password and drops log_open, and the /verify that follows
       // always carried log_open:false because a password was supplied.
       const shouldLogOpen = !openLogged.current
-      const data = await fetchShareInfo(token, password, shouldLogOpen)
+      const data = await fetchShareInfo(token, t, password, shouldLogOpen)
       if (data.requires_auth) {
         setState({ stage: 'auth_required', title: data.title })
         return
@@ -330,7 +335,7 @@ export default function SharePage({
           thumbnail_scale: 'fill',
           show_card_info: true,
         }
-        const folderName = data.folder_name ?? data.project_name ?? 'Shared'
+        const folderName = data.folder_name ?? data.project_name ?? t('sharedFallbackName')
         setState({
           stage: 'folder_ready',
           folderName,
@@ -404,16 +409,16 @@ export default function SharePage({
             <Lock className="h-6 w-6 text-text-primary" />
           </div>
           <h1 className="text-lg font-semibold text-text-primary">
-            {state.title || 'Secure Share Link'}
+            {state.title || t('authRequired.defaultTitle')}
           </h1>
           <p className="mt-2 text-sm text-text-tertiary">
-            This link is private. Please sign in to view the shared content.
+            {t('authRequired.description')}
           </p>
           <a
             href={withBasePath('/login')}
             className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-accent/90 transition-colors"
           >
-            Sign in to continue
+            {t('authRequired.signIn')}
           </a>
         </div>
       </div>

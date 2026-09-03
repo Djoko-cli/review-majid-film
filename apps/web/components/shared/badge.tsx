@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import type { AssetStatus } from '@/types'
 
@@ -7,33 +8,28 @@ interface BadgeProps {
   className?: string
 }
 
-const statusConfig: Record<AssetStatus, { label: string; dot: string; bg: string; text: string }> = {
+const statusConfig: Record<AssetStatus, { dot: string; bg: string; text: string }> = {
   draft: {
-    label: 'Draft',
     dot: 'bg-text-tertiary',
     bg: 'bg-bg-tertiary',
     text: 'text-text-secondary',
   },
   in_review: {
-    label: 'In Review',
     dot: 'bg-status-warning',
     bg: 'bg-status-warning/10',
     text: 'text-status-warning',
   },
   approved: {
-    label: 'Approved',
     dot: 'bg-status-success',
     bg: 'bg-status-success/10',
     text: 'text-status-success',
   },
   rejected: {
-    label: 'Rejected',
     dot: 'bg-status-error',
     bg: 'bg-status-error/10',
     text: 'text-status-error',
   },
   archived: {
-    label: 'Archived',
     dot: 'bg-text-tertiary',
     bg: 'bg-bg-secondary',
     text: 'text-text-tertiary',
@@ -41,6 +37,7 @@ const statusConfig: Record<AssetStatus, { label: string; dot: string; bg: string
 }
 
 export function Badge({ status, className }: BadgeProps) {
+  const t = useTranslations('shared.badge')
   const config = statusConfig[status]
   return (
     <span
@@ -52,7 +49,7 @@ export function Badge({ status, className }: BadgeProps) {
       )}
     >
       <span className={cn('h-1.5 w-1.5 rounded-full', config.dot)} />
-      {config.label}
+      {t(status)}
     </span>
   )
 }
