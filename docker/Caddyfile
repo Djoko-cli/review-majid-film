@@ -1,0 +1,17 @@
+# Internal path router only — no TLS/ACME here. SSL termination and the
+# public *.majid.film hostname routing are DSM's own reverse proxy, in
+# front of this container (see docs/deployment.md's NAS section). DSM's
+# own reverse-proxy management has repeatedly stepped on a Traefik
+# container's Let's Encrypt HTTP challenge on this host, so this stack
+# deliberately never tries to own port 80/443 or a certificate — it just
+# splits one plain-HTTP port between the two app containers, exactly the
+# role Transfer's own bundled Caddy plays behind the same DSM proxy.
+:80 {
+	handle /api/* {
+		uri strip_prefix /api
+		reverse_proxy api:8000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}

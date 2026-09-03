@@ -69,8 +69,8 @@ FreeFrame is fully self-contained. Install Docker on any Linux server (Ubuntu 22
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Techiebutler/freeframe.git
-cd freeframe
+git clone https://github.com/Djoko-cli/review-majid-film.git
+cd review-majid-film
 
 # 2. Create your production environment file
 cp .env.example .env.prod
@@ -86,52 +86,34 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 docker compose --env-file .env.prod -f docker-compose.prod.yml ps
 ```
 
-FreeFrame is now running on **port 80**. The first user to sign up becomes the super admin via the setup wizard.
+The app is now listening on `localhost:${PROXY_PORT}` (default `6200`) — see [Reverse Proxy / SSL Setup](#reverse-proxy--ssl-setup) below to put a domain in front of it. The first user to sign up becomes the super admin via the setup wizard.
 
 ---
 
-## SSL / TLS Setup
+## Reverse Proxy / SSL Setup
 
-FreeFrame uses **Traefik** as its reverse proxy, which can automatically provision and renew **Let's Encrypt** SSL certificates with zero manual setup.
+`docker-compose.prod.yml` has **no built-in reverse proxy or TLS layer** — it starts a small internal `proxy` container (Caddy, config at `docker/Caddyfile`) that only splits one plain-HTTP port (`PROXY_PORT`, default `6200`) between the `web` and `api` containers. It never tries to own port 80/443 or manage a certificate. You point a reverse proxy you already run — or start one just for this — at that port, and it handles the domain and TLS.
 
-### Enabling SSL
+This is deliberate, not a missing feature: a Traefik container fighting another reverse proxy already on the host (a NAS's own proxy, a Cloudflare tunnel, an existing nginx) for ports 80/443 or the ACME HTTP challenge is a common, hard-to-debug source of broken deploys. One proxy owns the edge; this stack never tries to be it.
 
-Set these two variables in your `.env.prod`:
+Set `FRONTEND_URL` in `.env.prod` to your public `https://` URL either way, and ensure whatever sits in front of this stack forwards `X-Real-IP`, `X-Forwarded-For`, and `X-Forwarded-Proto`.
 
-```
-DOMAIN=your-domain.com
-ACME_EMAIL=admin@your-domain.com
-FRONTEND_URL=https://your-domain.com
-```
+### Synology DSM (what this fork actually runs on)
 
-Then start (or restart) the services:
+No Docker reverse proxy at all — DSM's own **Control Panel → Login Portal → Advanced → Reverse Proxy** terminates TLS (DSM's own Let's Encrypt integration) and forwards to this stack's `proxy` container:
 
-```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
-```
+1. Bring the stack up first (`docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build`) so `localhost:${PROXY_PORT}` (default `6200`) is actually listening.
+2. In DSM, add a reverse-proxy rule: source `https://review.your-domain.com` (port 443) → destination `http://localhost:6200`.
+3. If you're also self-hosting MinIO (see [Bring Your Own Infrastructure](#bring-your-own-infrastructure)), add a second rule for `storage.your-domain.com` → `http://localhost:${MINIO_PORT}` (default `6201`) — presigned upload/download URLs are handed to the browser directly, so this one needs its own public hostname, not just an internal Docker network path.
+4. DSM manages renewal on its own certificates; nothing in this stack needs to know about them.
 
-That's it. Traefik will:
-- Automatically obtain SSL certificates from Let's Encrypt
-- Serve your site over HTTPS on port 443
-- Auto-renew certificates before they expire
+### A generic reverse proxy (nginx, Caddy, an existing Traefik)
 
-> **Requirements:** Your domain's DNS A record must point to your server, and ports 80 + 443 must be open. Traefik needs port 80 for the ACME HTTP challenge even when serving HTTPS.
+Same shape as above: point it at `http://localhost:${PROXY_PORT}` for the app, and — if self-hosting MinIO — a second host/rule at `http://localhost:${MINIO_PORT}` for storage. For **Cloudflare** in front of either: set SSL mode to "Full."
 
-### Without SSL (HTTP only)
+### No proxy yet (HTTP only, local testing)
 
-If you don't set `DOMAIN` and `ACME_EMAIL`, FreeFrame runs on **HTTP port 80** only. This is fine for:
-- Local testing of the production build
-- Running behind an external reverse proxy that handles SSL
-
-### Behind an External Reverse Proxy (Cloudflare, Caddy, etc.)
-
-If FreeFrame sits behind another proxy that already handles SSL:
-
-1. Don't set `DOMAIN` / `ACME_EMAIL` — let Traefik run in HTTP mode
-2. Point your external proxy to FreeFrame's port 80
-3. Ensure the proxy forwards these headers: `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`
-4. For **Cloudflare**: set SSL mode to "Full"
-5. Set `FRONTEND_URL` in `.env.prod` to your `https://` URL
+Leave `PROXY_PORT` at its default and hit `http://<host>:6200` directly. Fine for testing the production build; don't expose it to the internet like this.
 
 ---
 
@@ -440,7 +422,6 @@ Your media files are already in S3. For redundancy:
 | Database | PostgreSQL | **Critical** — all users, projects, comments, share links |
 | Media files | S3 bucket | **Important** — uploaded assets and transcoded files |
 | Environment config | `.env.prod` | **Important** — save a copy outside the server |
-| SSL certificates | `letsencrypt/` volume | Low — Traefik auto-renews them |
 
 ---
 
@@ -535,7 +516,7 @@ If you're upgrading past the media-metadata fix ([#124](https://github.com/Techi
 docker compose --env-file .env.prod -f docker-compose.prod.yml logs api
 docker compose --env-file .env.prod -f docker-compose.prod.yml logs worker
 docker compose --env-file .env.prod -f docker-compose.prod.yml logs web
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs traefik
+docker compose --env-file .env.prod -f docker-compose.prod.yml logs proxy
 
 # Check all service statuses
 docker compose --env-file .env.prod -f docker-compose.prod.yml ps
@@ -556,7 +537,7 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api sh -
 - Verify `DOMAIN` and `ACME_EMAIL` are set in `.env.prod`
 - Check that DNS A record points to your server: `dig your-domain.com`
 - Ensure ports 80 and 443 are open: `sudo ufw allow 80,443/tcp`
-- Check Traefik logs: `docker compose --env-file .env.prod -f docker-compose.prod.yml logs traefik`
+- Check Traefik logs: `docker compose --env-file .env.prod -f docker-compose.prod.yml logs proxy`
 - Let's Encrypt has rate limits — if you hit them, wait an hour and retry
 
 ### S3 connection issues
@@ -575,7 +556,7 @@ sudo lsof -i :80
 
 ### Large file uploads failing
 
-Large media files are uploaded directly to S3 via presigned URLs (bypassing Traefik), so proxy limits don't apply to file data. If uploads still fail:
+Large media files are uploaded directly to S3 via presigned URLs (bypassing this stack's own proxy entirely), so its limits don't apply to file data. If uploads still fail:
 - Check that your S3 bucket doesn't have a size limit
 - Verify your server has enough `/tmp` space for transcoding
 - Check worker logs for processing errors

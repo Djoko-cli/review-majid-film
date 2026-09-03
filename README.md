@@ -119,8 +119,9 @@ git clone https://github.com/Djoko-cli/review-majid-film.git
 cd review-majid-film
 cp .env.example .env.prod
 # Edit .env.prod — set your credentials, S3, email config
-# For SSL: also set DOMAIN and ACME_EMAIL (Traefik auto-provisions Let's Encrypt certs)
 docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+# Then point a reverse proxy you run (or your NAS's own) at localhost:6200 —
+# no bundled Traefik/ACME here, see docs/deployment.md
 ```
 
 Release notes for each tagged version are on the [Releases page](https://github.com/Djoko-cli/review-majid-film/releases). For the full deployment guide including **SSL setup**, **bring-your-own infrastructure** (external database, Redis, S3, SMTP), scaling, and troubleshooting, see:
@@ -131,8 +132,13 @@ Release notes for each tagged version are on the [Releases page](https://github.
 
 ```
                     ┌──────────────┐
-                    │   Traefik    │
-                    │   :80/:443   │
+                    │ Your reverse  │
+                    │ proxy (TLS)  │
+                    └──────┬───────┘
+                           │
+                    ┌──────┴───────┐
+                    │    Caddy     │
+                    │ (path split) │
                     └──────┬───────┘
                            │
                ┌───────────┴───────────┐
@@ -171,7 +177,7 @@ Release notes for each tagged version are on the [Releases page](https://github.
 | Queue        | Celery + Redis                                    |
 | Transcoding  | FFmpeg (multi-bitrate HLS), CPU by default, optional NVENC/VAAPI |
 | Storage      | Any S3-compatible (AWS, R2, B2, MinIO)           |
-| Proxy        | Traefik (auto SSL via Let's Encrypt)              |
+| Proxy        | Internal Caddy (path routing only); TLS is your own reverse proxy's job — see [docs/deployment.md](docs/deployment.md) |
 | Auth         | JWT sessions — password login and OIDC (PKCE), magic-code-by-email available but off by default |
 
 ## Documentation
