@@ -3,7 +3,7 @@
 **Self-hosted media review — frame-accurate feedback, real-time collaboration, and a client-facing review experience that never leaves your own infrastructure.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](docker-compose.prod.yml)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](docker-compose.yml)
 [![Latest release](https://img.shields.io/github/v/release/Djoko-cli/review-majid-film)](https://github.com/Djoko-cli/review-majid-film/releases)
 
 Review gives production houses and creative teams a self-hosted platform for reviewing video, image, and audio assets with frame-accurate commenting, annotations, and approval workflows. Your media stays on your infrastructure — Postgres, Redis, and S3-compatible storage all run wherever you deploy this.
@@ -119,12 +119,12 @@ the server you deploy to only ever needs two files, never the source tree.
 
 ```bash
 mkdir review && cd review
-curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/docker-compose.yml
 curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/.env.example
 cp .env.example .env.prod
 # Edit .env.prod — set your credentials, S3, email config
-docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+docker compose --env-file .env.prod -f docker-compose.yml pull
+docker compose --env-file .env.prod -f docker-compose.yml up -d
 # Then point a reverse proxy you run (or your NAS's own) at localhost:6200 —
 # no bundled Traefik/ACME here, see docs/deployment.md
 ```

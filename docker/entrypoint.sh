@@ -20,7 +20,7 @@ echo "Starting web (Next.js)..."
 # address in a way that produces a bogus http://127.0.0.1:3000/... Location
 # header on a loopback bind — 0.0.0.0 is what produces a correct relative
 # redirect. Harmless either way from a security standpoint: port 3000 is
-# never published (see docker-compose.prod.yml), only Caddy in this same
+# never published (see docker-compose.yml), only Caddy in this same
 # container/namespace can ever reach it.
 HOSTNAME=0.0.0.0 PORT=3000 node /app/web/server.js &
 

@@ -74,7 +74,7 @@ you deploy to never needs the source tree, just two files.
 ```bash
 # 1. Create a deploy directory and grab the two files you actually need
 mkdir review && cd review
-curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/docker-compose.yml
 curl -O https://raw.githubusercontent.com/Djoko-cli/review-majid-film/main/.env.example
 
 # 2. Create your production environment file
@@ -85,11 +85,11 @@ cp .env.example .env.prod
 nano .env.prod
 
 # 4. Pull the image and start everything
-docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+docker compose --env-file .env.prod -f docker-compose.yml pull
+docker compose --env-file .env.prod -f docker-compose.yml up -d
 
 # 5. Check that everything is running
-docker compose --env-file .env.prod -f docker-compose.prod.yml ps
+docker compose --env-file .env.prod -f docker-compose.yml ps
 ```
 
 Four containers: `review` (the whole app tier — web, api, and every Celery
@@ -102,13 +102,13 @@ first user to sign up becomes the super admin via the setup wizard.
 Building the image yourself instead of pulling from GHCR (a fork, an
 air-gapped host, testing an unreleased change) — clone the repo and run
 `docker build -t <your-tag> -f Dockerfile .` from its root, then point
-`image:` in `docker-compose.prod.yml` at your own tag.
+`image:` in `docker-compose.yml` at your own tag.
 
 ---
 
 ## Reverse Proxy / SSL Setup
 
-`docker-compose.prod.yml` has **no built-in reverse proxy or TLS layer** — the `review` container runs a small internal Caddy (config baked into the image from `docker/Caddyfile`) that only splits one plain-HTTP port (`PROXY_PORT`, default `6200`) between web and api, both running inside that same container. It never tries to own port 80/443 or manage a certificate. You point a reverse proxy you already run — or start one just for this — at that port, and it handles the domain and TLS.
+`docker-compose.yml` has **no built-in reverse proxy or TLS layer** — the `review` container runs a small internal Caddy (config baked into the image from `docker/Caddyfile`) that only splits one plain-HTTP port (`PROXY_PORT`, default `6200`) between web and api, both running inside that same container. It never tries to own port 80/443 or manage a certificate. You point a reverse proxy you already run — or start one just for this — at that port, and it handles the domain and TLS.
 
 This is deliberate, not a missing feature: a Traefik container fighting another reverse proxy already on the host (a NAS's own proxy, a Cloudflare tunnel, an existing nginx) for ports 80/443 or the ACME HTTP challenge is a common, hard-to-debug source of broken deploys. One proxy owns the edge; this stack never tries to be it.
 
@@ -118,7 +118,7 @@ Set `FRONTEND_URL` in `.env.prod` to your public `https://` URL either way, and 
 
 No Docker reverse proxy at all — DSM's own **Control Panel → Login Portal → Advanced → Reverse Proxy** terminates TLS (DSM's own Let's Encrypt integration) and forwards to the `review` container's internal Caddy:
 
-1. Bring the stack up first (`docker compose --env-file .env.prod -f docker-compose.prod.yml pull && docker compose --env-file .env.prod -f docker-compose.prod.yml up -d`) so `localhost:${PROXY_PORT}` (default `6200`) is actually listening.
+1. Bring the stack up first (`docker compose --env-file .env.prod -f docker-compose.yml pull && docker compose --env-file .env.prod -f docker-compose.yml up -d`) so `localhost:${PROXY_PORT}` (default `6200`) is actually listening.
 2. In DSM, add a reverse-proxy rule: source `https://review.your-domain.com` (port 443) → destination `http://localhost:6200`.
 3. If you're also self-hosting MinIO (see [Bring Your Own Infrastructure](#bring-your-own-infrastructure)), add a second rule for `storage.your-domain.com` → `http://localhost:${MINIO_PORT}` (default `6201`) — presigned upload/download URLs are handed to the browser directly, so this one needs its own public hostname, not just an internal Docker network path.
 4. DSM manages renewal on its own certificates; nothing in this stack needs to know about them.
@@ -141,7 +141,7 @@ FreeFrame's Docker Compose includes PostgreSQL and Redis by default, but you can
 
 Works with: **AWS RDS, Google Cloud SQL, Supabase, Neon, DigitalOcean Managed DB, or any PostgreSQL 15+ instance.**
 
-1. Remove the `review-postgres` service from `docker-compose.prod.yml` (and its bind-mount directory)
+1. Remove the `review-postgres` service from `docker-compose.yml` (and its bind-mount directory)
 2. Remove `review-postgres` from `review`'s `depends_on`
 3. In `.env.prod`, set `DATABASE_URL` to your external database:
    ```
@@ -149,14 +149,14 @@ Works with: **AWS RDS, Google Cloud SQL, Supabase, Neon, DigitalOcean Managed DB
    ```
 4. Migrations run automatically whenever `review` starts (see `docker/entrypoint.sh`) — nothing to run manually. To check ahead of time:
    ```bash
-   docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm review sh -c "cd /workspace/apps/api && alembic upgrade head"
+   docker compose --env-file .env.prod -f docker-compose.yml run --rm review sh -c "cd /workspace/apps/api && alembic upgrade head"
    ```
 
 ### External Redis / Valkey
 
 Works with: **AWS ElastiCache, Upstash, Redis Cloud, DigitalOcean Managed Redis, or any Redis 7+ / Valkey instance.** Valkey is a drop-in Redis replacement and works out of the box.
 
-1. Remove the `review-redis` service from `docker-compose.prod.yml` (and its bind-mount directory)
+1. Remove the `review-redis` service from `docker-compose.yml` (and its bind-mount directory)
 2. Remove `review-redis` from `review`'s `depends_on`
 3. In `.env.prod`, set `REDIS_URL` to your external instance:
    ```
@@ -343,13 +343,13 @@ Use this for uptime monitoring (UptimeRobot, Healthchecks.io, etc.) or Docker he
 
 ```bash
 # Follow all service logs
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs -f
+docker compose --env-file .env.prod -f docker-compose.yml logs -f
 
 # Follow a specific service
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs -f api
+docker compose --env-file .env.prod -f docker-compose.yml logs -f api
 
 # Last 100 lines
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail 100 api
+docker compose --env-file .env.prod -f docker-compose.yml logs --tail 100 api
 ```
 
 ### Key Metrics to Watch
@@ -359,9 +359,9 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail 100 a
 | Disk space | `df -h` | > 80% used |
 | Memory | `free -m` | Swap in use |
 | API response | `curl -s localhost:${PROXY_PORT:-6200}/api/health` | Non-200 response |
-| Queue depth | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-redis sh -c 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning LLEN transcoding'` (repeat for `email_high`, `email_low`, `maintenance`, `default`) | Any queue growing steadily; **any depth at all on `default`** |
-| Busy workers | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec review celery -A apps.api.tasks.celery_app inspect active` | Tasks stuck for hours |
-| Database connections | `docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-postgres psql -U freeframe -c "SELECT count(*) FROM pg_stat_activity;"` | > 80% of max |
+| Queue depth | `docker compose --env-file .env.prod -f docker-compose.yml exec review-redis sh -c 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning LLEN transcoding'` (repeat for `email_high`, `email_low`, `maintenance`, `default`) | Any queue growing steadily; **any depth at all on `default`** |
+| Busy workers | `docker compose --env-file .env.prod -f docker-compose.yml exec review celery -A apps.api.tasks.celery_app inspect active` | Tasks stuck for hours |
+| Database connections | `docker compose --env-file .env.prod -f docker-compose.yml exec review-postgres psql -U freeframe -c "SELECT count(*) FROM pg_stat_activity;"` | > 80% of max |
 
 Check depth with `LLEN`, not `inspect active`. `inspect active` reports what
 connected workers are executing right now, so a queue that no worker subscribes
@@ -406,12 +406,12 @@ registered task routes somewhere no compose worker consumes.
 
 ```bash
 # One-time backup
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-postgres \
+docker compose --env-file .env.prod -f docker-compose.yml exec review-postgres \
   pg_dump -U freeframe freeframe | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz
 
 # Restore from backup
 gunzip -c backup_20260403_120000.sql.gz | \
-  docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T review-postgres \
+  docker compose --env-file .env.prod -f docker-compose.yml exec -T review-postgres \
   psql -U freeframe freeframe
 ```
 
@@ -424,7 +424,7 @@ Add a cron job on your server:
 crontab -e
 
 # Add this line (runs daily at 2 AM, keeps 30 days)
-0 2 * * * cd /path/to/review && docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T review-postgres pg_dump -U freeframe freeframe | gzip > /path/to/backups/freeframe_$(date +\%Y\%m\%d).sql.gz && find /path/to/backups -name "freeframe_*.sql.gz" -mtime +30 -delete
+0 2 * * * cd /path/to/review && docker compose --env-file .env.prod -f docker-compose.yml exec -T review-postgres pg_dump -U freeframe freeframe | gzip > /path/to/backups/freeframe_$(date +\%Y\%m\%d).sql.gz && find /path/to/backups -name "freeframe_*.sql.gz" -mtime +30 -delete
 ```
 
 ### S3 Media Backup
@@ -448,8 +448,8 @@ Your media files are already in S3. For redundancy:
 ## Updating
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+docker compose --env-file .env.prod -f docker-compose.yml pull
+docker compose --env-file .env.prod -f docker-compose.yml up -d
 ```
 
 Database migrations run automatically whenever `review` starts. Always check the [CHANGELOG](../CHANGELOG.md) before updating.
@@ -471,7 +471,7 @@ retention window, all at once. Count it first, substituting your own
 `SOFT_DELETE_RETENTION_DAYS` for the `30` below:
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec review-postgres \
+docker compose --env-file .env.prod -f docker-compose.yml exec review-postgres \
   psql -U freeframe -c "
 WITH cutoff AS (SELECT now() - interval '30 days' AS t)
 SELECT 'projects'        AS root, count(*) FROM projects,        cutoff WHERE deleted_at < t
@@ -520,9 +520,9 @@ If you're upgrading past the media-metadata fix ([#124](https://github.com/Techi
 
 1. **Read the changelog** — check for breaking changes or new env vars
 2. **Backup the database** — `pg_dump` before updating (see [Backups](#backups))
-3. **Pull and restart** — `docker compose --env-file .env.prod -f docker-compose.prod.yml pull && docker compose --env-file .env.prod -f docker-compose.prod.yml up -d`
+3. **Pull and restart** — `docker compose --env-file .env.prod -f docker-compose.yml pull && docker compose --env-file .env.prod -f docker-compose.yml up -d`
 4. **Verify** — check `/api/health`, test login, spot-check a share link
-5. **Rollback if needed** — set `image: ghcr.io/djoko-cli/review-majid-film:v1.x.x` in `docker-compose.prod.yml`, then pull and restart again
+5. **Rollback if needed** — set `image: ghcr.io/djoko-cli/review-majid-film:v1.x.x` in `docker-compose.yml`, then pull and restart again
 
 ---
 
@@ -532,13 +532,13 @@ If you're upgrading past the media-metadata fix ([#124](https://github.com/Techi
 
 ```bash
 # review runs web, api, and every Celery process — one log stream for all of it
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs review
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs review-postgres
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs review-redis
-docker compose --env-file .env.prod -f docker-compose.prod.yml logs review-minio
+docker compose --env-file .env.prod -f docker-compose.yml logs review
+docker compose --env-file .env.prod -f docker-compose.yml logs review-postgres
+docker compose --env-file .env.prod -f docker-compose.yml logs review-redis
+docker compose --env-file .env.prod -f docker-compose.yml logs review-minio
 
 # Check all service statuses
-docker compose --env-file .env.prod -f docker-compose.prod.yml ps
+docker compose --env-file .env.prod -f docker-compose.yml ps
 ```
 
 If `review` itself keeps restarting, check which of its internal processes is
@@ -551,10 +551,10 @@ shows up in the same log stream but doesn't restart the container on its own.
 
 ```bash
 # Run migrations manually
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm review sh -c "cd /workspace/apps/api && alembic upgrade head"
+docker compose --env-file .env.prod -f docker-compose.yml run --rm review sh -c "cd /workspace/apps/api && alembic upgrade head"
 
 # Check migration status
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm review sh -c "cd /workspace/apps/api && alembic current"
+docker compose --env-file .env.prod -f docker-compose.yml run --rm review sh -c "cd /workspace/apps/api && alembic current"
 ```
 
 ### SSL certificate not working

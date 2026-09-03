@@ -59,7 +59,7 @@ Known rough edges inherited from upstream, not yet fixed, worth keeping in mind 
 - The current freeframe implementation (this codebase, `apps/web`) is the incumbent functional and visual baseline — real, running, tested functionality (transcoding, NLE export, permissions, share links), currently with FreeFrame's own default (unbranded, purple-accent) visual treatment.
 - The sister project Transfer (github.com/Djoko-cli/transfer-majid-film) is the canonical reference for the "liquid glass" visual system this product's redesign will adopt — exact design tokens documented in `docs/majid-notes/kickoff-prompt.md` at the repo root.
 - No customer testimonials, case studies, or usage metrics exist yet — this is a pre-launch personal project; future work must not fabricate any.
-- The auth/setup screen's rotating photo backdrop syncs real production stills from majid.film's own deployed build (the same source Transfer's BrandPanel reads) via `apps/api/services/brand_sync_service.py` — off unless `MAJIDFILM_SOURCE_ROOT` + `BRAND_SYNC_ENABLED=true` are set; see docker-compose.prod.yml's commented mount block. Never a fabricated/stock image in its place — the panel renders nothing until real synced photography exists.
+- The auth/setup screen's rotating photo backdrop syncs real production stills from majid.film's own deployed build (the same source Transfer's BrandPanel reads) via `apps/api/services/brand_sync_service.py` — off unless `MAJIDFILM_SOURCE_ROOT` + `BRAND_SYNC_ENABLED=true` are set; see docker-compose.yml's commented mount block. Never a fabricated/stock image in its place — the panel renders nothing until real synced photography exists.
 
 ## Product Principles
 

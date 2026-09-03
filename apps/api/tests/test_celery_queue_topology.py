@@ -25,7 +25,7 @@ import yaml
 from apps.api.tasks.celery_app import celery_app
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-COMPOSE_FILES = ("docker-compose.prod.yml", "docker-compose.dev.yml")
+COMPOSE_FILES = ("docker-compose.yml", "docker-compose.dev.yml")
 
 
 def queues_from_command(command) -> set[str]:
@@ -59,6 +59,29 @@ def queues_from_command(command) -> set[str]:
     return queues
 
 
+def queues_from_entrypoint_script() -> set[str]:
+    """Queue names consumed by the Celery workers docker/entrypoint.sh starts.
+
+    docker-compose.yml's single `review` service has no per-process `command:`
+    to introspect — web, api, and every Celery process are all started inside
+    the image by this script instead. It plays the same role for that file
+    that a service's own `command:` plays for docker-compose.dev.yml.
+    """
+    path = REPO_ROOT / "docker" / "entrypoint.sh"
+    if not path.is_file():
+        return set()
+    queues: set[str] = set()
+    for line in path.read_text().splitlines():
+        # Only lines invoking celery matter here, and pre-filtering to them
+        # sidesteps shlex choking on unrelated shell syntax elsewhere in the
+        # script (e.g. a trailing `\` line-continuation on gunicorn's own
+        # multi-line invocation, which isn't valid on its own as one line).
+        if "celery" not in line:
+            continue
+        queues |= queues_from_command(shlex.split(line, comments=True))
+    return queues
+
+
 def consumed_queues(compose_filename: str) -> set[str]:
     """Every queue a worker started by a plain `docker compose up` subscribes to."""
     path = REPO_ROOT / compose_filename
@@ -77,6 +100,10 @@ def consumed_queues(compose_filename: str) -> set[str]:
         if service.get("profiles"):
             continue
         queues |= queues_from_command(service.get("command"))
+
+    if compose_filename == "docker-compose.yml":
+        queues |= queues_from_entrypoint_script()
+
     return queues
 
 

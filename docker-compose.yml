@@ -7,8 +7,8 @@
 # you deploy to. See docs/deployment.md.
 #
 #   cp .env.example .env.prod        # once, then edit with your real values
-#   docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-#   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+#   docker compose --env-file .env.prod -f docker-compose.yml pull
+#   docker compose --env-file .env.prod -f docker-compose.yml up -d
 #
 # No Traefik/ACME here. `review` exposes one plain-HTTP port (its own
 # internal Caddy splits it between web and api — see docker/Caddyfile) and

@@ -67,7 +67,7 @@ freeframe/
 │   └── transcoder/         # Video/audio transcoding package
 ├── docs/                   # Documentation
 ├── docker-compose.dev.yml  # Development environment
-└── docker-compose.prod.yml # Production environment
+└── docker-compose.yml # Production environment
 ```
 
 ---

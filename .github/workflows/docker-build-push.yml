@@ -1,7 +1,7 @@
 name: Build and Push Docker Image
 
 # Builds the single production image (repo-root Dockerfile) and pushes it to
-# GHCR. docker-compose.prod.yml only ever pulls this — see its own header
+# GHCR. docker-compose.yml only ever pulls this — see its own header
 # comment. Same trigger/tagging shape as transfer-majid-film's own
 # docker-build-push.yml (the sibling "M family" app, same deploy model).
 

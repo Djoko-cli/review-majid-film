@@ -258,4 +258,4 @@ jobs:
         run: |
           # Validate compose file syntax (skip env file resolution)
           python3 -c "import yaml; yaml.safe_load(open('docker-compose.dev.yml'))" && echo "Dev compose YAML is valid"
-          python3 -c "import yaml; yaml.safe_load(open('docker-compose.prod.yml'))" && echo "Prod compose YAML is valid"
+          python3 -c "import yaml; yaml.safe_load(open('docker-compose.yml'))" && echo "Prod compose YAML is valid"
