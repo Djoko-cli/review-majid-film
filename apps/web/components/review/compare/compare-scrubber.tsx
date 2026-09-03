@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { Pause, Play, RotateCcw } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn, formatTimecode } from '@/lib/utils'
 import { frameStep, markerPosition, type SideTiming } from '@/lib/compare-time'
 import { getAvatarColor, getInitials } from '@/components/review/progress-bar'
@@ -157,6 +158,7 @@ function OffsetStepper({ side, label, offset, fps, onOffsetChange }: {
 
 export function CompareScrubber(props: CompareScrubberProps) {
   const { t, total, isPlaying, fps, onToggle, onSeek, markersA, markersB, timingA, timingB, onMarkerClick, onOffsetChange, labelA, labelB, onResetOffsets } = props
+  const tr = useTranslations('review.compareScrubber')
   const trackRef = React.useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = React.useState<HoveredMarker | null>(null)
 
@@ -171,7 +173,7 @@ export function CompareScrubber(props: CompareScrubberProps) {
       <button
         type="button"
         onClick={onToggle}
-        aria-label={isPlaying ? 'Pause' : 'Play'}
+        aria-label={isPlaying ? tr('pause') : tr('play')}
         className="flex h-8 w-8 items-center justify-center rounded-md text-text-secondary hover:bg-bg-hover hover:text-text-primary"
       >
         {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -228,12 +230,12 @@ export function CompareScrubber(props: CompareScrubberProps) {
           data-testid="offset-reset"
           onClick={onResetOffsets}
           disabled={timingA.offset === 0 && timingB.offset === 0}
-          title="Reset offsets — re-sync both sides"
-          aria-label="Reset offsets"
+          title={tr('resetOffsetsTitle')}
+          aria-label={tr('resetOffsets')}
           className="flex items-center gap-1 rounded border border-border px-1.5 py-1 text-[10px] text-text-tertiary hover:bg-bg-hover disabled:cursor-not-allowed disabled:opacity-30"
         >
           <RotateCcw className="h-3 w-3" />
-          Sync
+          {tr('sync')}
         </button>
       </div>
     </div>

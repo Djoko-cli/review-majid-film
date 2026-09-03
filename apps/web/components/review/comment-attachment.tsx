@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { FileText, Film, ImageIcon, Download, Trash2, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn, formatBytes } from '@/lib/utils'
 import type { CommentAttachment as CommentAttachmentType } from '@/types'
 
@@ -38,6 +39,7 @@ export function CommentAttachment({
   onDelete,
   className,
 }: CommentAttachmentProps) {
+  const t = useTranslations('review.attachment')
   const [deleting, setDeleting] = React.useState(false)
   const [imageError, setImageError] = React.useState(false)
 
@@ -78,7 +80,7 @@ export function CommentAttachment({
                 href={downloadUrl}
                 download={attachment.original_filename}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
-                title="Download"
+                title={t('download')}
               >
                 <Download className="h-4 w-4" />
               </a>
@@ -88,7 +90,7 @@ export function CommentAttachment({
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-status-error/80 text-white hover:bg-status-error transition-colors disabled:opacity-50"
                 onClick={handleDelete}
                 disabled={deleting}
-                title="Delete attachment"
+                title={t('deleteAttachment')}
               >
                 {deleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -139,7 +141,7 @@ export function CommentAttachment({
               href={downloadUrl}
               download={attachment.original_filename}
               className="inline-flex h-7 w-7 items-center justify-center rounded text-text-tertiary hover:bg-bg-hover hover:text-text-secondary transition-colors"
-              title="Download"
+              title={t('download')}
             >
               <Download className="h-3.5 w-3.5" />
             </a>
@@ -149,7 +151,7 @@ export function CommentAttachment({
               className="inline-flex h-7 w-7 items-center justify-center rounded text-text-tertiary hover:bg-bg-hover hover:text-status-error transition-colors disabled:opacity-50"
               onClick={handleDelete}
               disabled={deleting}
-              title="Delete attachment"
+              title={t('deleteAttachment')}
             >
               {deleting ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

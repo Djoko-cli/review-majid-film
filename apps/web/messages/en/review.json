@@ -8,6 +8,27 @@
   },
   "shownOnOtherSide": "Shown on the other side",
   "inUse": "in use",
+  "attachment": {
+    "download": "Download",
+    "deleteAttachment": "Delete attachment"
+  },
+  "compareScrubber": {
+    "pause": "Pause",
+    "play": "Play",
+    "resetOffsetsTitle": "Reset offsets — re-sync both sides",
+    "resetOffsets": "Reset offsets",
+    "sync": "Sync"
+  },
+  "shareDialog": {
+    "defaultAssetName": "Asset",
+    "share": "Share",
+    "newShareLink": "New Share Link",
+    "addToExisting": "Add to Existing Share Links",
+    "searchPlaceholder": "Search {count} Share Links",
+    "noMatching": "No matching share links",
+    "noneYet": "No share links yet",
+    "assetAdded": "Asset added!"
+  },
   "fpsPrompt": {
     "title": "Frame rate needed",
     "description": "This video was uploaded before FreeFrame started capturing frame rates automatically, so its fps isn't on file. Pick the video's original frame rate so exported markers land on the correct frames. (Newly uploaded videos won't ask this.)",

@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
@@ -31,6 +32,7 @@ export function ShareDialog({
   projectId,
   asset,
 }: ShareDialogProps) {
+  const t = useTranslations("review.shareDialog");
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [addingToToken, setAddingToToken] = React.useState<string | null>(null);
@@ -50,7 +52,7 @@ export function ShareDialog({
     () =>
       asset
         ? { type: "asset" as const, id: asset.id, name: asset.name }
-        : { type: "asset" as const, id: assetId, name: assetName || "Asset" },
+        : { type: "asset" as const, id: assetId, name: assetName || t("defaultAssetName") },
     [asset, assetId, assetName],
   );
 
@@ -123,7 +125,7 @@ export function ShareDialog({
           )}
         >
           <Share2 className="h-4 w-4" />
-          Share
+          {t("share")}
         </Button>
 
         {dropdownOpen && (
@@ -141,7 +143,7 @@ export function ShareDialog({
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
-                New Share Link
+                {t("newShareLink")}
               </button>
             </div>
 
@@ -149,7 +151,7 @@ export function ShareDialog({
             {projectId && (
               <div className="border-t border-border">
                 <p className="px-3 pt-2.5 pb-1.5 text-xs font-medium text-text-tertiary">
-                  Add to Existing Share Links
+                  {t("addToExisting")}
                 </p>
 
                 {/* Search (only if more than 3 links) */}
@@ -161,7 +163,7 @@ export function ShareDialog({
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder={`Search ${shareLinks.length} Share Links`}
+                        placeholder={t("searchPlaceholder", { count: shareLinks.length })}
                         className="flex h-8 w-full rounded-md border border-border bg-bg-secondary pl-8 pr-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
                         autoFocus
                       />
@@ -177,7 +179,7 @@ export function ShareDialog({
                     </div>
                   ) : filteredLinks.length === 0 ? (
                     <p className="py-4 text-center text-xs text-text-tertiary">
-                      {search ? "No matching share links" : "No share links yet"}
+                      {search ? t("noMatching") : t("noneYet")}
                     </p>
                   ) : (
                     filteredLinks.map((link) => {
@@ -211,7 +213,7 @@ export function ShareDialog({
                             </p>
                             {isAdded && (
                               <p className="text-[10px] text-status-success">
-                                Asset added!
+                                {t("assetAdded")}
                               </p>
                             )}
                           </div>
