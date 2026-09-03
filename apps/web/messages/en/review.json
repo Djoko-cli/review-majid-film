@@ -8,6 +8,45 @@
   },
   "shownOnOtherSide": "Shown on the other side",
   "inUse": "in use",
+  "compareOverlay": {
+    "unknownAuthor": "Unknown",
+    "switchToSideBySide": "Switch to side-by-side",
+    "switchToWipe": "Switch to wipe",
+    "sideBySide": "Side-by-side",
+    "wipe": "Wipe",
+    "closeCompare": "Close compare",
+    "toggleLeftComments": "Toggle left comments",
+    "toggleRightComments": "Toggle right comments",
+    "muteBadge": "Mute {badge}",
+    "unmuteBadge": "Unmute {badge}",
+    "streamUnavailable": "Stream unavailable for {badge}"
+  },
+  "videoPlayer": {
+    "pause": "Pause",
+    "play": "Play",
+    "loop": "Loop",
+    "playbackSpeed": "Playback speed",
+    "unmute": "Unmute",
+    "mute": "Mute",
+    "timeFormat": "Time Format",
+    "timeFormatOptions": {
+      "frames": "Frames",
+      "standard": "Standard",
+      "timecode": "Timecode"
+    },
+    "quality": "Quality",
+    "auto": "Auto",
+    "exitFullscreen": "Exit fullscreen",
+    "enterFullscreen": "Enter fullscreen"
+  },
+  "progressBar": {
+    "unknownAuthor": "Unknown"
+  },
+  "provider": {
+    "defaultAssetName": "Asset",
+    "failedToLoadAsset": "Failed to load asset",
+    "failedToPostComment": "Failed to post comment"
+  },
   "imageViewer": {
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",

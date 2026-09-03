@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Hls from 'hls.js'
+import { useTranslations } from 'next-intl'
 import { cn, formatTimecode } from '@/lib/utils'
 import { useReviewStore } from '@/stores/review-store'
 import type { Comment } from '@/types'
@@ -279,6 +280,7 @@ export function ProgressBar({
   onSeek,
   className,
 }: ProgressBarProps) {
+  const t = useTranslations('review.progressBar')
   const trackRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [hoverTime, setHoverTime] = useState<number | null>(null)
@@ -429,7 +431,7 @@ export function ProgressBar({
           {pointMarkers.map((c, idx) => {
             if (c.timecode_start === null) return null
             const left = timeToPercent(c.timecode_start)
-            const authorName = c.author?.name ?? c.guest_author?.name ?? 'Unknown'
+            const authorName = c.author?.name ?? c.guest_author?.name ?? t('unknownAuthor')
             const initials = getInitials(authorName)
             const color = getAvatarColor(authorName)
             const isHovered = hoveredCommentId === c.id

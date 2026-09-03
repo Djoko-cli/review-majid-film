@@ -8,6 +8,45 @@
   },
   "shownOnOtherSide": "Affiché de l'autre côté",
   "inUse": "en cours d'utilisation",
+  "compareOverlay": {
+    "unknownAuthor": "Inconnu",
+    "switchToSideBySide": "Passer en côte à côte",
+    "switchToWipe": "Passer en balayage",
+    "sideBySide": "Côte à côte",
+    "wipe": "Balayage",
+    "closeCompare": "Fermer la comparaison",
+    "toggleLeftComments": "Afficher/masquer les commentaires de gauche",
+    "toggleRightComments": "Afficher/masquer les commentaires de droite",
+    "muteBadge": "Couper le son de {badge}",
+    "unmuteBadge": "Activer le son de {badge}",
+    "streamUnavailable": "Flux indisponible pour {badge}"
+  },
+  "videoPlayer": {
+    "pause": "Pause",
+    "play": "Lecture",
+    "loop": "Boucle",
+    "playbackSpeed": "Vitesse de lecture",
+    "unmute": "Réactiver le son",
+    "mute": "Couper le son",
+    "timeFormat": "Format de l'heure",
+    "timeFormatOptions": {
+      "frames": "Images",
+      "standard": "Standard",
+      "timecode": "Timecode"
+    },
+    "quality": "Qualité",
+    "auto": "Auto",
+    "exitFullscreen": "Quitter le plein écran",
+    "enterFullscreen": "Passer en plein écran"
+  },
+  "progressBar": {
+    "unknownAuthor": "Inconnu"
+  },
+  "provider": {
+    "defaultAssetName": "Média",
+    "failedToLoadAsset": "Impossible de charger le média",
+    "failedToPostComment": "Impossible de publier le commentaire"
+  },
   "imageViewer": {
     "zoomIn": "Zoomer",
     "zoomOut": "Dézoomer",

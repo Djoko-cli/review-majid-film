@@ -9,6 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import { useReviewStore } from "@/stores/review-store";
 import type { AssetResponse, AssetVersion, Comment } from "@/types";
@@ -61,6 +62,7 @@ export function ReviewProvider({
   shareSession,
   children,
 }: ReviewProviderProps) {
+  const t = useTranslations("review.provider");
   const [asset, setAsset] = useState<AssetResponse | null>(null);
   const [versions, setVersions] = useState<AssetVersion[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -109,7 +111,7 @@ export function ReviewProvider({
         // Build pseudo asset from available data
         data = {
           id: assetId,
-          name: streamData?.name || "Asset",
+          name: streamData?.name || t("defaultAssetName"),
           description: null,
           asset_type: streamData?.asset_type || "image",
           status: "in_review",
@@ -201,8 +203,13 @@ export function ReviewProvider({
       }
     } catch (err) {
       if (!mountedRef.current) return;
-      setError(err instanceof Error ? err.message : "Failed to load asset");
+      setError(err instanceof Error ? err.message : t("failedToLoadAsset"));
     }
+    // `t` intentionally omitted: next-intl's translator isn't referentially
+    // stable across renders, and including it here would recreate this
+    // callback (and retrigger the initial-load effect that calls it) on
+    // every render — an infinite loop, not just a lint nitpick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetId, shareToken, shareSessionParam, setCurrentAsset, setCurrentVersion]);
 
   const fetchComments = useCallback(async () => {
@@ -331,7 +338,7 @@ export function ReviewProvider({
           headers,
           body: JSON.stringify({ ...payload, ...guestFields, asset_id: assetId }),
         });
-        if (!res.ok) throw new Error("Failed to post comment");
+        if (!res.ok) throw new Error(t("failedToPostComment"));
         comment = await res.json();
       } else {
         comment = await api.post<Comment>(
@@ -344,6 +351,8 @@ export function ReviewProvider({
       }
       return comment;
     },
+    // `t` intentionally omitted — see the note on fetchAsset above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [assetId],
   );
 

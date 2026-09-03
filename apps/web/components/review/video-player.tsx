@@ -12,6 +12,7 @@ import {
   Check,
   Repeat,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn, formatTime, formatTimecode, formatFrames } from "@/lib/utils";
 import { renderedMediaBox } from "@/lib/media-frame";
 import { api } from "@/lib/api";
@@ -128,6 +129,7 @@ export function VideoPlayer({
   className,
   initialStreamUrl,
 }: VideoPlayerProps) {
+  const t = useTranslations("review.videoPlayer");
   const containerRef = useRef<HTMLDivElement>(null);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
   const [loop, setLoop] = useState(false);
@@ -371,7 +373,7 @@ export function VideoPlayer({
           <button
             onClick={togglePlay}
             className="flex h-7 w-7 items-center justify-center rounded text-text-primary hover:bg-bg-hover transition-colors"
-            aria-label={isPlaying ? "Pause" : "Play"}
+            aria-label={isPlaying ? t("pause") : t("play")}
           >
             {isPlaying ? (
               <Pause className="h-4 w-4" />
@@ -388,7 +390,7 @@ export function VideoPlayer({
                 ? "text-accent bg-accent/10"
                 : "text-text-tertiary hover:text-text-secondary hover:bg-bg-hover",
             )}
-            aria-label="Loop"
+            aria-label={t("loop")}
           >
             <Repeat className="h-4 w-4" />
           </button>
@@ -396,7 +398,7 @@ export function VideoPlayer({
           <button
             onClick={handleSpeedCycle}
             className="flex h-7 items-center justify-center rounded px-1.5 text-xs font-medium text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors tabular-nums"
-            aria-label="Playback speed"
+            aria-label={t("playbackSpeed")}
           >
             {playbackRate}x
           </button>
@@ -404,7 +406,7 @@ export function VideoPlayer({
           <button
             onClick={toggleMute}
             className="flex h-7 w-7 items-center justify-center rounded text-text-tertiary hover:text-text-secondary hover:bg-bg-hover transition-colors"
-            aria-label={isMuted ? "Unmute" : "Mute"}
+            aria-label={isMuted ? t("unmute") : t("mute")}
           >
             {isMuted || volume === 0 ? (
               <VolumeX className="h-4 w-4" />
@@ -441,30 +443,24 @@ export function VideoPlayer({
           {timeFormatOpen && (
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-48 rounded-xl border border-white/10 bg-[#2a2a30] shadow-2xl py-1.5 animate-in fade-in zoom-in-95 duration-100">
               <div className="px-3 py-2 text-[11px] text-text-tertiary uppercase tracking-wider font-medium">
-                Time Format
+                {t("timeFormat")}
               </div>
-              {(
-                [
-                  { id: "frames" as TimeFormat, label: "Frames" },
-                  { id: "standard" as TimeFormat, label: "Standard" },
-                  { id: "timecode" as TimeFormat, label: "Timecode" },
-                ] as const
-              ).map((item) => (
+              {(["frames", "standard", "timecode"] as TimeFormat[]).map((id) => (
                 <button
-                  key={item.id}
+                  key={id}
                   className={cn(
                     "flex w-full items-center justify-between px-3 py-2 text-[13px] transition-colors",
-                    timeFormat === item.id
+                    timeFormat === id
                       ? "text-text-primary"
                       : "text-text-secondary hover:bg-white/5",
                   )}
                   onClick={() => {
-                    setTimeFormat(item.id);
+                    setTimeFormat(id);
                     setTimeFormatOpen(false);
                   }}
                 >
-                  {item.label}
-                  {timeFormat === item.id && (
+                  {t(`timeFormatOptions.${id}`)}
+                  {timeFormat === id && (
                     <Check className="h-4 w-4 text-accent" />
                   )}
                 </button>
@@ -481,10 +477,10 @@ export function VideoPlayer({
               value={currentQuality}
               onChange={(e) => setQuality(parseInt(e.target.value, 10))}
               className="bg-transparent text-text-secondary text-xs border border-border rounded px-1.5 py-1 cursor-pointer shrink-0 hover:text-text-primary transition-colors"
-              aria-label="Quality"
+              aria-label={t("quality")}
             >
               <option value={-1} className="bg-bg-secondary">
-                Auto
+                {t("auto")}
               </option>
               {qualityLevels.map((level) => (
                 <option
@@ -502,7 +498,7 @@ export function VideoPlayer({
           <button
             onClick={handleFullscreen}
             className="flex h-7 w-7 items-center justify-center rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
-            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            aria-label={isFullscreen ? t("exitFullscreen") : t("enterFullscreen")}
           >
             {isFullscreen ? (
               <Minimize className="h-4 w-4" />
