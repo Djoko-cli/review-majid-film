@@ -8,7 +8,7 @@ from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.user import User
 from ..models.project import Project, ProjectMember, ProjectRole
-from ..models.asset import Asset, AssetVersion, MediaFile, ProcessingStatus
+from ..models.asset import Asset, AssetVersion, MediaFile, ProcessingStatus, AssetType
 from ..schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectMemberResponse, AddProjectMemberRequest, UpdateProjectMemberRequest
 from ..tasks.email_tasks import send_project_added_email
 from ..tasks.celery_app import send_task_safe
@@ -25,10 +25,38 @@ def _get_project(db: Session, project_id: uuid.UUID) -> Project:
         raise AppHTTPException(status_code=404, code="project_not_found", message="Project not found")
     return project
 
-def _resolve_poster_url(project: Project) -> str | None:
-    if project.poster_s3_key:
-        return generate_presigned_get_url(project.poster_s3_key)
-    return None
+def _resolve_poster_url(project: Project, fallback_s3_key: str | None = None) -> str | None:
+    key = project.poster_s3_key or fallback_s3_key
+    return generate_presigned_get_url(key) if key else None
+
+
+def _bulk_fallback_thumbnail_keys(db: Session, project_ids: list[uuid.UUID]) -> dict:
+    """Most recent asset thumbnail per project, for cards with no manual poster.
+
+    Audio is skipped: its s3_key_thumbnail holds a waveform JSON blob, not an
+    image. One grouped query rather than one lookup per project, so this stays
+    cheap on a project listing with hundreds of assets.
+    """
+    if not project_ids:
+        return {}
+    rows = (
+        db.query(Asset.project_id, MediaFile.s3_key_thumbnail)
+        .join(AssetVersion, AssetVersion.asset_id == Asset.id)
+        .join(MediaFile, MediaFile.version_id == AssetVersion.id)
+        .filter(
+            Asset.project_id.in_(project_ids),
+            Asset.deleted_at.is_(None),
+            Asset.asset_type != AssetType.audio,
+            AssetVersion.deleted_at.is_(None),
+            MediaFile.s3_key_thumbnail.isnot(None),
+        )
+        .order_by(Asset.project_id, Asset.created_at.desc())
+        .all()
+    )
+    result: dict = {}
+    for project_id, s3_key in rows:
+        result.setdefault(project_id, s3_key)
+    return result
 
 def _require_project_owner(db: Session, project_id: uuid.UUID, user: User) -> ProjectMember:
     member = db.query(ProjectMember).filter(
@@ -113,10 +141,12 @@ def list_projects(db: Session = Depends(get_db), current_user: User = Depends(ge
         .all()
     )
 
+    fallback_keys = _bulk_fallback_thumbnail_keys(db, [p.id for p in projects if not p.poster_s3_key])
+
     result = []
     for p in projects:
         resp = ProjectResponse.model_validate(p)
-        resp.poster_url = _resolve_poster_url(p)
+        resp.poster_url = _resolve_poster_url(p, fallback_keys.get(p.id))
         resp.asset_count = asset_counts.get(p.id, 0)
         resp.storage_bytes = storage_map.get(p.id, 0)
         resp.member_count = member_counts.get(p.id, 0)
@@ -136,7 +166,8 @@ def get_project(project_id: uuid.UUID, db: Session = Depends(get_db), current_us
     if not member and not project.is_public:
         raise AppHTTPException(status_code=403, code="not_a_project_member", message="Not a project member")
     resp = ProjectResponse.model_validate(project)
-    resp.poster_url = _resolve_poster_url(project)
+    fallback_key = _bulk_fallback_thumbnail_keys(db, [project_id]).get(project_id) if not project.poster_s3_key else None
+    resp.poster_url = _resolve_poster_url(project, fallback_key)
     if member:
         resp.role = member.role
     # Calculate storage, asset count, member count
@@ -162,7 +193,8 @@ def update_project(project_id: uuid.UUID, body: ProjectUpdate, db: Session = Dep
     db.commit()
     db.refresh(project)
     resp = ProjectResponse.model_validate(project)
-    resp.poster_url = _resolve_poster_url(project)
+    fallback_key = _bulk_fallback_thumbnail_keys(db, [project_id]).get(project_id) if not project.poster_s3_key else None
+    resp.poster_url = _resolve_poster_url(project, fallback_key)
     return resp
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
