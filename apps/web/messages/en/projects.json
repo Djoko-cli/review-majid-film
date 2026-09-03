@@ -17,6 +17,41 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "assetGrid": {
+    "selectItemsToShare": "Select items to share",
+    "cancel": "Cancel",
+    "createShareLink": "Create Share Link",
+    "folderCount": "{count, plural, one {# Folder} other {# Folders}}",
+    "assetCount": "{count, plural, one {# Asset} other {# Assets}}",
+    "emptyTitle": "No assets",
+    "emptyDescription": "Upload your first asset to get started.",
+    "upload": "Upload",
+    "columns": {
+      "name": "Name",
+      "uploader": "Uploader",
+      "size": "Size",
+      "version": "Ver.",
+      "date": "Date"
+    },
+    "folderItemCount": "{count, plural, one {# item} other {# items}}",
+    "folderRowMenu": {
+      "share": "Share",
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "assetRowMenu": {
+      "createShareLink": "Create Share Link",
+      "download": "Download",
+      "copyAssetUrl": "Copy Asset URL",
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "selectedCount": "{count, plural, one {# Item selected} other {# Items selected}}",
+    "delete": "Delete",
+    "moveTo": "Move to",
+    "share": "Share",
+    "download": "Download"
+  },
   "membersDialog": {
     "srDescription": "Add or manage project members",
     "addTo": "Add to {projectName}",

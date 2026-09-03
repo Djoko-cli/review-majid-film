@@ -17,6 +17,41 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "assetGrid": {
+    "selectItemsToShare": "Sélectionnez les éléments à partager",
+    "cancel": "Annuler",
+    "createShareLink": "Créer un lien de partage",
+    "folderCount": "{count, plural, one {# dossier} other {# dossiers}}",
+    "assetCount": "{count, plural, one {# média} other {# médias}}",
+    "emptyTitle": "Aucun média",
+    "emptyDescription": "Importez votre premier média pour commencer.",
+    "upload": "Importer",
+    "columns": {
+      "name": "Nom",
+      "uploader": "Importé par",
+      "size": "Taille",
+      "version": "Vers.",
+      "date": "Date"
+    },
+    "folderItemCount": "{count, plural, one {# élément} other {# éléments}}",
+    "folderRowMenu": {
+      "share": "Partager",
+      "rename": "Renommer",
+      "delete": "Supprimer"
+    },
+    "assetRowMenu": {
+      "createShareLink": "Créer un lien de partage",
+      "download": "Télécharger",
+      "copyAssetUrl": "Copier l'URL du média",
+      "rename": "Renommer",
+      "delete": "Supprimer"
+    },
+    "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
+    "delete": "Supprimer",
+    "moveTo": "Déplacer vers",
+    "share": "Partager",
+    "download": "Télécharger"
+  },
   "membersDialog": {
     "srDescription": "Ajouter ou gérer les membres du projet",
     "addTo": "Ajouter à {projectName}",
