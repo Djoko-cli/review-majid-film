@@ -17,6 +17,21 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "assetMetadata": {
+    "enterField": "Enter {field}",
+    "selectField": "Select {field}",
+    "saved": "Saved.",
+    "saveFailed": "Failed to save",
+    "rating": "Rating",
+    "assignee": "Assignee",
+    "userIdPlaceholder": "User ID",
+    "dueDate": "Due Date",
+    "keywords": "Keywords",
+    "addKeywordPlaceholder": "Add keyword...",
+    "add": "Add",
+    "customFields": "Custom Fields",
+    "save": "Save"
+  },
   "folderCard": {
     "rename": "Rename",
     "share": "Share",

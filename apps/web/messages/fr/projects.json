@@ -17,6 +17,21 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "assetMetadata": {
+    "enterField": "Saisir {field}",
+    "selectField": "Sélectionner {field}",
+    "saved": "Enregistré.",
+    "saveFailed": "Impossible d'enregistrer",
+    "rating": "Note",
+    "assignee": "Assigné à",
+    "userIdPlaceholder": "ID utilisateur",
+    "dueDate": "Date limite",
+    "keywords": "Mots-clés",
+    "addKeywordPlaceholder": "Ajouter un mot-clé...",
+    "add": "Ajouter",
+    "customFields": "Champs personnalisés",
+    "save": "Enregistrer"
+  },
   "folderCard": {
     "rename": "Renommer",
     "share": "Partager",

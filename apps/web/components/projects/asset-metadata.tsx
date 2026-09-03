@@ -4,6 +4,7 @@ import * as React from 'react'
 import useSWR, { mutate as globalMutate } from 'swr'
 import { Star, ChevronDown, Check, CalendarDays, Tag, X } from 'lucide-react'
 import * as Select from '@radix-ui/react-select'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -66,6 +67,7 @@ function CustomFieldInput({
   value: unknown
   onChange: (v: unknown) => void
 }) {
+  const t = useTranslations('projects.assetMetadata')
   const type = field.field_type as MetadataFieldType
 
   if (type === 'text') {
@@ -75,7 +77,7 @@ function CustomFieldInput({
         value={(value as string) ?? ''}
         onChange={(e) => onChange(e.target.value)}
         className="flex h-8 w-full rounded-md border border-border bg-bg-secondary px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus focus:ring-1 focus:ring-border-focus transition-colors"
-        placeholder={`Enter ${field.name.toLowerCase()}`}
+        placeholder={t('enterField', { field: field.name.toLowerCase() })}
       />
     )
   }
@@ -109,7 +111,7 @@ function CustomFieldInput({
     return (
       <Select.Root value={current} onValueChange={onChange}>
         <Select.Trigger className="inline-flex items-center justify-between gap-2 rounded-md border border-border bg-bg-secondary px-3 h-8 text-sm text-text-primary hover:bg-bg-tertiary transition-colors focus:outline-none focus:ring-1 focus:ring-border-focus w-full">
-          <Select.Value placeholder={`Select ${field.name}`} />
+          <Select.Value placeholder={t('selectField', { field: field.name })} />
           <ChevronDown className="h-3.5 w-3.5 text-text-tertiary shrink-0" />
         </Select.Trigger>
         <Select.Portal>
@@ -177,6 +179,7 @@ interface AssetMetadataEditorProps {
 }
 
 export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetadataEditorProps) {
+  const t = useTranslations('projects.assetMetadata')
   const assetKey = `/assets/${asset.id}`
 
   // Built-in fields
@@ -237,11 +240,11 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
         assignee_id: assigneeId || null,
         custom_fields: customValues,
       })
-      setMsg('Saved.')
+      setMsg(t('saved'))
       globalMutate(assetKey)
       onUpdated?.()
     } catch (err: unknown) {
-      setMsg(err instanceof Error ? err.message : 'Failed to save')
+      setMsg(err instanceof Error ? err.message : t('saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -251,18 +254,18 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
     <div className="space-y-4">
       {/* Rating */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">Rating</label>
+        <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">{t('rating')}</label>
         <StarRating value={rating} onChange={setRating} />
       </div>
 
       {/* Assignee */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">Assignee</label>
+        <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">{t('assignee')}</label>
         <input
           type="text"
           value={assigneeId}
           onChange={(e) => setAssigneeId(e.target.value)}
-          placeholder="User ID"
+          placeholder={t('userIdPlaceholder')}
           className="flex h-8 w-full rounded-md border border-border bg-bg-secondary px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus focus:ring-1 focus:ring-border-focus transition-colors"
         />
       </div>
@@ -271,7 +274,7 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide flex items-center gap-1">
           <CalendarDays className="h-3 w-3" />
-          Due Date
+          {t('dueDate')}
         </label>
         <input
           type="date"
@@ -285,7 +288,7 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide flex items-center gap-1">
           <Tag className="h-3 w-3" />
-          Keywords
+          {t('keywords')}
         </label>
         <div className="flex flex-wrap gap-1.5 mb-1">
           {keywords.map((kw) => (
@@ -315,11 +318,11 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
                 handleAddKeyword()
               }
             }}
-            placeholder="Add keyword..."
+            placeholder={t('addKeywordPlaceholder')}
             className="flex h-8 flex-1 rounded-md border border-border bg-bg-secondary px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus focus:ring-1 focus:ring-border-focus transition-colors"
           />
           <Button type="button" variant="secondary" size="sm" onClick={handleAddKeyword}>
-            Add
+            {t('add')}
           </Button>
         </div>
       </div>
@@ -327,7 +330,7 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
       {/* Custom fields */}
       {metadataFields && metadataFields.length > 0 && (
         <div className="space-y-3 border-t border-border pt-4">
-          <p className="text-xs font-medium text-text-tertiary uppercase tracking-wide">Custom Fields</p>
+          <p className="text-xs font-medium text-text-tertiary uppercase tracking-wide">{t('customFields')}</p>
           {metadataFields.map((field) => (
             <div key={field.id} className="flex flex-col gap-1.5">
               <label className="text-sm text-text-secondary flex items-center gap-1">
@@ -351,7 +354,7 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
         {msg && <p className="text-xs text-text-secondary">{msg}</p>}
         <div className="ml-auto">
           <Button size="sm" loading={saving} onClick={handleSave}>
-            Save
+            {t('save')}
           </Button>
         </div>
       </div>
