@@ -211,6 +211,7 @@
       },
       "email": {
         "title": "Email",
+        "providerGroup": { "ses": "Amazon SES", "smtp": "SMTP" },
         "fields": {
           "provider": {
             "label": "Fournisseur",

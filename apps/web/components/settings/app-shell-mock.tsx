@@ -221,12 +221,12 @@ export function LoginScreenMock({ orgName, logoUrl, onLogoError }: MockProps) {
             className="mx-auto mb-3 h-12 object-contain"
           />
         ) : (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-full.svg" alt="" className="logo-dark mx-auto mb-3 h-12 object-contain" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-full-dark.svg" alt="" className="logo-light mx-auto mb-3 h-12 object-contain" />
-          </>
+          // Mirrors AuthBrandingHeader's own fallback exactly: no custom mark
+          // configured yet means the org name alone carries the identity, not
+          // freeframe's own logo (which used to render here via the leftover
+          // /logo-full.svg asset — the exact mark this fork removed, showing
+          // back up in the one place still using it).
+          <div className="mb-3 h-2 w-2 mx-auto rounded-full bg-accent" />
         )}
         <h1 className="text-xl font-semibold text-text-primary">{orgName}</h1>
       </div>

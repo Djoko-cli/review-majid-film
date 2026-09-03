@@ -25,9 +25,11 @@ describe('StorageRing', () => {
     expect(getByText('50')).toBeInTheDocument()  // 5 GB / 10 GB
   })
 
-  it('renders a disk icon (no progress ring) when unlimited', () => {
-    const { container } = render(<StorageRing used={5 * 1024 ** 3} limit={0} />)
+  it('shows the amount used, not a bare icon, when unlimited (no % to fill the ring with)', () => {
+    const { container, getByText } = render(<StorageRing used={5 * 1024 ** 3} limit={0} />)
     expect(container.querySelector('[data-testid="storage-ring-unlimited"]')).not.toBeNull()
     expect(container.querySelector('[data-testid="storage-ring"]')).toBeNull()
+    expect(container.querySelector('svg')).not.toBeNull()
+    expect(getByText('5G')).toBeInTheDocument()
   })
 })

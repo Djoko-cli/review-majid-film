@@ -88,13 +88,19 @@ export function Header({ onSearchOpen }: HeaderProps) {
       <div className="flex items-center gap-1.5">
         <LanguageSwitcher />
 
-        {/* Search trigger */}
+        {/* Search trigger. sm:min-w + justify-between hold this button's
+            width constant across locales — "Rechercher"/"Search" differ
+            enough in length that without a fixed width, the language
+            switcher (its neighbor in this flex row) visibly shifts
+            horizontally on every language change. */}
         <button
           onClick={onSearchOpen}
-          className="flex items-center gap-1.5 rounded-md border border-border bg-bg-secondary/60 px-2.5 py-1 text-xs text-text-tertiary hover:border-border-focus hover:text-text-secondary transition-colors"
+          className="flex items-center gap-1.5 rounded-md border border-border bg-bg-secondary/60 px-2.5 py-1 text-xs text-text-tertiary hover:border-border-focus hover:text-text-secondary transition-colors sm:min-w-[138px] sm:justify-between"
         >
-          <Search className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{t('search')}</span>
+          <span className="flex items-center gap-1.5">
+            <Search className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t('search')}</span>
+          </span>
           <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border bg-bg-tertiary/50 px-1 py-0.5 font-mono text-[10px] text-text-tertiary">
             <span>⌘</span>K
           </kbd>

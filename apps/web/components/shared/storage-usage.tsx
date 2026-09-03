@@ -1,6 +1,5 @@
-import { HardDrive } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { cn, formatBytes, storageMeterState } from '@/lib/utils'
+import { cn, formatBytes, formatBytesShort, storageMeterState } from '@/lib/utils'
 
 const FILL: Record<'ok' | 'warn' | 'critical', string> = {
   ok: 'bg-accent',
@@ -61,41 +60,42 @@ export function StorageUsage({
 }
 
 /** Compact circular gauge — for the collapsed sidebar rail. Ring colored by usage level
- *  when a cap is set; a plain disk icon when unlimited. Hover title shows used/limit. */
+ *  when a cap is set; a plain muted track (no fill — there is no denominator to plot)
+ *  with the actual amount used centered inside when unlimited, so this never reduces
+ *  to a static icon that conveys nothing at a glance. Hover title shows the full
+ *  used/limit figure either way. */
 export function StorageRing({ used, limit }: { used: number; limit: number }) {
   const t = useTranslations('shared.storageUsage')
   const { unlimited, pct, level } = storageMeterState(used, limit)
   const title = usageTitle(used, limit, unlimited, t)
 
-  if (unlimited) {
-    return (
-      <div title={title} className="flex items-center justify-center text-text-tertiary" data-testid="storage-ring-unlimited">
-        <HardDrive className="h-[18px] w-[18px]" strokeWidth={1.5} />
-      </div>
-    )
-  }
-
   const r = 12
   const c = 2 * Math.PI * r
   return (
-    <div title={title} className={cn('relative flex items-center justify-center', RING_TEXT[level])} data-testid="storage-ring">
+    <div
+      title={title}
+      className={cn('relative flex items-center justify-center', unlimited ? 'text-text-tertiary' : RING_TEXT[level])}
+      data-testid={unlimited ? 'storage-ring-unlimited' : 'storage-ring'}
+    >
       <svg width="32" height="32" viewBox="0 0 32 32" className="-rotate-90">
         <circle cx="16" cy="16" r={r} fill="none" strokeWidth="2.5" className="stroke-bg-tertiary" />
-        <circle
-          cx="16"
-          cy="16"
-          r={r}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - Math.max(pct, 0) / 100)}
-          className="transition-all duration-300"
-        />
+        {!unlimited && (
+          <circle
+            cx="16"
+            cy="16"
+            r={r}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray={c}
+            strokeDashoffset={c * (1 - Math.max(pct, 0) / 100)}
+            className="transition-all duration-300"
+          />
+        )}
       </svg>
       <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold tabular-nums text-text-secondary">
-        {Math.round(pct)}
+        {unlimited ? formatBytesShort(used) : Math.round(pct)}
       </span>
     </div>
   )

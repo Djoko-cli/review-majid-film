@@ -61,6 +61,19 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat(value.toFixed(1))} ${units[i]}`
 }
 
+/**
+ * Same as formatBytes but single-letter unit, no space — short enough to sit
+ * centered inside the collapsed sidebar's 32px storage ring (StorageRing).
+ * e.g. 1_610_612_736 → "1.5G"
+ */
+export function formatBytesShort(bytes: number): string {
+  if (bytes === 0) return '0B'
+  const units = ['B', 'K', 'M', 'G', 'T']
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  const value = bytes / Math.pow(1024, i)
+  return `${parseFloat(value.toFixed(1))}${units[i]}`
+}
+
 export const GB = 1024 ** 3
 
 export function gbToBytes(gb: number): number {

@@ -3,6 +3,7 @@ import {
   formatTime,
   formatTimecode,
   formatBytes,
+  formatBytesShort,
   formatRelativeTime,
   truncate,
   cn,
@@ -71,6 +72,20 @@ describe('formatBytes', () => {
 
   it('formats GB', () => {
     expect(formatBytes(1610612736)).toBe('1.5 GB')
+  })
+})
+
+describe('formatBytesShort', () => {
+  it('returns "0B" for 0 bytes', () => {
+    expect(formatBytesShort(0)).toBe('0B')
+  })
+
+  it('formats GB with a single-letter unit and no space', () => {
+    expect(formatBytesShort(5 * 1024 ** 3)).toBe('5G')
+  })
+
+  it('formats with one decimal when not a whole unit', () => {
+    expect(formatBytesShort(1610612736)).toBe('1.5G')
   })
 })
 
