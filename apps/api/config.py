@@ -137,6 +137,16 @@ class Settings(BaseSettings):
     oidc_redirect_uri: str | None = None
     oidc_scope: str = "openid email profile"
 
+    # Transcoder tuning, admin-config-overridable (Settings > Admin > Config).
+    # Mirrors TRANSCODER_PIPELINE/OUTPUT/HDR, previously read raw via
+    # os.environ.get() only inside packages/transcoder/ffmpeg_transcoder.py
+    # (no pydantic field, no admin-override path). Promoted here so
+    # transcode_tasks.py can pass the current effective value explicitly —
+    # see TranscodeJob.pipeline/output_mode/hdr_mode.
+    transcoder_pipeline: str = "Auto"  # Auto | NVIDIA | Intel | Software
+    transcoder_output: str = "h264_8"  # h264_8 | h265_10
+    transcoder_hdr: str = "convert"  # convert | preserve
+
     @model_validator(mode="after")
     def _check_s3_endpoint_consistency(self):
         """Fail loud on `S3_STORAGE=s3` + a real custom (non-AWS) `S3_ENDPOINT`.

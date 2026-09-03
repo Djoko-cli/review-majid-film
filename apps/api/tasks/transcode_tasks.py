@@ -146,6 +146,12 @@ def _process_video(db, asset, version, media_file, s3, output_prefix):
         output_s3_prefix=output_prefix,
         qualities=["1080p", "720p", "360p"],
         progress_cb=_on_progress,
+        # Read fresh here (not at module import time) so an admin-config
+        # override applied by _ConfigSyncTask.before_start just before this
+        # task ran is reflected in the very job it's about to run.
+        pipeline=settings.transcoder_pipeline,
+        output_mode=settings.transcoder_output,
+        hdr_mode=settings.transcoder_hdr,
     )
     result = _run_async(transcoder.transcode(job))
 

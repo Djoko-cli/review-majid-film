@@ -470,3 +470,65 @@ def test_no_video_stream_defaults_false_so_other_backends_need_not_set_it():
 
     assert TranscodeResult(success=True).no_video_stream is False
     assert TranscodeResult(success=False, error="boom").no_video_stream is False
+
+
+# ─── Admin-config-overridable settings (TRANSCODER_PIPELINE/OUTPUT/HDR) ──
+#
+# get_output_mode/get_hdr_mode/detect_backend/get_backend all gained an
+# optional explicit-value parameter so TranscodeJob.pipeline/output_mode/
+# hdr_mode (populated from apps.api.config.settings, which an admin-config
+# save mutates in place) can override the raw os.environ.get() read. None
+# on each must fall back to the exact prior os.environ behavior — that's
+# what makes _make_job() above, which never sets these, unaffected.
+
+class TestExplicitValueOverridesEnv:
+    def test_get_output_mode_prefers_explicit_value_over_env(self, monkeypatch):
+        from packages.transcoder.ffmpeg_transcoder import get_output_mode
+        monkeypatch.setenv("TRANSCODER_OUTPUT", "h265_10")
+        assert get_output_mode("h264_8") == "h264_8"
+
+    def test_get_output_mode_falls_back_to_env_when_none(self, monkeypatch):
+        from packages.transcoder.ffmpeg_transcoder import get_output_mode
+        monkeypatch.setenv("TRANSCODER_OUTPUT", "h265_10")
+        assert get_output_mode(None) == "h265_10"
+
+    def test_get_output_mode_falls_back_to_default_when_unset(self, monkeypatch):
+        from packages.transcoder.ffmpeg_transcoder import get_output_mode
+        monkeypatch.delenv("TRANSCODER_OUTPUT", raising=False)
+        assert get_output_mode() == "h264_8"
+
+    def test_get_hdr_mode_prefers_explicit_value_over_env(self, monkeypatch):
+        from packages.transcoder.ffmpeg_transcoder import get_hdr_mode
+        monkeypatch.setenv("TRANSCODER_HDR", "preserve")
+        assert get_hdr_mode("convert") == "convert"
+
+    def test_detect_backend_prefers_explicit_pipeline_over_env(self, monkeypatch):
+        from packages.transcoder.ffmpeg_transcoder import detect_backend
+        monkeypatch.setenv("TRANSCODER_PIPELINE", "NVIDIA")
+        # "Software" forces cpu regardless of what hardware detection would say.
+        assert detect_backend(pipeline="Software") == "cpu"
+
+
+class TestBackendCacheInvalidatesOnPipelineChange:
+    """get_backend() caches detect_backend() for the worker process's
+    lifetime — hardware probing isn't free. Without invalidating on a
+    changed `pipeline`, an admin-config change would only take effect on
+    the worker's next restart, not its next job."""
+
+    def test_cache_recomputes_when_pipeline_argument_changes(self, monkeypatch):
+        import packages.transcoder.ffmpeg_transcoder as mod
+        monkeypatch.setattr(mod, "_BACKEND_CACHE", None)
+        calls = []
+
+        def fake_detect_backend(preferred=None, pipeline=None):
+            calls.append(pipeline)
+            return "cpu" if pipeline == "Software" else "nvenc"
+
+        monkeypatch.setattr(mod, "detect_backend", fake_detect_backend)
+
+        assert mod.get_backend(pipeline="Auto") == "nvenc"
+        assert mod.get_backend(pipeline="Auto") == "nvenc"  # cached, no recompute
+        assert calls == ["Auto"]
+
+        assert mod.get_backend(pipeline="Software") == "cpu"  # pipeline changed -> recompute
+        assert calls == ["Auto", "Software"]

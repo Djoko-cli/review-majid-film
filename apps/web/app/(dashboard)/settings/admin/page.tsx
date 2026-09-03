@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import type { User, UserStatus } from "@/types";
 import { InstanceSettingsTab } from "@/components/settings/instance-settings-tab";
 import { BrandingTab } from "@/components/settings/branding-tab";
+import { InstanceConfigTab } from "@/components/settings/instance-config-tab";
 
 function BulkInviteDialog() {
   const t = useTranslations("settings.admin.bulkInvite");
@@ -241,7 +242,7 @@ export default function AdminPage() {
   const tErrors = useTranslations("errors");
   const { user, isSuperAdmin } = useAuthStore();
   const router = useRouter();
-  const [tab, setTab] = React.useState<"users" | "instance" | "branding">("users");
+  const [tab, setTab] = React.useState<"users" | "instance" | "branding" | "config">("users");
 
   const { data: usersResp, isLoading: loadingUsers } = useSWR<User[]>(
     isSuperAdmin ? "/admin/users" : null,
@@ -258,7 +259,7 @@ export default function AdminPage() {
   // Read after mount so the server and client render the same initial markup.
   React.useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
-    if (requested === "instance" || requested === "branding") {
+    if (requested === "instance" || requested === "branding" || requested === "config") {
       setTab(requested);
     }
   }, []);
@@ -353,14 +354,16 @@ export default function AdminPage() {
               ? t("tabDescription.instance")
               : tab === "branding"
                 ? t("tabDescription.branding")
-                : t("tabDescription.users")}
+                : tab === "config"
+                  ? t("tabDescription.config")
+                  : t("tabDescription.users")}
           </p>
         </div>
       </div>
 
       {/* Sub-tabs */}
       <div className="flex gap-1 border-b border-border">
-        {(["users", "instance", "branding"] as const).map((key) => (
+        {(["users", "instance", "branding", "config"] as const).map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -378,6 +381,7 @@ export default function AdminPage() {
 
       {tab === "instance" && <InstanceSettingsTab />}
       {tab === "branding" && <BrandingTab />}
+      {tab === "config" && <InstanceConfigTab />}
 
       {/* User management */}
       {tab === "users" && (

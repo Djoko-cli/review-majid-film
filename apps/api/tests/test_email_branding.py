@@ -97,6 +97,27 @@ class TestFromLine:
             assert module.email_service.from_name == "Pinned Name"
 
 
+class TestProviderAndFromAddressAreLive:
+    """provider/from_address used to be snapshotted once in EmailService.__init__,
+    so an admin-config override (Settings > Admin > Config) would silently do
+    nothing until a worker restart — same bug class from_name already avoided.
+    Now properties, mirroring from_name's own pattern above."""
+
+    def test_provider_reads_settings_live(self):
+        from apps.api.services import email_service as module
+
+        with patch.object(module.settings, "mail_provider", "smtp"):
+            assert module.email_service.provider == "smtp"
+        with patch.object(module.settings, "mail_provider", "ses"):
+            assert module.email_service.provider == "ses"
+
+    def test_from_address_reads_settings_live(self):
+        from apps.api.services import email_service as module
+
+        with patch.object(module.settings, "mail_from_address", "new@example.com"):
+            assert module.email_service.from_address == "new@example.com"
+
+
 class TestOrgNameResolution:
     def test_falls_back_when_the_database_is_unavailable(self):
         """A worker that starts before the database still sends mail."""

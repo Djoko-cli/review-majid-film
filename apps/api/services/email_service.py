@@ -26,9 +26,16 @@ class EmailService:
     Auto-detects based on mail_provider setting in config.
     """
     
-    def __init__(self):
-        self.provider = settings.mail_provider
-        self.from_address = settings.mail_from_address
+    @property
+    def provider(self) -> str:
+        """Resolved per call, not snapshotted at init, so an admin-config
+        override (Settings > Admin > Config) takes effect on the next send
+        instead of needing a worker restart — same reasoning as from_name."""
+        return settings.mail_provider
+
+    @property
+    def from_address(self) -> str:
+        return settings.mail_from_address
 
     @property
     def from_name(self) -> str:

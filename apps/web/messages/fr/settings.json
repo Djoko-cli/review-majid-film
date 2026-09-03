@@ -86,12 +86,14 @@
     "tabDescription": {
       "instance": "Configurer cette instance",
       "branding": "Personnaliser l'apparence de cette instance",
-      "users": "Gérer les utilisateurs de la plateforme"
+      "users": "Gérer les utilisateurs de la plateforme",
+      "config": "Réglages avancés de l'instance"
     },
     "tabs": {
       "users": "Utilisateurs",
       "instance": "Paramètres de l'instance",
-      "branding": "Personnalisation"
+      "branding": "Personnalisation",
+      "config": "Configuration"
     },
     "bulkInvite": {
       "trigger": "Invitation groupée",
@@ -154,6 +156,137 @@
     "failedToSave": "Échec de l'enregistrement",
     "saved": "Enregistré.",
     "save": "Enregistrer"
+  },
+  "instanceConfigTab": {
+    "saveChanges": "Enregistrer les modifications",
+    "saved": "Enregistré.",
+    "failedToSave": "Échec de l'enregistrement",
+    "unsavedCount": "{count, plural, one {# modification non enregistrée} other {# modifications non enregistrées}}",
+    "reset": "Réinitialiser",
+    "overriddenTitle": "Personnalisé — diffère de la valeur par défaut de votre .env",
+    "categories": {
+      "auth": {
+        "title": "Authentification",
+        "fields": {
+          "magic_link_enabled": {
+            "label": "Connexion par code magique",
+            "hint": "Autoriser la connexion avec un code à usage unique envoyé par email, en plus du mot de passe."
+          },
+          "access_token_expire_minutes": {
+            "label": "Durée de vie du jeton d'accès (minutes)",
+            "hint": ""
+          },
+          "refresh_token_expire_days": {
+            "label": "Durée de vie du jeton de rafraîchissement (jours)",
+            "hint": "Durée pendant laquelle une session reste connectée avant de devoir se reconnecter."
+          }
+        }
+      },
+      "oidc": {
+        "title": "Connexion OIDC",
+        "fields": {
+          "enabled": {
+            "label": "Activer la connexion OIDC",
+            "hint": "Ajoute un bouton « Se connecter avec… » utilisant un fournisseur d'identité externe."
+          },
+          "provider_label": {
+            "label": "Libellé du fournisseur",
+            "hint": "Affiché sur le bouton de connexion, ex. « Pocket ID »."
+          },
+          "discovery_url": {
+            "label": "URL de découverte",
+            "hint": "Le point de terminaison /.well-known/openid-configuration du fournisseur."
+          },
+          "client_id": { "label": "Identifiant client", "hint": "" },
+          "client_secret": { "label": "Secret client", "hint": "" },
+          "redirect_uri": {
+            "label": "URI de redirection",
+            "hint": "Doit correspondre exactement à ce qui est enregistré chez le fournisseur."
+          },
+          "scope": {
+            "label": "Scope",
+            "hint": "Portées OAuth à demander, séparées par des espaces."
+          }
+        }
+      },
+      "email": {
+        "title": "Email",
+        "fields": {
+          "provider": {
+            "label": "Fournisseur",
+            "hint": "",
+            "choices": { "ses": "Amazon SES", "smtp": "SMTP" }
+          },
+          "from_address": { "label": "Adresse d'expédition", "hint": "" },
+          "from_name": {
+            "label": "Nom d'expéditeur",
+            "hint": "Laisser vide pour utiliser le nom de l'organisation de cette instance."
+          },
+          "aws_access_key_id": { "label": "AWS Access Key ID", "hint": "" },
+          "aws_secret_access_key": { "label": "AWS Secret Access Key", "hint": "" },
+          "aws_region": { "label": "Région AWS", "hint": "" },
+          "smtp_host": { "label": "Hôte SMTP", "hint": "" },
+          "smtp_port": { "label": "Port SMTP", "hint": "" },
+          "smtp_user": { "label": "Nom d'utilisateur SMTP", "hint": "" },
+          "smtp_password": { "label": "Mot de passe SMTP", "hint": "" },
+          "smtp_use_tls": { "label": "Utiliser TLS", "hint": "" }
+        }
+      },
+      "uploads_retention": {
+        "title": "Imports & rétention",
+        "fields": {
+          "max_upload_bytes": {
+            "label": "Taille max. par fichier (Go)",
+            "hint": "Laisser vide ou 0 pour illimité. Par fichier, pas par projet — voir la limite de stockage dans l'onglet Instance."
+          },
+          "stale_upload_timeout_hours": {
+            "label": "Délai d'import bloqué (heures)",
+            "hint": "Récupère les imports bloqués depuis plus longtemps que ça. 0 désactive."
+          },
+          "stuck_processing_timeout_hours": {
+            "label": "Délai de traitement bloqué (heures)",
+            "hint": "Relance un transcodage bloqué depuis ce délai. 0 désactive."
+          },
+          "soft_delete_retention_days": {
+            "label": "Rétention de la corbeille (jours)",
+            "hint": "Supprime définitivement les éléments mis à la corbeille après ce délai. 0 désactive."
+          },
+          "orphan_sweep_grace_hours": {
+            "label": "Délai de grâce avant nettoyage des orphelins (heures)",
+            "hint": "Ne récupère que les objets plus anciens que ce délai. 0 désactive le nettoyage."
+          },
+          "orphan_sweep_delete": {
+            "label": "Supprimer réellement les orphelins",
+            "hint": "Désactivé, ça se contente de journaliser ce qui serait supprimé."
+          }
+        }
+      },
+      "transcoder": {
+        "title": "Transcodeur",
+        "fields": {
+          "pipeline": {
+            "label": "Pipeline",
+            "hint": "Quel matériel utiliser pour l'encodage.",
+            "choices": {
+              "Auto": "Automatique",
+              "NVIDIA": "NVIDIA (NVENC)",
+              "Intel": "Intel (VAAPI)",
+              "Software": "Logiciel (CPU)"
+            }
+          },
+          "output": {
+            "label": "Codec de sortie",
+            "hint": "H.264 est largement compatible ; HEVC 10-bit est de meilleure qualité mais plus lourd, surtout en CPU.",
+            "choices": { "h264_8": "H.264 (8-bit)", "h265_10": "HEVC (10-bit)" }
+          },
+          "hdr": {
+            "label": "Gestion du HDR",
+            "hint": "",
+            "choices": { "convert": "Convertir en SDR", "preserve": "Préserver le HDR" }
+          }
+        }
+      }
+    }
   },
   "brandingPreview": {
     "screens": {

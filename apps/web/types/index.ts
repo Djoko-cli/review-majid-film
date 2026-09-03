@@ -62,6 +62,18 @@ export interface InstanceSettings {
   storage_used_bytes: number;
 }
 
+export interface ConfigField {
+  category: string;
+  name: string;
+  key: string;
+  type: "string" | "number" | "boolean" | "filesize" | "enum";
+  value: string | number | boolean | null;
+  is_overridden: boolean;
+  obscured: boolean;
+  locked: boolean;
+  choices: string[] | null;
+}
+
 export interface Team {
   id: string;
   org_id: string;

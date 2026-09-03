@@ -14,6 +14,15 @@ class TranscodeJob:
     # Implementations must treat it as best-effort: a raising callback must not
     # fail the transcode.
     progress_cb: Optional[Callable[[int], None]] = None
+    # Admin-config-overridable transcoder tuning (Settings > Admin > Config),
+    # threaded through explicitly rather than left for ffmpeg_transcoder.py to
+    # read os.environ itself — a live DB override wouldn't otherwise reach a
+    # value read straight from the environment. None on each falls back to
+    # that function's own current os.environ.get() default, so any existing
+    # caller that doesn't set these is unaffected.
+    pipeline: Optional[str] = None  # TRANSCODER_PIPELINE: Auto | NVIDIA | Intel | Software
+    output_mode: Optional[str] = None  # TRANSCODER_OUTPUT: h264_8 | h265_10
+    hdr_mode: Optional[str] = None  # TRANSCODER_HDR: convert | preserve
 
 @dataclass
 class TranscodeResult:

@@ -1,4 +1,5 @@
-from celery import Celery
+import logging
+from celery import Celery, Task
 from celery.schedules import crontab
 from kombu import Queue
 from kombu.exceptions import OperationalError
@@ -8,10 +9,56 @@ try:
 except ImportError:
     from config import settings
 
+_config_sync_logger = logging.getLogger("celery.config_sync")
+
+
+class _ConfigSyncTask(Task):
+    """Runs before every task body, in every worker process.
+
+    A worker is a separate Python process from the API, with its own
+    `apps.api.config.settings` singleton — it never sees the API's in-place
+    mutation of that object on save. Re-syncing here before each task keeps
+    it current, mirroring how the cleanup tasks already re-read their own
+    thresholds fresh on every run rather than once at worker boot (see
+    tasks/cleanup_tasks.py).
+
+    Safe under the default `prefork` pool every worker `command:` in
+    docker-compose.*.yml uses (no --pool= flag anywhere): a prefork child
+    runs one task at a time to completion, so mutating the shared `settings`
+    object here can never race with an in-flight task's own reads of it. If
+    a worker is ever switched to a threaded/eventlet/gevent pool, concurrent
+    tasks in the same process COULD interleave with this — revisit first.
+
+    Must never raise: `before_start` raising marks the task failed before
+    `run()` even executes, so a transient DB hiccup here must not fail every
+    task in the fleet — same reasoning as main.py's own boot-time sync.
+    """
+    def before_start(self, task_id, args, kwargs):
+        try:
+            db = None
+            try:
+                from ..database import SessionLocal
+            except ImportError:
+                from database import SessionLocal
+            try:
+                from ..services.config_service import apply_overrides_to_settings
+            except ImportError:
+                from services.config_service import apply_overrides_to_settings
+            db = SessionLocal()
+            apply_overrides_to_settings(db)
+        except Exception as e:
+            _config_sync_logger.warning("Could not sync config overrides before task %s: %s", self.name, e)
+        finally:
+            if db is not None:
+                db.close()
+        super().before_start(task_id, args, kwargs)
+
+
 celery_app = Celery(
     "freeframe",
     broker=settings.redis_url,
     backend=settings.redis_url,
+    task_cls=_ConfigSyncTask,
     include=[
         "apps.api.tasks.transcode_tasks",
         "apps.api.tasks.watermark_tasks",

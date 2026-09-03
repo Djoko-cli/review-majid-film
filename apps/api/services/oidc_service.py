@@ -77,6 +77,18 @@ def _jwks() -> dict:
     return _jwks_cache
 
 
+def reset_discovery_cache() -> None:
+    """Drop the cached discovery document + JWKS so a just-saved
+    oidc_discovery_url takes effect immediately, not after up to
+    _CACHE_TTL_SECONDS — mirrors branding_service.reset_org_name_cache().
+    Call this whenever an admin-config save touches any oidc.* key."""
+    global _discovery_cache, _discovery_cached_at, _jwks_cache, _jwks_cached_at
+    _discovery_cache = None
+    _discovery_cached_at = 0
+    _jwks_cache = None
+    _jwks_cached_at = 0
+
+
 def _pkce_pair() -> tuple[str, str]:
     """(code_verifier, code_challenge) per RFC 7636 (S256)."""
     verifier = secrets.token_urlsafe(64)

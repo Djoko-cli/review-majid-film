@@ -135,9 +135,12 @@ def _pipeline_to_backend(pipeline: str | None) -> str | None:
             "intel": "vaapi"}.get(p)
 
 
-def detect_backend(preferred: str | None = None) -> str:
-    # 1) High-level PIPELINE knob (Software / NVIDIA / Intel / Auto)
-    pb = _pipeline_to_backend(os.environ.get("TRANSCODER_PIPELINE"))
+def detect_backend(preferred: str | None = None, pipeline: str | None = None) -> str:
+    # 1) High-level PIPELINE knob (Software / NVIDIA / Intel / Auto). `pipeline`
+    # lets a caller pass the current admin-config-overridden value explicitly
+    # (see TranscodeJob.pipeline) instead of this always reading os.environ —
+    # None falls back to the env var exactly as before.
+    pb = _pipeline_to_backend(pipeline if pipeline is not None else os.environ.get("TRANSCODER_PIPELINE"))
     if pb == "cpu":
         return "cpu"
     if pb == "nvenc":
@@ -242,15 +245,21 @@ _OUTPUT_MODES = {
 }
 
 
-def get_output_mode() -> str:
-    return os.environ.get("TRANSCODER_OUTPUT", "h264_8").lower()
+def get_output_mode(value: str | None = None) -> str:
+    """`value` is the current admin-config-overridden TRANSCODER_OUTPUT
+    (see TranscodeJob.output_mode) — None falls back to os.environ exactly
+    as before, so any caller not passing it is unaffected."""
+    return (value if value is not None else os.environ.get("TRANSCODER_OUTPUT", "h264_8")).lower()
 
 
 # HDR handling (TRANSCODER_HDR):
 #   convert  -> tone-map HDR -> Rec.709 SDR (default; matches prior behaviour)
 #   preserve -> keep HDR10/HLG passthrough (10-bit, original colour tags)
-def get_hdr_mode() -> str:
-    return os.environ.get("TRANSCODER_HDR", "convert").lower()
+def get_hdr_mode(value: str | None = None) -> str:
+    """`value` is the current admin-config-overridden TRANSCODER_HDR (see
+    TranscodeJob.hdr_mode) — None falls back to os.environ exactly as
+    before, so any caller not passing it is unaffected."""
+    return (value if value is not None else os.environ.get("TRANSCODER_HDR", "convert")).lower()
 
 
 # Runtime hardware failures that should transparently fall back to software.
@@ -288,10 +297,16 @@ def _hw_failure_reason(err: str) -> str:
     return "unknown hardware failure"
 
 
-def get_backend() -> str:
+def get_backend(pipeline: str | None = None) -> str:
+    """Caches detect_backend()'s result for the worker process's lifetime —
+    hardware probing isn't cheap enough to redo per job. Recomputes when the
+    passed `pipeline` (the current admin-config-overridden TRANSCODER_PIPELINE,
+    see TranscodeJob.pipeline) differs from the value the cache was built
+    from, so a config change still takes effect within one job rather than
+    only on the worker's next restart."""
     global _BACKEND_CACHE
-    if _BACKEND_CACHE is None:
-        _BACKEND_CACHE = {"name": detect_backend()}
+    if _BACKEND_CACHE is None or _BACKEND_CACHE.get("pipeline") != pipeline:
+        _BACKEND_CACHE = {"name": detect_backend(pipeline=pipeline), "pipeline": pipeline}
     return _BACKEND_CACHE["name"]
 
 
@@ -513,7 +528,7 @@ class FFmpegTranscoder(BaseTranscoder):
             # upstream review #127: bt2020 primaries alone are not an HDR signal.)
             is_hdr = _vid_stream.get("color_transfer") in _HDR_TRANSFERS
             dovi_profile = _dovi_profile(_vid_stream)
-            hdr_mode = get_hdr_mode()
+            hdr_mode = get_hdr_mode(job.hdr_mode)
             # Profile 5 has no usable base layer, so re-encoding must inverse-map
             # it with libplacebo. DV profiles with HDR/HLG base layers follow the
             # ordinary HDR path and retain hardware decode/scale/encode.
@@ -548,7 +563,7 @@ class FFmpegTranscoder(BaseTranscoder):
                 # Never emit an empty ladder: keep the smallest requested rung.
                 qualities = [min(requested, key=lambda q: int(QUALITY_MAP[q][0].split(":")[1]))]
 
-            primary_backend = get_backend()
+            primary_backend = get_backend(job.pipeline)
 
             hls_dir = work_dir / "hls"
             hls_dir.mkdir()
@@ -563,7 +578,7 @@ class FFmpegTranscoder(BaseTranscoder):
                 # DV is tone-mapped via libplacebo and encoded in software (see
                 # below), so force the CPU scale filter for it.
                 scale_filter = "scale" if dv_software else _BACKEND_SCALE.get(backend, "scale")
-                out_mode = _OUTPUT_MODES.get(get_output_mode(), _OUTPUT_MODES["h264_8"])
+                out_mode = _OUTPUT_MODES.get(get_output_mode(job.output_mode), _OUTPUT_MODES["h264_8"])
 
 
                 # Build filter_complex: split then per-quality scale.
@@ -654,7 +669,7 @@ class FFmpegTranscoder(BaseTranscoder):
                             ffmpeg_cmd += ["-pix_fmt", "yuv420p", "-crf", str(crf + 4)]
                     elif backend == "nvenc":
                         enc = "hevc_nvenc" if family == "hevc" else "h264_nvenc"
-                        cq = _NVENC_CQ.get(get_output_mode(), 26)
+                        cq = _NVENC_CQ.get(get_output_mode(job.output_mode), 26)
                         ffmpeg_cmd += [f"-c:v:{i}", enc, "-preset", "p6", "-rc", "constqp",
                                        "-qp", str(cq), "-force_key_frames", "expr:gte(t,n_forced*2)"]
                         if family == "hevc":

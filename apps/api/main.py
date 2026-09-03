@@ -5,10 +5,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routers import auth, users, projects, upload, events, assets, me, comments, approvals, share, metadata, branding, instance_branding, notifications, admin, setup, folders, hls_proxy, instance_settings, brand_slides, oauth
+from .routers import auth, users, projects, upload, events, assets, me, comments, approvals, share, metadata, branding, instance_branding, notifications, admin, setup, folders, hls_proxy, instance_settings, brand_slides, oauth, instance_config
 from .services.s3_service import run_startup_bucket_setup
 from .services.email_service import mail_is_configured
 from .services.brand_sync_service import is_enabled as brand_sync_is_enabled, sync_from_majidfilm
+from .services.config_service import apply_overrides_to_settings
 from .database import SessionLocal
 from .models.brand_slide import BrandProject
 from .middleware.global_rate_limit import GlobalRateLimitMiddleware
@@ -37,6 +38,19 @@ def _initial_brand_sync_if_empty():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Any admin-config override saved before this boot must apply before
+    # anything below reads settings.* (the mail_is_configured() check right
+    # below, in particular). Synchronous and fast (a handful of DB rows) —
+    # unlike the threaded steps below, never worth backgrounding. A DB
+    # hiccup here must not crash boot, same reasoning as the threaded steps.
+    db = SessionLocal()
+    try:
+        apply_overrides_to_settings(db)
+    except Exception as e:
+        logging.getLogger("apps.api.startup").warning("Could not apply config overrides at boot: %s", e)
+    finally:
+        db.close()
+
     # Run bucket setup off the request path (daemon thread) so a slow or unreachable
     # object store can't block app startup (deploy-test finding #6).
     threading.Thread(target=run_startup_bucket_setup, name="s3-bucket-setup", daemon=True).start()
@@ -128,6 +142,7 @@ app.include_router(instance_settings.router)
 app.include_router(instance_branding.router)
 app.include_router(brand_slides.router)
 app.include_router(oauth.router)
+app.include_router(instance_config.router)
 
 @app.get("/health")
 def health():

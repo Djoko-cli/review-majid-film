@@ -86,12 +86,14 @@
     "tabDescription": {
       "instance": "Configure this instance",
       "branding": "Make this instance look like yours",
-      "users": "Manage platform users"
+      "users": "Manage platform users",
+      "config": "Advanced instance settings"
     },
     "tabs": {
       "users": "Users",
       "instance": "Instance settings",
-      "branding": "Branding"
+      "branding": "Branding",
+      "config": "Config"
     },
     "bulkInvite": {
       "trigger": "Bulk Invite",
@@ -154,6 +156,137 @@
     "failedToSave": "Failed to save",
     "saved": "Saved.",
     "save": "Save"
+  },
+  "instanceConfigTab": {
+    "saveChanges": "Save changes",
+    "saved": "Saved.",
+    "failedToSave": "Failed to save",
+    "unsavedCount": "{count, plural, one {# unsaved change} other {# unsaved changes}}",
+    "reset": "Reset",
+    "overriddenTitle": "Overridden — differs from your .env default",
+    "categories": {
+      "auth": {
+        "title": "Authentication",
+        "fields": {
+          "magic_link_enabled": {
+            "label": "Magic-code login",
+            "hint": "Allow signing in with a one-time email code instead of a password."
+          },
+          "access_token_expire_minutes": {
+            "label": "Access token lifetime (minutes)",
+            "hint": ""
+          },
+          "refresh_token_expire_days": {
+            "label": "Refresh token lifetime (days)",
+            "hint": "How long a session stays signed in before requiring a fresh login."
+          }
+        }
+      },
+      "oidc": {
+        "title": "OIDC login",
+        "fields": {
+          "enabled": {
+            "label": "Enable OIDC login",
+            "hint": "Adds a \"Sign in with…\" button using an external identity provider."
+          },
+          "provider_label": {
+            "label": "Provider label",
+            "hint": "Shown on the sign-in button, e.g. \"Pocket ID\"."
+          },
+          "discovery_url": {
+            "label": "Discovery URL",
+            "hint": "The provider's /.well-known/openid-configuration endpoint."
+          },
+          "client_id": { "label": "Client ID", "hint": "" },
+          "client_secret": { "label": "Client secret", "hint": "" },
+          "redirect_uri": {
+            "label": "Redirect URI",
+            "hint": "Must match exactly what's registered with the provider."
+          },
+          "scope": {
+            "label": "Scope",
+            "hint": "Space-separated OAuth scopes to request."
+          }
+        }
+      },
+      "email": {
+        "title": "Email",
+        "fields": {
+          "provider": {
+            "label": "Provider",
+            "hint": "",
+            "choices": { "ses": "Amazon SES", "smtp": "SMTP" }
+          },
+          "from_address": { "label": "From address", "hint": "" },
+          "from_name": {
+            "label": "From name",
+            "hint": "Leave blank to use this instance's org name."
+          },
+          "aws_access_key_id": { "label": "AWS access key ID", "hint": "" },
+          "aws_secret_access_key": { "label": "AWS secret access key", "hint": "" },
+          "aws_region": { "label": "AWS region", "hint": "" },
+          "smtp_host": { "label": "SMTP host", "hint": "" },
+          "smtp_port": { "label": "SMTP port", "hint": "" },
+          "smtp_user": { "label": "SMTP username", "hint": "" },
+          "smtp_password": { "label": "SMTP password", "hint": "" },
+          "smtp_use_tls": { "label": "Use TLS", "hint": "" }
+        }
+      },
+      "uploads_retention": {
+        "title": "Uploads & retention",
+        "fields": {
+          "max_upload_bytes": {
+            "label": "Max file size (GB)",
+            "hint": "Leave blank or 0 for unlimited. Per file, not per project — see the storage limit under Instance."
+          },
+          "stale_upload_timeout_hours": {
+            "label": "Stale upload timeout (hours)",
+            "hint": "Reclaim uploads stuck in progress longer than this. 0 disables."
+          },
+          "stuck_processing_timeout_hours": {
+            "label": "Stuck processing timeout (hours)",
+            "hint": "Re-dispatch a transcode that's been stuck this long. 0 disables."
+          },
+          "soft_delete_retention_days": {
+            "label": "Trash retention (days)",
+            "hint": "Permanently delete soft-deleted items after this many days. 0 disables."
+          },
+          "orphan_sweep_grace_hours": {
+            "label": "Orphan sweep grace period (hours)",
+            "hint": "Only reclaim storage objects older than this. 0 disables the sweep."
+          },
+          "orphan_sweep_delete": {
+            "label": "Actually delete orphans",
+            "hint": "Off just logs what would be deleted."
+          }
+        }
+      },
+      "transcoder": {
+        "title": "Transcoder",
+        "fields": {
+          "pipeline": {
+            "label": "Pipeline",
+            "hint": "Which hardware to use for encoding.",
+            "choices": {
+              "Auto": "Automatic",
+              "NVIDIA": "NVIDIA (NVENC)",
+              "Intel": "Intel (VAAPI)",
+              "Software": "Software (CPU)"
+            }
+          },
+          "output": {
+            "label": "Output codec",
+            "hint": "H.264 is broadly compatible; HEVC 10-bit is higher quality but heavier, especially on CPU.",
+            "choices": { "h264_8": "H.264 (8-bit)", "h265_10": "HEVC (10-bit)" }
+          },
+          "hdr": {
+            "label": "HDR handling",
+            "hint": "",
+            "choices": { "convert": "Convert to SDR", "preserve": "Preserve HDR" }
+          }
+        }
+      }
+    }
   },
   "brandingPreview": {
     "screens": {

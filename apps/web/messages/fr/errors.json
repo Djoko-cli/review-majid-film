@@ -114,5 +114,9 @@
   "key_is_required": "key est requis",
   "invalid_key_for_this_user": "Clé invalide pour cet utilisateur",
   "you_cannot_delete_yourself": "Vous ne pouvez pas vous supprimer vous-même",
-  "invalid_user_id_format": "Format d'identifiant utilisateur invalide"
+  "invalid_user_id_format": "Format d'identifiant utilisateur invalide",
+  "unknown_config_key": "Clé de configuration inconnue : {key}",
+  "invalid_config_value": "Valeur invalide pour {key}",
+  "invalid_config_choice": "{key} doit être l'une des valeurs suivantes : {choices}",
+  "config_field_locked": "{key} est verrouillé et ne peut pas être modifié"
 }
