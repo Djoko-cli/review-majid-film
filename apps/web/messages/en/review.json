@@ -8,6 +8,32 @@
   },
   "shownOnOtherSide": "Shown on the other side",
   "inUse": "in use",
+  "imageViewer": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "actualSize": "Actual size",
+    "fitToScreen": "Fit to screen",
+    "loadingImage": "Loading image…",
+    "failedToLoad": "Failed to load image",
+    "noImageAvailable": "No image available"
+  },
+  "audioPlayer": {
+    "failedToLoad": "Failed to load audio",
+    "waveformError": "Waveform error",
+    "loadingWaveform": "Loading waveform...",
+    "pauseSpace": "Pause (Space)",
+    "playSpace": "Play (Space)",
+    "loop": "Loop",
+    "playbackSpeed": "Playback speed",
+    "unmute": "Unmute",
+    "mute": "Mute",
+    "timeFormat": "Time Format",
+    "timeFormatOptions": {
+      "frames": "Frames",
+      "standard": "Standard",
+      "timecode": "Timecode"
+    }
+  },
   "approvalBar": {
     "status": {
       "approved": "Approved",

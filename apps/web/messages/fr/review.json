@@ -8,6 +8,32 @@
   },
   "shownOnOtherSide": "Affiché de l'autre côté",
   "inUse": "en cours d'utilisation",
+  "imageViewer": {
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "actualSize": "Taille réelle",
+    "fitToScreen": "Ajuster à l'écran",
+    "loadingImage": "Chargement de l'image…",
+    "failedToLoad": "Impossible de charger l'image",
+    "noImageAvailable": "Aucune image disponible"
+  },
+  "audioPlayer": {
+    "failedToLoad": "Impossible de charger l'audio",
+    "waveformError": "Erreur de forme d'onde",
+    "loadingWaveform": "Chargement de la forme d'onde...",
+    "pauseSpace": "Pause (Espace)",
+    "playSpace": "Lecture (Espace)",
+    "loop": "Boucle",
+    "playbackSpeed": "Vitesse de lecture",
+    "unmute": "Réactiver le son",
+    "mute": "Couper le son",
+    "timeFormat": "Format de l'heure",
+    "timeFormatOptions": {
+      "frames": "Images",
+      "standard": "Standard",
+      "timecode": "Timecode"
+    }
+  },
   "approvalBar": {
     "status": {
       "approved": "Approuvé",
