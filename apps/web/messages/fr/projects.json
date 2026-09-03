@@ -156,5 +156,83 @@
       "expires": "expire le {date}",
       "copyLinkTooltip": "Copier le lien"
     }
+  },
+  "settings": {
+    "heading": "Paramètres du projet",
+    "genericSaveError": "Impossible d'enregistrer",
+    "tabs": {
+      "branding": "Image de marque",
+      "watermark": "Filigrane",
+      "metadata": "Champs personnalisés"
+    },
+    "branding": {
+      "savedMessage": "Image de marque enregistrée.",
+      "logoUploadFailed": "Échec de l'import du logo.",
+      "logoLabel": "Logo",
+      "logoPreview": "Logo",
+      "chooseFile": "Choisir un fichier",
+      "upload": "Importer",
+      "primaryColorLabel": "Couleur principale",
+      "secondaryColorLabel": "Couleur secondaire",
+      "customTitleLabel": "Titre personnalisé",
+      "customTitlePlaceholder": "Mon espace de projet",
+      "customFooterLabel": "Pied de page personnalisé",
+      "customFooterPlaceholder": "Confidentiel — ne pas diffuser",
+      "featuredFieldLabel": "Champ mis en avant",
+      "featuredFieldPlaceholder": "Nom du champ de métadonnées personnalisé",
+      "viewerLayoutLabel": "Disposition de la visionneuse",
+      "layoutGrid": "Grille",
+      "layoutReel": "Bobine",
+      "save": "Enregistrer l'image de marque"
+    },
+    "watermark": {
+      "savedMessage": "Paramètres du filigrane enregistrés.",
+      "enableTitle": "Activer le filigrane",
+      "enableDescription": "Incruste l'identité de l'utilisateur dans les médias partagés",
+      "positionLabel": "Position",
+      "positionCenter": "Centre",
+      "positionCorner": "Coin",
+      "positionTiled": "Mosaïque",
+      "contentLabel": "Contenu",
+      "contentEmail": "Email de l'utilisateur",
+      "contentName": "Nom de l'utilisateur",
+      "contentCustomText": "Texte personnalisé",
+      "customTextLabel": "Texte du filigrane personnalisé",
+      "customTextPlaceholder": "Confidentiel",
+      "opacityLabel": "Opacité : {percent}%",
+      "save": "Enregistrer le filigrane"
+    },
+    "metadata": {
+      "description": "Définissez des champs personnalisés pour les médias de ce projet.",
+      "noFieldsYet": "Aucun champ personnalisé pour l'instant.",
+      "table": {
+        "name": "Nom",
+        "type": "Type",
+        "options": "Options",
+        "required": "Obligatoire"
+      },
+      "yes": "Oui",
+      "no": "Non",
+      "fieldTypes": {
+        "text": "Texte",
+        "number": "Nombre",
+        "date": "Date",
+        "select": "Sélection",
+        "multi_select": "Sélection multiple"
+      },
+      "createDialog": {
+        "trigger": "Ajouter un champ",
+        "title": "Ajouter un champ de métadonnées",
+        "nameLabel": "Nom du champ",
+        "namePlaceholder": "Numéro de scène",
+        "typeLabel": "Type de champ",
+        "optionsLabel": "Options (séparées par des virgules)",
+        "optionsPlaceholder": "Option 1, Option 2, Option 3",
+        "requiredLabel": "Obligatoire",
+        "cancel": "Annuler",
+        "create": "Créer",
+        "createError": "Impossible de créer le champ"
+      }
+    }
   }
 }

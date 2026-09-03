@@ -156,5 +156,83 @@
       "expires": "expires {date}",
       "copyLinkTooltip": "Copy link"
     }
+  },
+  "settings": {
+    "heading": "Project Settings",
+    "genericSaveError": "Failed to save",
+    "tabs": {
+      "branding": "Branding",
+      "watermark": "Watermark",
+      "metadata": "Metadata Fields"
+    },
+    "branding": {
+      "savedMessage": "Branding saved.",
+      "logoUploadFailed": "Logo upload failed.",
+      "logoLabel": "Logo",
+      "logoPreview": "Logo",
+      "chooseFile": "Choose file",
+      "upload": "Upload",
+      "primaryColorLabel": "Primary color",
+      "secondaryColorLabel": "Secondary color",
+      "customTitleLabel": "Custom title",
+      "customTitlePlaceholder": "My Project Hub",
+      "customFooterLabel": "Custom footer",
+      "customFooterPlaceholder": "Confidential — do not distribute",
+      "featuredFieldLabel": "Featured field",
+      "featuredFieldPlaceholder": "Custom metadata field name",
+      "viewerLayoutLabel": "Viewer layout",
+      "layoutGrid": "Grid",
+      "layoutReel": "Reel",
+      "save": "Save branding"
+    },
+    "watermark": {
+      "savedMessage": "Watermark settings saved.",
+      "enableTitle": "Enable watermark",
+      "enableDescription": "Burn user identity into shared media",
+      "positionLabel": "Position",
+      "positionCenter": "Center",
+      "positionCorner": "Corner",
+      "positionTiled": "Tiled",
+      "contentLabel": "Content",
+      "contentEmail": "User email",
+      "contentName": "User name",
+      "contentCustomText": "Custom text",
+      "customTextLabel": "Custom watermark text",
+      "customTextPlaceholder": "Confidential",
+      "opacityLabel": "Opacity: {percent}%",
+      "save": "Save watermark"
+    },
+    "metadata": {
+      "description": "Define custom fields for assets in this project.",
+      "noFieldsYet": "No custom fields yet.",
+      "table": {
+        "name": "Name",
+        "type": "Type",
+        "options": "Options",
+        "required": "Required"
+      },
+      "yes": "Yes",
+      "no": "No",
+      "fieldTypes": {
+        "text": "Text",
+        "number": "Number",
+        "date": "Date",
+        "select": "Select",
+        "multi_select": "Multi Select"
+      },
+      "createDialog": {
+        "trigger": "Add Field",
+        "title": "Add Metadata Field",
+        "nameLabel": "Field name",
+        "namePlaceholder": "Scene number",
+        "typeLabel": "Field type",
+        "optionsLabel": "Options (comma separated)",
+        "optionsPlaceholder": "Option 1, Option 2, Option 3",
+        "requiredLabel": "Required",
+        "cancel": "Cancel",
+        "create": "Create",
+        "createError": "Failed to create field"
+      }
+    }
   }
 }
