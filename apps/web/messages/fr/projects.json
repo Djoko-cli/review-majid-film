@@ -17,6 +17,89 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "shareLinkDetail": {
+    "userSearch": {
+      "placeholder": "Envoyer à un nom ou un email",
+      "invited": "{name} invité(e)",
+      "hint": "Tapez pour rechercher des utilisateurs ou saisissez un email",
+      "removeAccess": "Retirer l'accès"
+    },
+    "copy": "Copier",
+    "copied": "Copié !",
+    "copyToClipboard": "Copier dans le presse-papiers",
+    "copyLink": "Copier le lien",
+    "loading": "Chargement...",
+    "allShareLinks": "Tous les liens de partage",
+    "untitledPlaceholder": "Lien de partage sans titre",
+    "descriptionPlaceholder": "Ajouter une description...",
+    "folderCount": "{count, plural, one {# dossier} other {# dossiers}}",
+    "itemCount": "{count, plural, one {# élément} other {# éléments}}",
+    "assetCount": "{count, plural, one {# média} other {# médias}}",
+    "noContentYet": "Aucun contenu pour l'instant",
+    "openShareLink": "Ouvrir le lien de partage",
+    "tabs": {
+      "settings": "Paramètres",
+      "activity": "Activité"
+    },
+    "sections": {
+      "linkVisibility": "Visibilité du lien",
+      "permissions": "Permissions",
+      "security": "Sécurité",
+      "appearance": "Apparence",
+      "sortBy": "Trier par"
+    },
+    "visibility": {
+      "enabled": "Activé",
+      "secureHint": "Seuls les utilisateurs invités peuvent y accéder",
+      "publicHint": "Toute personne disposant du lien peut y accéder",
+      "public": "🌐 Public",
+      "secure": "🔒 Sécurisé",
+      "secureNote": "Seuls les membres du projet et les personnes que vous invitez peuvent voir ce lien."
+    },
+    "permissionsSection": {
+      "comments": "Commentaires",
+      "commentsHint": "Autoriser les visiteurs à laisser des commentaires",
+      "downloads": "Téléchargements",
+      "downloadsHint": "Autoriser les visiteurs à télécharger les fichiers",
+      "showVersions": "Afficher toutes les versions",
+      "showVersionsHint": "Afficher l'historique des versions"
+    },
+    "security": {
+      "passphrase": "Phrase secrète",
+      "passphraseRequiredHint": "Mot de passe requis pour accéder",
+      "passphraseOffHint": "Exiger un mot de passe pour accéder",
+      "passphrasePlaceholder": "Saisir une phrase secrète",
+      "hidePassword": "Masquer le mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "expiration": "Expiration",
+      "expiresOn": "Expire le {date}",
+      "notSet": "Non défini",
+      "watermark": "Filigrane",
+      "watermarkHint": "Superposer un filigrane sur le contenu"
+    },
+    "appearance": {
+      "layout": "Disposition",
+      "layoutGrid": "grille",
+      "layoutList": "liste",
+      "openInViewer": "Ouvrir dans la visionneuse",
+      "openInViewerHint": "Cliquer sur les médias ouvre la visionneuse complète",
+      "theme": "Thème",
+      "accentColor": "Couleur d'accentuation",
+      "nonePlaceholder": "Aucune",
+      "cardSize": "Taille des cartes",
+      "aspectRatio": "Format",
+      "thumbnailScale": "Ajustement de la miniature",
+      "thumbnailFit": "ajuster",
+      "thumbnailFill": "remplir",
+      "showCardInfo": "Afficher les infos sur la carte",
+      "showCardInfoHint": "Afficher le nom, le type et la taille sous la miniature"
+    },
+    "sortOptions": {
+      "name": "Nom",
+      "created_at": "Date de création",
+      "file_size": "Taille"
+    }
+  },
   "shareCreateDialog": {
     "copyButton": {
       "urlCopied": "URL copiée dans le presse-papiers",

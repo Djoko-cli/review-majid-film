@@ -17,6 +17,89 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "shareLinkDetail": {
+    "userSearch": {
+      "placeholder": "Send to name or email",
+      "invited": "Invited {name}",
+      "hint": "Type to search users or enter email",
+      "removeAccess": "Remove access"
+    },
+    "copy": "Copy",
+    "copied": "Copied!",
+    "copyToClipboard": "Copy to clipboard",
+    "copyLink": "Copy Link",
+    "loading": "Loading...",
+    "allShareLinks": "All Share Links",
+    "untitledPlaceholder": "Untitled Share Link",
+    "descriptionPlaceholder": "Add a description...",
+    "folderCount": "{count, plural, one {# Folder} other {# Folders}}",
+    "itemCount": "{count, plural, one {# Item} other {# Items}}",
+    "assetCount": "{count, plural, one {# Asset} other {# Assets}}",
+    "noContentYet": "No content yet",
+    "openShareLink": "Open Share Link",
+    "tabs": {
+      "settings": "Settings",
+      "activity": "Activity"
+    },
+    "sections": {
+      "linkVisibility": "Link Visibility",
+      "permissions": "Permissions",
+      "security": "Security",
+      "appearance": "Appearance",
+      "sortBy": "Sort By"
+    },
+    "visibility": {
+      "enabled": "Enabled",
+      "secureHint": "Only invited users can access",
+      "publicHint": "Anyone with the link can access",
+      "public": "🌐 Public",
+      "secure": "🔒 Secure",
+      "secureNote": "Only project members and people you invite can view this link."
+    },
+    "permissionsSection": {
+      "comments": "Comments",
+      "commentsHint": "Allow viewers to leave comments",
+      "downloads": "Downloads",
+      "downloadsHint": "Allow viewers to download files",
+      "showVersions": "Show all versions",
+      "showVersionsHint": "Display version history"
+    },
+    "security": {
+      "passphrase": "Passphrase",
+      "passphraseRequiredHint": "Password required to access",
+      "passphraseOffHint": "Require a password to access",
+      "passphrasePlaceholder": "Enter passphrase",
+      "hidePassword": "Hide password",
+      "showPassword": "Show password",
+      "expiration": "Expiration",
+      "expiresOn": "Expires {date}",
+      "notSet": "Not set",
+      "watermark": "Watermark",
+      "watermarkHint": "Overlay watermark on content"
+    },
+    "appearance": {
+      "layout": "Layout",
+      "layoutGrid": "grid",
+      "layoutList": "list",
+      "openInViewer": "Open in viewer",
+      "openInViewerHint": "Click assets to open full viewer",
+      "theme": "Theme",
+      "accentColor": "Accent Color",
+      "nonePlaceholder": "None",
+      "cardSize": "Card Size",
+      "aspectRatio": "Aspect Ratio",
+      "thumbnailScale": "Thumbnail Scale",
+      "thumbnailFit": "fit",
+      "thumbnailFill": "fill",
+      "showCardInfo": "Show Card Info",
+      "showCardInfoHint": "Display name, type, and size below thumbnail"
+    },
+    "sortOptions": {
+      "name": "Name",
+      "created_at": "Date created",
+      "file_size": "Size"
+    }
+  },
   "shareCreateDialog": {
     "copyButton": {
       "urlCopied": "URL copied to clipboard",
