@@ -7,6 +7,7 @@ import {
   LayoutGrid, List, RectangleHorizontal, Square, RectangleVertical,
   ChevronDown, SlidersHorizontal,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   useViewStore,
@@ -121,6 +122,7 @@ function SelectRow({
 // ─── Main popover ───────────────────────────────────────────────────────────
 
 export function AppearancePopover() {
+  const t = useTranslations('shared.appearancePopover')
   const {
     layout, setLayout,
     cardSize, setCardSize,
@@ -138,7 +140,7 @@ export function AppearancePopover() {
       <Popover.Trigger asChild>
         <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors">
           <SlidersHorizontal className="h-4 w-4" />
-          Appearance
+          {t('trigger')}
         </button>
       </Popover.Trigger>
 
@@ -154,7 +156,7 @@ export function AppearancePopover() {
         >
           {/* Layout */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-text-secondary">Layout</span>
+            <span className="text-sm text-text-secondary">{t('layout')}</span>
             <Segment<ViewLayout>
               options={[
                 { value: 'grid', icon: <LayoutGrid className="h-3.5 w-3.5" /> },
@@ -168,12 +170,12 @@ export function AppearancePopover() {
           {/* Card Size — only in grid mode */}
           {layout === 'grid' && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-secondary">Card Size</span>
+              <span className="text-sm text-text-secondary">{t('cardSize')}</span>
               <Segment<CardSize>
                 options={[
-                  { value: 'S', label: 'S' },
-                  { value: 'M', label: 'M' },
-                  { value: 'L', label: 'L' },
+                  { value: 'S', label: t('sizeS') },
+                  { value: 'M', label: t('sizeM') },
+                  { value: 'L', label: t('sizeL') },
                 ]}
                 value={cardSize}
                 onChange={setCardSize}
@@ -184,7 +186,7 @@ export function AppearancePopover() {
           {/* Aspect Ratio — only in grid mode */}
           {layout === 'grid' && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-secondary">Aspect Ratio</span>
+              <span className="text-sm text-text-secondary">{t('aspectRatio')}</span>
               <Segment<AspectRatio>
                 options={[
                   { value: 'landscape', icon: <RectangleHorizontal className="h-3.5 w-3.5" /> },
@@ -200,11 +202,11 @@ export function AppearancePopover() {
           {/* Thumbnail Scale — only in grid mode */}
           {layout === 'grid' && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-secondary">Thumbnail Scale</span>
+              <span className="text-sm text-text-secondary">{t('thumbnailScale')}</span>
               <Segment<ThumbnailScale>
                 options={[
-                  { value: 'fit', label: 'Fit' },
-                  { value: 'fill', label: 'Fill' },
+                  { value: 'fit', label: t('fit') },
+                  { value: 'fill', label: t('fill') },
                 ]}
                 value={thumbnailScale}
                 onChange={setThumbnailScale}
@@ -213,31 +215,31 @@ export function AppearancePopover() {
           )}
 
           {/* Show Card Info */}
-          <ToggleRow label="Show Card Info" checked={showCardInfo} onCheckedChange={setShowCardInfo} />
+          <ToggleRow label={t('showCardInfo')} checked={showCardInfo} onCheckedChange={setShowCardInfo} />
 
           {/* Titles */}
           {showCardInfo && (
             <SelectRow
-              label="Titles"
+              label={t('titles')}
               value={titleLines}
               options={[
-                { value: '1', label: '1 Line' },
-                { value: '2', label: '2 Lines' },
-                { value: '3', label: '3 Lines' },
+                { value: '1', label: t('titleLines1') },
+                { value: '2', label: t('titleLines2') },
+                { value: '3', label: t('titleLines3') },
               ]}
               onChange={(v) => setTitleLines(v as TitleLines)}
             />
           )}
 
           {/* Flatten Folders */}
-          <ToggleRow label="Flatten Folders" checked={flattenFolders} onCheckedChange={setFlattenFolders} />
+          <ToggleRow label={t('flattenFolders')} checked={flattenFolders} onCheckedChange={setFlattenFolders} />
 
           {/* Fields section */}
           <div className="pt-1 border-t border-white/10">
-            <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-2.5">Fields</p>
+            <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-2.5">{t('fields')}</p>
             <div className="space-y-3">
-              <ToggleRow label="File Size" checked={showFileSize} onCheckedChange={setShowFileSize} />
-              <ToggleRow label="Uploaded By" checked={showUploader} onCheckedChange={setShowUploader} />
+              <ToggleRow label={t('fileSize')} checked={showFileSize} onCheckedChange={setShowFileSize} />
+              <ToggleRow label={t('uploadedBy')} checked={showUploader} onCheckedChange={setShowUploader} />
             </div>
           </div>
         </Popover.Content>

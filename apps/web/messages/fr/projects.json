@@ -17,6 +17,13 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "assetCard": {
+    "createShareLink": "Créer un lien de partage",
+    "download": "Télécharger",
+    "copyAssetUrl": "Copier l'URL du média",
+    "rename": "Renommer",
+    "delete": "Supprimer"
+  },
   "card": {
     "deleteConfirm": "Supprimer « {name} » ? Cette action est irréversible.",
     "public": "Public",
@@ -25,6 +32,38 @@
     "menuLabel": "Projet",
     "projectSettings": "Paramètres du projet",
     "delete": "Supprimer"
+  },
+  "shareLinksTable": {
+    "searchPlaceholder": "Rechercher des partages",
+    "emptyNoLinks": "Aucun lien de partage pour l'instant. Créez-en un en partageant un média ou un dossier.",
+    "emptyNoMatch": "Aucun lien de partage ne correspond à votre recherche.",
+    "table": {
+      "title": "Titre",
+      "link": "Lien",
+      "visibility": "Visibilité",
+      "accessType": "Type d'accès",
+      "lastViewed": "Dernière consultation",
+      "views": "Vues",
+      "activity": "Activité"
+    },
+    "copyLink": "Copier le lien",
+    "public": "Public",
+    "viewActivity": "Voir l'activité",
+    "shareCount": "{count, plural, one {# partage} other {# partages}}"
+  },
+  "shareLinkActivity": {
+    "emptyTitle": "Aucune activité pour l'instant",
+    "emptyDescription": "L'activité apparaîtra ici dès que quelqu'un consultera ce lien de partage.",
+    "on": "sur",
+    "allLoaded": "Toute l'activité a été chargée",
+    "actions": {
+      "opened": "A ouvert le lien de partage",
+      "viewed_asset": "A consulté le média",
+      "commented": "A commenté",
+      "approved": "A approuvé",
+      "rejected": "A rejeté",
+      "downloaded": "A téléchargé"
+    }
   },
   "settingsDialog": {
     "title": "Paramètres du projet",

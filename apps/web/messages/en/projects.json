@@ -17,6 +17,13 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "assetCard": {
+    "createShareLink": "Create Share Link",
+    "download": "Download",
+    "copyAssetUrl": "Copy Asset URL",
+    "rename": "Rename",
+    "delete": "Delete"
+  },
   "card": {
     "deleteConfirm": "Delete \"{name}\"? This action cannot be undone.",
     "public": "Public",
@@ -25,6 +32,38 @@
     "menuLabel": "Project",
     "projectSettings": "Project Settings",
     "delete": "Delete"
+  },
+  "shareLinksTable": {
+    "searchPlaceholder": "Search for Shares",
+    "emptyNoLinks": "No share links yet. Create one by sharing an asset or folder.",
+    "emptyNoMatch": "No share links match your search.",
+    "table": {
+      "title": "Title",
+      "link": "Link",
+      "visibility": "Visibility",
+      "accessType": "Access Type",
+      "lastViewed": "Last Viewed",
+      "views": "Views",
+      "activity": "Activity"
+    },
+    "copyLink": "Copy link",
+    "public": "Public",
+    "viewActivity": "View Activity",
+    "shareCount": "{count, plural, one {# Share} other {# Shares}}"
+  },
+  "shareLinkActivity": {
+    "emptyTitle": "No activity yet",
+    "emptyDescription": "Activity will appear here once someone views this share link.",
+    "on": "on",
+    "allLoaded": "All activity loaded",
+    "actions": {
+      "opened": "Opened Share Link",
+      "viewed_asset": "Viewed Asset",
+      "commented": "Commented",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "downloaded": "Downloaded"
+    }
   },
   "settingsDialog": {
     "title": "Project settings",

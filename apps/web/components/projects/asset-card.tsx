@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Film, Music, Image as ImageIcon, Images, MessageSquare, MoreHorizontal, Check, Share2, Download, Link as LinkIcon, Pencil, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn, formatRelativeTime, formatBytes } from '@/lib/utils'
 import type { Asset, AssetType, User } from '@/types'
 import type { AspectRatio, ThumbnailScale, TitleLines } from '@/stores/view-store'
@@ -83,6 +84,7 @@ export function AssetCard({
   thumbnailScale = 'fit',
   className,
 }: AssetCardProps) {
+  const t = useTranslations('projects.assetCard')
   const TypeIcon = assetTypeIcons[asset.asset_type]
   const lineClamp = titleLines === '1' ? 'line-clamp-1' : titleLines === '2' ? 'line-clamp-2' : 'line-clamp-3'
   const [imgError, setImgError] = React.useState(false)
@@ -184,7 +186,7 @@ export function AssetCard({
                     className="flex items-center gap-2.5 mx-1 px-2.5 py-2 rounded-lg text-sm text-text-secondary hover:bg-bg-hover hover:text-text-primary cursor-pointer outline-none transition-colors"
                   >
                     <Share2 className="h-3.5 w-3.5 text-text-tertiary" />
-                    Create Share Link
+                    {t('createShareLink')}
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator className="my-1 h-px bg-border mx-1" />
                   <DropdownMenu.Item
@@ -192,7 +194,7 @@ export function AssetCard({
                     className="flex items-center gap-2.5 mx-1 px-2.5 py-2 rounded-lg text-sm text-text-secondary hover:bg-bg-hover hover:text-text-primary cursor-pointer outline-none transition-colors"
                   >
                     <Download className="h-3.5 w-3.5 text-text-tertiary" />
-                    Download
+                    {t('download')}
                   </DropdownMenu.Item>
                   <DropdownMenu.Item
                     onSelect={() => {
@@ -202,7 +204,7 @@ export function AssetCard({
                     className="flex items-center gap-2.5 mx-1 px-2.5 py-2 rounded-lg text-sm text-text-secondary hover:bg-bg-hover hover:text-text-primary cursor-pointer outline-none transition-colors"
                   >
                     <LinkIcon className="h-3.5 w-3.5 text-text-tertiary" />
-                    Copy Asset URL
+                    {t('copyAssetUrl')}
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator className="my-1 h-px bg-border mx-1" />
                   <DropdownMenu.Item
@@ -210,14 +212,14 @@ export function AssetCard({
                     className="flex items-center gap-2.5 mx-1 px-2.5 py-2 rounded-lg text-sm text-text-secondary hover:bg-bg-hover hover:text-text-primary cursor-pointer outline-none transition-colors"
                   >
                     <Pencil className="h-3.5 w-3.5 text-text-tertiary" />
-                    Rename
+                    {t('rename')}
                   </DropdownMenu.Item>
                   <DropdownMenu.Item
                     onSelect={onDelete}
                     className="flex items-center gap-2.5 mx-1 px-2.5 py-2 rounded-lg text-sm text-status-error hover:bg-status-error/10 cursor-pointer outline-none transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    Delete
+                    {t('delete')}
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>

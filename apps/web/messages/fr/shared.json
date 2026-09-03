@@ -4,6 +4,27 @@
     "defaultSubmitLabel": "Créer",
     "cancel": "Annuler"
   },
+  "appearancePopover": {
+    "trigger": "Apparence",
+    "layout": "Disposition",
+    "cardSize": "Taille des cartes",
+    "sizeS": "S",
+    "sizeM": "M",
+    "sizeL": "L",
+    "aspectRatio": "Format",
+    "thumbnailScale": "Ajustement de la miniature",
+    "fit": "Ajuster",
+    "fill": "Remplir",
+    "showCardInfo": "Afficher les infos sur la carte",
+    "titles": "Titres",
+    "titleLines1": "1 ligne",
+    "titleLines2": "2 lignes",
+    "titleLines3": "3 lignes",
+    "flattenFolders": "Aplatir les dossiers",
+    "fields": "Champs",
+    "fileSize": "Taille du fichier",
+    "uploadedBy": "Importé par"
+  },
   "moveToDialog": {
     "noSubfolders": "Aucun sous-dossier",
     "cancel": "Annuler",

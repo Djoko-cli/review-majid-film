@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as Switch from '@radix-ui/react-switch'
 import { Search, Folder, File, Copy, Check, Eye } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { formatRelativeTime } from '@/lib/utils'
 import type { ShareLinkListItem } from '@/types'
@@ -22,6 +23,7 @@ export function ShareLinksTable({
   onViewActivity,
   frontendUrl,
 }: ShareLinksTableProps) {
+  const t = useTranslations('projects.shareLinksTable')
   const [search, setSearch] = React.useState('')
   const [copiedToken, setCopiedToken] = React.useState<string | null>(null)
 
@@ -51,7 +53,7 @@ export function ShareLinksTable({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search for Shares"
+          placeholder={t('searchPlaceholder')}
           className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-bg-tertiary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus transition-colors"
         />
       </div>
@@ -61,8 +63,8 @@ export function ShareLinksTable({
         <div className="flex-1 flex items-center justify-center py-16 text-center">
           <p className="text-sm text-text-tertiary">
             {shareLinks.length === 0
-              ? 'No share links yet. Create one by sharing an asset or folder.'
-              : 'No share links match your search.'}
+              ? t('emptyNoLinks')
+              : t('emptyNoMatch')}
           </p>
         </div>
       ) : (
@@ -71,25 +73,25 @@ export function ShareLinksTable({
             <thead>
               <tr className="border-b border-border bg-bg-secondary">
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Title
+                  {t('table.title')}
                 </th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Link
+                  {t('table.link')}
                 </th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Visibility
+                  {t('table.visibility')}
                 </th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Access Type
+                  {t('table.accessType')}
                 </th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Last Viewed
+                  {t('table.lastViewed')}
                 </th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Views
+                  {t('table.views')}
                 </th>
                 <th className="px-4 py-2.5 text-left text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Activity
+                  {t('table.activity')}
                 </th>
               </tr>
             </thead>
@@ -133,7 +135,7 @@ export function ShareLinksTable({
                         <button
                           onClick={(e) => handleCopy(link.token, e)}
                           className="flex items-center justify-center h-6 w-6 rounded border border-border bg-bg-tertiary hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors shrink-0"
-                          title="Copy link"
+                          title={t('copyLink')}
                         >
                           {isCopied ? (
                             <Check className="h-3 w-3 text-green-400" />
@@ -166,7 +168,7 @@ export function ShareLinksTable({
                     {/* Access Type */}
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center rounded-full border border-border bg-bg-tertiary px-2 py-0.5 text-xs text-text-secondary">
-                        Public
+                        {t('public')}
                       </span>
                     </td>
 
@@ -191,7 +193,7 @@ export function ShareLinksTable({
                         className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors"
                       >
                         <Eye className="h-3.5 w-3.5" />
-                        View Activity
+                        {t('viewActivity')}
                       </button>
                     </td>
                   </tr>
@@ -205,7 +207,7 @@ export function ShareLinksTable({
       {/* Footer count */}
       <div className="mt-3 shrink-0">
         <span className="text-xs text-text-tertiary">
-          {shareLinks.length} {shareLinks.length === 1 ? 'Share' : 'Shares'}
+          {t('shareCount', { count: shareLinks.length })}
         </span>
       </div>
     </div>

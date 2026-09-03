@@ -4,6 +4,27 @@
     "defaultSubmitLabel": "Create",
     "cancel": "Cancel"
   },
+  "appearancePopover": {
+    "trigger": "Appearance",
+    "layout": "Layout",
+    "cardSize": "Card Size",
+    "sizeS": "S",
+    "sizeM": "M",
+    "sizeL": "L",
+    "aspectRatio": "Aspect Ratio",
+    "thumbnailScale": "Thumbnail Scale",
+    "fit": "Fit",
+    "fill": "Fill",
+    "showCardInfo": "Show Card Info",
+    "titles": "Titles",
+    "titleLines1": "1 Line",
+    "titleLines2": "2 Lines",
+    "titleLines3": "3 Lines",
+    "flattenFolders": "Flatten Folders",
+    "fields": "Fields",
+    "fileSize": "File Size",
+    "uploadedBy": "Uploaded By"
+  },
   "moveToDialog": {
     "noSubfolders": "No subfolders",
     "cancel": "Cancel",
