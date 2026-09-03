@@ -1,1 +1,15 @@
-{}
+{
+  "reviewScreen": {
+    "download": "Télécharger",
+    "comments": "Commentaires",
+    "fields": "Champs",
+    "guestPrompt": {
+      "title": "Laisser un commentaire",
+      "description": "Saisissez votre nom et votre email pour commenter ce média partagé.",
+      "namePlaceholder": "Votre nom",
+      "emailPlaceholder": "Adresse email",
+      "cancel": "Annuler",
+      "continue": "Continuer"
+    }
+  }
+}

@@ -1,1 +1,15 @@
-{}
+{
+  "reviewScreen": {
+    "download": "Download",
+    "comments": "Comments",
+    "fields": "Fields",
+    "guestPrompt": {
+      "title": "Leave a comment",
+      "description": "Enter your name and email to comment on this shared asset.",
+      "namePlaceholder": "Your name",
+      "emailPlaceholder": "Email address",
+      "cancel": "Cancel",
+      "continue": "Continue"
+    }
+  }
+}
