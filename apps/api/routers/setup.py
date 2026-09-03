@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..models.user import User, UserStatus
 from ..models.instance_branding import InstanceBranding
 from ..services.auth_service import hash_password, create_access_token, create_refresh_token
@@ -79,17 +80,19 @@ def create_superadmin(body: CreateSuperAdminRequest, db: Session = Depends(get_d
     """
     # Check if superadmin already exists
     if _has_superadmin(db):
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Setup already completed. Superadmin already exists.",
+            code="setup_already_completed_superadmin_already_exists",
+            message="Setup already completed. Superadmin already exists.",
         )
-    
+
     # Check if email is already taken
     existing = db.query(User).filter(User.email == body.email, User.deleted_at.is_(None)).first()
     if existing:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
+            code="email_already_registered",
+            message="Email already registered",
         )
     
     # Create superadmin user

@@ -4,6 +4,7 @@ import uuid
 import secrets
 from datetime import datetime, timezone, timedelta
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..schemas.auth import UserResponse, AdminUserResponse, InviteRequest, UpdateProfileRequest
 from ..models.user import User, UserStatus
 from ..middleware.auth import get_current_user
@@ -29,9 +30,9 @@ def get_users_batch(
     try:
         user_ids = [uuid.UUID(uid.strip()) for uid in ids.split(",") if uid.strip()]
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid user ID format")
+        raise AppHTTPException(status_code=400, code="invalid_user_id_format", message="Invalid user ID format")
     if len(user_ids) > 100:
-        raise HTTPException(status_code=400, detail="Max 100 user IDs per request")
+        raise AppHTTPException(status_code=400, code="max_100_user_ids_per_request", message="Max 100 user IDs per request")
     users = db.query(User).filter(User.id.in_(user_ids), User.deleted_at.is_(None)).all()
     return users
 
@@ -53,13 +54,13 @@ def search_users(
 
 def require_admin(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_superadmin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise AppHTTPException(status_code=403, code="admin_access_required", message="Admin access required")
     return current_user
 
 @router.post("/invite", response_model=AdminUserResponse, status_code=status.HTTP_201_CREATED)
 def invite_user(body: InviteRequest, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
     if get_user_by_email(db, body.email):
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise AppHTTPException(status_code=400, code="email_already_registered", message="Email already registered")
     
     # Generate invite token
     invite_token = secrets.token_urlsafe(48)
@@ -89,10 +90,10 @@ def invite_user(body: InviteRequest, db: Session = Depends(get_db), current_user
 def update_user(user_id: uuid.UUID, body: UpdateProfileRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update user profile. Users can update their own profile."""
     if current_user.id != user_id and not current_user.is_superadmin:
-        raise HTTPException(status_code=403, detail="Can only update your own profile")
+        raise AppHTTPException(status_code=403, code="can_only_update_your_own_profile", message="Can only update your own profile")
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
     if body.name is not None:
         user.name = body.name.strip()
     if body.avatar_url is not None:
@@ -112,10 +113,10 @@ def get_avatar_upload_url(
 ):
     """Generate a presigned S3 URL for uploading a profile avatar."""
     if current_user.id != user_id and not current_user.is_superadmin:
-        raise HTTPException(status_code=403, detail="Can only upload your own avatar")
+        raise AppHTTPException(status_code=403, code="can_only_upload_your_own_avatar", message="Can only upload your own avatar")
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
     key = f"avatars/{user_id}/{uuid.uuid4()}"
     upload_url = s3_service.generate_presigned_put_url(key, content_type=content_type, expires_in=3600)
     return {"upload_url": upload_url, "key": key}
@@ -130,15 +131,15 @@ def confirm_avatar_upload(
 ):
     """Confirm avatar upload: generate a presigned GET URL and update the user."""
     if current_user.id != user_id and not current_user.is_superadmin:
-        raise HTTPException(status_code=403, detail="Can only update your own avatar")
+        raise AppHTTPException(status_code=403, code="can_only_update_your_own_avatar", message="Can only update your own avatar")
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
     s3_key = body.get("key")
     if not s3_key:
-        raise HTTPException(status_code=400, detail="key is required")
+        raise AppHTTPException(status_code=400, code="key_is_required", message="key is required")
     if not s3_key.startswith(f"avatars/{user_id}/"):
-        raise HTTPException(status_code=400, detail="Invalid key for this user")
+        raise AppHTTPException(status_code=400, code="invalid_key_for_this_user", message="Invalid key for this user")
     if user.avatar_url:
         try:
             s3_service.delete_object(user.avatar_url)
@@ -153,9 +154,9 @@ def confirm_avatar_upload(
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
     if user_id == current_user.id:
-        raise HTTPException(status_code=400, detail="You cannot delete yourself")
+        raise AppHTTPException(status_code=400, code="you_cannot_delete_yourself", message="You cannot delete yourself")
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
     user.deleted_at = datetime.now(timezone.utc)
     db.commit()

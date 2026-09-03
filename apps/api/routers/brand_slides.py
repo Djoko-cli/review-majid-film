@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..config import settings
 from ..models.user import User
 from ..models.brand_slide import BrandProject, DisabledBrandSlide
@@ -89,9 +90,10 @@ def trigger_brand_sync(current_user: User = Depends(require_admin)):
     confirmed by timing out the synchronous version of this endpoint against
     the real dataset before this fix."""
     if not settings.majidfilm_source_root or not settings.brand_sync_enabled:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Brand sync is not configured: set MAJIDFILM_SOURCE_ROOT and BRAND_SYNC_ENABLED=true.",
+            code="brand_sync_is_not_configured_set_majidfilm_source_root_and",
+            message="Brand sync is not configured: set MAJIDFILM_SOURCE_ROOT and BRAND_SYNC_ENABLED=true.",
         )
     from ..tasks.brand_sync_tasks import sync_brand_slides
     from ..tasks.celery_app import send_task_safe

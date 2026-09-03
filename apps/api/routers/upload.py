@@ -27,6 +27,7 @@ from ..schemas.upload import (
     ALLOWED_MIME_TYPES, mime_to_asset_type,
 )
 from ..services.storage import upload_guard_error
+from ..core.errors import AppHTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -40,24 +41,24 @@ def initiate_upload(
 ):
     # Validate mime type
     if body.mime_type not in ALLOWED_MIME_TYPES:
-        raise HTTPException(status_code=400, detail=f"Unsupported file type: {body.mime_type}")
+        raise AppHTTPException(status_code=400, code="unsupported_file_type", message=f"Unsupported file type: {body.mime_type}", mime_type=body.mime_type)
     guard_error = upload_guard_error(db, body.file_size_bytes)
     if guard_error:
-        raise HTTPException(status_code=400, detail=guard_error)
+        raise AppHTTPException(status_code=400, code="upload_guard_rejected", message=guard_error)
 
     # Verify project access (editor or above)
     project = db.query(Project).filter(Project.id == body.project_id, Project.deleted_at.is_(None)).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise AppHTTPException(status_code=404, code="project_not_found", message="Project not found")
     require_project_role(db, body.project_id, current_user, ProjectRole.editor)
 
     # Get or create asset
     if body.asset_id:
         asset = db.query(Asset).filter(Asset.id == body.asset_id, Asset.deleted_at.is_(None)).first()
         if not asset:
-            raise HTTPException(status_code=404, detail="Asset not found")
+            raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
         if asset.project_id != body.project_id:
-            raise HTTPException(status_code=400, detail="Asset does not belong to the specified project")
+            raise AppHTTPException(status_code=400, code="asset_does_not_belong_to_the_specified_project", message="Asset does not belong to the specified project")
     else:
         # Validate the target folder for a new asset: it must exist, belong to this project, and not
         # be soft-deleted -- otherwise a live asset could be placed under a trashed folder and later
@@ -70,7 +71,7 @@ def initiate_upload(
                 Folder.deleted_at.is_(None),
             ).first()
             if not folder:
-                raise HTTPException(status_code=404, detail="Folder not found")
+                raise AppHTTPException(status_code=404, code="folder_not_found", message="Folder not found")
 
         asset_type = mime_to_asset_type(body.mime_type)
         asset = Asset(
@@ -140,12 +141,12 @@ def presign_part(
     current_user: User = Depends(get_current_user),
 ):
     if body.part_number < 1 or body.part_number > 10000:
-        raise HTTPException(status_code=400, detail="Part number must be between 1 and 10000")
+        raise AppHTTPException(status_code=400, code="part_number_must_be_between_1_and_10000", message="Part number must be between 1 and 10000")
 
     # Verify the s3_key belongs to an upload initiated by this user
     media_file = db.query(MediaFile).filter(MediaFile.s3_key_raw == body.s3_key).first()
     if not media_file:
-        raise HTTPException(status_code=404, detail="Upload not found")
+        raise AppHTTPException(status_code=404, code="upload_not_found", message="Upload not found")
     version = db.query(AssetVersion).filter(
         AssetVersion.id == media_file.version_id,
         # A version the reaper has already soft-deleted must not keep accepting
@@ -154,7 +155,7 @@ def presign_part(
         AssetVersion.deleted_at.is_(None),
     ).first()
     if not version or version.created_by != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized for this upload")
+        raise AppHTTPException(status_code=403, code="not_authorized_for_this_upload", message="Not authorized for this upload")
 
     # Sign only the upload this version actually belongs to. Previously whatever
     # upload id the caller sent was passed straight to the signer, because there
@@ -162,7 +163,7 @@ def presign_part(
     # that being stored, so it is accepted rather than breaking uploads that are
     # already in flight across the upgrade.
     if version.upload_id is not None and version.upload_id != body.upload_id:
-        raise HTTPException(status_code=403, detail="Not authorized for this upload")
+        raise AppHTTPException(status_code=403, code="not_authorized_for_this_upload", message="Not authorized for this upload")
 
     url = presign_upload_part(body.s3_key, body.upload_id, body.part_number)
 
@@ -181,9 +182,11 @@ def _storage_unreachable(what: str = "check") -> HTTPException:
     treats it as final -- it marks the upload failed and fires /upload/abort -- so
     answering a storage hiccup that way destroys a version that may be complete.
     """
-    return HTTPException(
+    return AppHTTPException(
         status_code=503,
-        detail=f"Could not reach storage to {what} this upload. Please retry.",
+        code="could_not_reach_storage_to_this_upload_please",
+        message=f"Could not reach storage to {what} this upload. Please retry.",
+        what=what,
         headers={"Retry-After": "5"},
     )
 
@@ -291,9 +294,9 @@ def complete_upload(
         AssetVersion.deleted_at.is_(None),
     ).first()
     if not version:
-        raise HTTPException(status_code=404, detail="Version not found")
+        raise AppHTTPException(status_code=404, code="version_not_found", message="Version not found")
     if version.created_by != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized for this upload")
+        raise AppHTTPException(status_code=403, code="not_authorized_for_this_upload", message="Not authorized for this upload")
 
     # Same reasoning as the key below, for the id nothing downstream questions:
     # `_trigger_processing` hands this straight to `process_asset`, which resolves
@@ -302,7 +305,7 @@ def complete_upload(
     # version, never for the asset id the body carried, so a mismatch here is one
     # version's owner writing their transcode into somebody else's project.
     if body.asset_id != version.asset_id:
-        raise HTTPException(status_code=400, detail="Asset does not match this version")
+        raise AppHTTPException(status_code=400, code="asset_does_not_match_this_version", message="Asset does not match this version")
 
     # Match the key against this version rather than taking the request's word for
     # it: ownership was proved for the version, never for whatever key the body
@@ -313,7 +316,7 @@ def complete_upload(
         MediaFile.s3_key_raw == body.s3_key,
     ).first()
     if not media_file:
-        raise HTTPException(status_code=404, detail="Upload not found for this version")
+        raise AppHTTPException(status_code=404, code="upload_not_found_for_this_version", message="Upload not found for this version")
 
     s3_key = media_file.s3_key_raw
 
@@ -382,9 +385,11 @@ def complete_upload(
                 )
         elif assembled is None:
             raise _storage_unreachable()
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=409,
-            detail=f"This upload is already {version.processing_status.value}.",
+            code="this_upload_is_already",
+            message=f"This upload is already {version.processing_status.value}.",
+            status=version.processing_status.value,
         )
 
     def _reconcile_size() -> None:
@@ -484,9 +489,10 @@ def complete_upload(
         # CompleteMultipartUpload never ran -- and commits `failed`, and the reaper
         # then deletes a file that transferred perfectly.
         logger.warning("listing parts for upload %s failed: %s", version.id, e)
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=503,
-            detail="Could not reach storage to complete this upload. Please retry.",
+            code="could_not_reach_storage_to_complete_this_upload",
+            message="Could not reach storage to complete this upload. Please retry.",
             headers={"Retry-After": "5"},
         ) from e
     except MultipartUploadGone:
@@ -503,9 +509,10 @@ def complete_upload(
             # whole file again over a storage hiccup is the worst answer available
             # here, and it is the one this branch used to give.
             raise _storage_unreachable()
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=409,
-            detail="This upload is no longer available. Please upload the file again.",
+            code="this_upload_is_no_longer_available_please_upload",
+            message="This upload is no longer available. Please upload the file again.",
         )
     except MultipartListingUnsupported:
         logger.warning(
@@ -517,7 +524,7 @@ def complete_upload(
 
     if stored is None:
         if not body.parts:
-            raise HTTPException(status_code=400, detail="No parts were reported for this upload.")
+            raise AppHTTPException(status_code=400, code="no_parts_were_reported_for_this_upload", message="No parts were reported for this upload.")
         parts = [p.model_dump() for p in body.parts]
     else:
         try:
@@ -533,7 +540,7 @@ def complete_upload(
                 version.id, current_user.id, s3_key, e, len(stored),
                 media_file.file_size_bytes,
             )
-            raise HTTPException(status_code=409, detail=str(e)) from e
+            raise AppHTTPException(status_code=409, code="upload_parts_validation_failed", message=str(e)) from e
 
     try:
         complete_multipart_upload(s3_key, body.upload_id, parts)
@@ -561,9 +568,10 @@ def complete_upload(
             )
             return _finish()
         logger.warning("completing upload %s failed: %s", version.id, e)
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=503,
-            detail="Could not reach storage to complete this upload. Please retry.",
+            code="could_not_reach_storage_to_complete_this_upload",
+            message="Could not reach storage to complete this upload. Please retry.",
             headers={"Retry-After": "5"},
         ) from e
 
@@ -589,9 +597,9 @@ def abort_upload(
         AssetVersion.deleted_at.is_(None),
     ).first()
     if not version:
-        raise HTTPException(status_code=404, detail="Version not found")
+        raise AppHTTPException(status_code=404, code="version_not_found", message="Version not found")
     if version.created_by != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized for this upload")
+        raise AppHTTPException(status_code=403, code="not_authorized_for_this_upload", message="Not authorized for this upload")
 
     # The status write must happen even if S3 refuses the abort. An upload the
     # reaper already took raises NoSuchUpload here, and letting that propagate
@@ -616,9 +624,10 @@ def abort_upload(
         # It does leave the version in the panel's Active tab; the fix for that is
         # a client that retries, not a status written on a guess.
         logger.warning("abort of upload %s could not reach storage: %s", version.id, e)
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=503,
-            detail="Could not reach storage to abort this upload. Please retry.",
+            code="could_not_reach_storage_to_abort_this_upload",
+            message="Could not reach storage to abort this upload. Please retry.",
             headers={"Retry-After": "5"},
         ) from e
 

@@ -4,6 +4,7 @@ import uuid
 import secrets
 from datetime import datetime, timedelta, timezone
 from ..config import settings
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..schemas.auth import (
     LoginRequest, TokenResponse,
@@ -68,7 +69,7 @@ def send_magic_code(body: SendMagicCodeRequest, db: Session = Depends(get_db)):
     enumerate registered emails.
     """
     if not settings.magic_link_enabled:
-        raise HTTPException(status_code=403, detail="Magic-link sign-in is not available.")
+        raise AppHTTPException(status_code=403, code="magic_link_sign_in_is_not_available", message="Magic-link sign-in is not available.")
 
     user = get_user_by_email(db, body.email)
 
@@ -104,19 +105,19 @@ def verify_magic_code(body: VerifyMagicCodeRequest, db: Session = Depends(get_db
     Returns needs_password=True if user hasn't set a password yet.
     """
     if not settings.magic_link_enabled:
-        raise HTTPException(status_code=403, detail="Magic-link sign-in is not available.")
+        raise AppHTTPException(status_code=403, code="magic_link_sign_in_is_not_available", message="Magic-link sign-in is not available.")
 
     user = get_user_by_email(db, body.email)
 
     # "No such user" and "deactivated" get the same generic failure as a wrong/expired code —
     # distinguishing them would let a caller enumerate registered or deactivated emails.
     if not user or user.status == UserStatus.deactivated:
-        raise HTTPException(status_code=401, detail=MAGIC_CODE_FAILURE_DETAIL)
+        raise AppHTTPException(status_code=401, code="invalid_or_expired_code_request_a_new_code", message=MAGIC_CODE_FAILURE_DETAIL)
 
     # Verify magic code from Redis
     success, error = redis_verify_magic_code(body.email, body.code)
     if not success:
-        raise HTTPException(status_code=401, detail=MAGIC_CODE_FAILURE_DETAIL)
+        raise AppHTTPException(status_code=401, code="invalid_or_expired_code_request_a_new_code", message=MAGIC_CODE_FAILURE_DETAIL)
     
     # Mark email as verified
     user.email_verified = True
@@ -159,11 +160,11 @@ def get_invite_info(token: str, db: Session = Depends(get_db)):
     ).first()
     
     if not user:
-        raise HTTPException(status_code=404, detail="Invalid invite link")
-    
+        raise AppHTTPException(status_code=404, code="invalid_invite_link", message="Invalid invite link")
+
     if user.invite_token_expires_at and user.invite_token_expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail="Invite link expired")
-    
+        raise AppHTTPException(status_code=400, code="invite_link_expired", message="Invite link expired")
+
     return InviteInfoResponse(
         email=user.email,
         name=user.name,
@@ -179,11 +180,11 @@ def accept_invite(body: AcceptInviteRequest, db: Session = Depends(get_db)):
     ).first()
     
     if not user:
-        raise HTTPException(status_code=404, detail="Invalid invite link")
-    
+        raise AppHTTPException(status_code=404, code="invalid_invite_link", message="Invalid invite link")
+
     if user.invite_token_expires_at and user.invite_token_expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail="Invite link expired")
-    
+        raise AppHTTPException(status_code=400, code="invite_link_expired", message="Invite link expired")
+
     # Set password and activate user
     user.password_hash = hash_password(body.password)
     user.email_verified = True  # Invited users are pre-verified
@@ -209,7 +210,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         or not verify_password(body.password, user.password_hash)
         or user.status == UserStatus.deactivated
     ):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise AppHTTPException(status_code=401, code="invalid_credentials", message="Invalid credentials")
     return TokenResponse(
         access_token=create_access_token(str(user.id), token_version=user.token_version),
         refresh_token=create_refresh_token(str(user.id), token_version=user.token_version),
@@ -221,12 +222,12 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 def refresh_token(body: RefreshRequest, db: Session = Depends(get_db)):
     payload = decode_token(body.refresh_token)
     if not payload or payload.get("type") != "refresh":
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise AppHTTPException(status_code=401, code="invalid_refresh_token", message="Invalid refresh token")
     user = get_user_by_id(db, uuid.UUID(payload["sub"]))
     if not user or user.status == UserStatus.deactivated:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise AppHTTPException(status_code=401, code="user_not_found", message="User not found")
     if payload.get("ver", 1) != user.token_version:
-        raise HTTPException(status_code=401, detail="Session expired, please log in again")
+        raise AppHTTPException(status_code=401, code="session_expired_please_log_in_again", message="Session expired, please log in again")
     return TokenResponse(
         access_token=create_access_token(str(user.id), token_version=user.token_version),
         refresh_token=create_refresh_token(str(user.id), token_version=user.token_version),
@@ -267,9 +268,9 @@ def change_password(
 ):
     """Change password for authenticated user."""
     if current_user.password_hash is None:
-        raise HTTPException(status_code=400, detail="No password set for this account; use set-password instead")
+        raise AppHTTPException(status_code=400, code="no_password_set_for_this_account_use_set_password", message="No password set for this account; use set-password instead")
     if not verify_password(body.current_password, current_user.password_hash):
-        raise HTTPException(status_code=400, detail="Current password is incorrect")
+        raise AppHTTPException(status_code=400, code="current_password_is_incorrect", message="Current password is incorrect")
 
     current_user.password_hash = hash_password(body.new_password)
     current_user.token_version += 1

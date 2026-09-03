@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..middleware.auth import get_optional_user
 from ..models.user import User
 from ..models.instance_branding import InstanceBranding
@@ -160,9 +161,11 @@ def get_logo_upload_url(
 ):
     """Admin only: presigned PUT URL for a branding logo slot."""
     if logo_type not in LOGO_TYPES:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid logo type. Must be one of: {', '.join(LOGO_TYPES.keys())}"
+            code="invalid_logo_type_must_be_one_of",
+            message=f"Invalid logo type. Must be one of: {', '.join(LOGO_TYPES.keys())}",
+            valid_types=', '.join(LOGO_TYPES.keys()),
         )
     key = f"branding/{logo_type}/{uuid.uuid4()}"
     upload_url = s3_service.generate_presigned_put_url(key, content_type=content_type, expires_in=3600)
@@ -178,9 +181,11 @@ def reset_logo(
     """Admin only: clear a branding logo slot."""
     column = LOGO_TYPES.get(logo_type)
     if not column:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid logo type. Must be one of: {', '.join(LOGO_TYPES.keys())}"
+            code="invalid_logo_type_must_be_one_of",
+            message=f"Invalid logo type. Must be one of: {', '.join(LOGO_TYPES.keys())}",
+            valid_types=', '.join(LOGO_TYPES.keys()),
         )
     branding = _get_or_create_instance_branding(db)
     old_key = getattr(branding, column)

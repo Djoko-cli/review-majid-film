@@ -34,7 +34,7 @@ def test_restore_asset_rejects_soft_deleted_project(
     resp = client.post(f"/assets/{uuid.uuid4()}/restore", headers=auth_headers)
 
     assert resp.status_code == 409
-    assert "project has been deleted" in resp.json()["detail"]
+    assert "project has been deleted" in resp.json()["detail"]["message"]
 
 
 def test_restore_folder_rejects_soft_deleted_project(
@@ -58,4 +58,4 @@ def test_restore_folder_rejects_soft_deleted_project(
     resp = client.post(f"/folders/{uuid.uuid4()}/restore", headers=auth_headers)
 
     assert resp.status_code == 409
-    assert "project has been deleted" in resp.json()["detail"]
+    assert "project has been deleted" in resp.json()["detail"]["message"]

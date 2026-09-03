@@ -18,8 +18,19 @@ from fastapi import HTTPException
 
 
 class AppHTTPException(HTTPException):
-    def __init__(self, status_code: int, code: str, message: str, **params: Any) -> None:
+    def __init__(
+        self,
+        status_code: int,
+        code: str,
+        message: str,
+        headers: dict[str, str] | None = None,
+        **params: Any,
+    ) -> None:
+        # `headers` is a real HTTP response header (e.g. Retry-After), not an
+        # interpolation value — kept out of **params so it never leaks into the
+        # translated-message payload and always reaches FastAPI's own handling.
         super().__init__(
             status_code=status_code,
             detail={"code": code, "message": message, "params": params},
+            headers=headers,
         )

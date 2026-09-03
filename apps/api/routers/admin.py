@@ -6,6 +6,7 @@ import secrets
 import string
 import uuid
 
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.user import User, UserStatus
@@ -36,9 +37,10 @@ def list_all_users(
 ):
     """List all users in the system. Only accessible by admins."""
     if not current_user.is_superadmin:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can access this endpoint"
+            code="only_admins_can_access_this_endpoint",
+            message="Only admins can access this endpoint"
         )
 
     users = db.query(User).filter(User.deleted_at.is_(None)).all()
@@ -52,21 +54,23 @@ def deactivate_user(
 ):
     """Deactivate a user. Admins cannot deactivate themselves."""
     if not current_user.is_superadmin:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can deactivate users"
+            code="only_admins_can_deactivate_users",
+            message="Only admins can deactivate users"
         )
 
     # Prevent admin from deactivating themselves
     if user_id == current_user.id:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot deactivate yourself"
+            code="you_cannot_deactivate_yourself",
+            message="You cannot deactivate yourself"
         )
 
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
 
     user.status = UserStatus.deactivated
     db.commit()
@@ -81,14 +85,15 @@ def reactivate_user(
 ):
     """Reactivate a deactivated user. Only accessible by admins."""
     if not current_user.is_superadmin:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can reactivate users"
+            code="only_admins_can_reactivate_users",
+            message="Only admins can reactivate users"
         )
 
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
 
     user.status = UserStatus.active
     db.commit()
@@ -104,21 +109,23 @@ def update_user_role(
 ):
     """Promote or demote a user to/from admin role. Only accessible by admins."""
     if not current_user.is_superadmin:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can change user roles"
+            code="only_admins_can_change_user_roles",
+            message="Only admins can change user roles"
         )
 
     # Prevent admin from removing their own admin role
     if user_id == current_user.id and not body.is_admin:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot remove your own admin role"
+            code="you_cannot_remove_your_own_admin_role",
+            message="You cannot remove your own admin role"
         )
 
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
 
     user.is_superadmin = body.is_admin
     db.commit()
@@ -141,14 +148,15 @@ def reset_user_password(
     password change, so any session the user was already in is invalidated.
     """
     if not current_user.is_superadmin:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can reset a user's password"
+            code="only_admins_can_reset_a_user_s_password",
+            message="Only admins can reset a user's password"
         )
 
     user = db.query(User).filter(User.id == user_id, User.deleted_at.is_(None)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppHTTPException(status_code=404, code="user_not_found", message="User not found")
 
     temp_password = _generate_temp_password()
     user.password_hash = hash_password(temp_password)

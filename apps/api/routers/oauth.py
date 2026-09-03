@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..config import settings
 from ..models.user import User, UserStatus
 from ..models.oauth_identity import OAuthIdentity
@@ -132,5 +133,5 @@ def exchange_oauth_code(body: OAuthExchangeRequest):
     ride in a URL (browser history, referrer headers, server access logs)."""
     tokens = redis_service.pop_oidc_exchange_code(body.code)
     if not tokens:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired sign-in link.")
+        raise AppHTTPException(status_code=status.HTTP_400_BAD_REQUEST, code="invalid_or_expired_sign_in_link", message="Invalid or expired sign-in link.")
     return TokenResponse(access_token=tokens["access_token"], refresh_token=tokens["refresh_token"], needs_password=False)

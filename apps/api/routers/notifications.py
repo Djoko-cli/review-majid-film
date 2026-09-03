@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..middleware.auth import get_current_user
 from ..models.user import User
 from ..models.asset import Asset
@@ -74,7 +75,7 @@ def mark_notification_read(
         Notification.user_id == current_user.id,
     ).first()
     if not notification:
-        raise HTTPException(status_code=404, detail="Notification not found")
+        raise AppHTTPException(status_code=404, code="notification_not_found", message="Notification not found")
     notification.read = True
     db.commit()
 

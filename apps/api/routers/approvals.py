@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..middleware.auth import get_current_user
 from ..models.user import User
 from ..models.asset import Asset
@@ -24,7 +25,7 @@ router = APIRouter(tags=["approvals"])
 def _get_asset(db: Session, asset_id: uuid.UUID) -> Asset:
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     return asset
 
 

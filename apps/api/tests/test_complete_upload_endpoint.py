@@ -174,7 +174,7 @@ def test_refuses_to_complete_an_upload_missing_a_part(
     resp = client.post("/upload/complete", json=_body(media_file), headers=auth_headers)
 
     assert resp.status_code == 409
-    assert "declared" in resp.json()["detail"]
+    assert "declared" in resp.json()["detail"]["message"]
     assert calls == []  # never reached storage
 
 
@@ -431,7 +431,7 @@ def test_a_reaped_upload_is_reported_rather_than_treated_as_done(
     resp = client.post("/upload/complete", json=_body(media_file), headers=auth_headers)
 
     assert resp.status_code == 409
-    assert "no longer available" in resp.json()["detail"]
+    assert "no longer available" in resp.json()["detail"]["message"]
     assert version.processing_status == ProcessingStatus.uploading
 
 

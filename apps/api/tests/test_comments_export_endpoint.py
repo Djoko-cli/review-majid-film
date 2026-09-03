@@ -155,7 +155,7 @@ def test_start_tc_out_of_range_422(_, client, mock_db, auth_headers):
     )
 
     assert r.status_code == 422
-    assert "out of range" in r.json()["detail"]
+    assert "out of range" in r.json()["detail"]["message"]
 
 
 @patch("apps.api.routers.comments.require_asset_access")

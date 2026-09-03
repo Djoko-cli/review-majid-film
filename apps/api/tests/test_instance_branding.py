@@ -105,7 +105,7 @@ def test_upload_presign_rejects_invalid_logo_type(client, auth_headers, mock_db,
         params={"content_type": "image/png"},
     )
     assert r.status_code == 400
-    assert "Invalid logo type" in r.json()["detail"]
+    assert "Invalid logo type" in r.json()["detail"]["message"]
 
 
 def test_upload_presign_uses_generate_presigned_put_url(client, auth_headers, mock_db, test_user, monkeypatch):

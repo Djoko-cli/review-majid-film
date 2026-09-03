@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.asset import Asset
@@ -37,7 +38,7 @@ def _get_folder(db: Session, folder_id: uuid.UUID) -> Folder:
         .first()
     )
     if not folder:
-        raise HTTPException(status_code=404, detail="Folder not found")
+        raise AppHTTPException(status_code=404, code="folder_not_found", message="Folder not found")
     return folder
 
 
@@ -148,13 +149,15 @@ def create_folder(
     if body.parent_id:
         parent = _get_folder(db, body.parent_id)
         if parent.project_id != project_id:
-            raise HTTPException(status_code=400, detail="Parent folder not in this project")
+            raise AppHTTPException(status_code=400, code="parent_folder_not_in_this_project", message="Parent folder not in this project")
         # Check depth
         depth = _get_depth(db, body.parent_id)
         if depth >= MAX_FOLDER_DEPTH:
-            raise HTTPException(
+            raise AppHTTPException(
                 status_code=400,
-                detail=f"Maximum folder depth of {MAX_FOLDER_DEPTH} exceeded",
+                code="maximum_folder_depth_of_exceeded",
+                message=f"Maximum folder depth of {MAX_FOLDER_DEPTH} exceeded",
+                MAX_FOLDER_DEPTH=MAX_FOLDER_DEPTH,
             )
 
     folder = Folder(
@@ -179,7 +182,7 @@ def list_folders(
     # Allow access if user is a project member OR the project is public
     member = get_project_member(db, project_id, current_user.id)
     if not member and not is_public_project(db, project_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a project member")
+        raise AppHTTPException(status_code=status.HTTP_403_FORBIDDEN, code="not_a_project_member", message="Not a project member")
 
     query = db.query(Folder).filter(
         Folder.project_id == project_id,
@@ -204,7 +207,7 @@ def get_folder_tree(
     # Allow access if user is a project member OR the project is public
     member = get_project_member(db, project_id, current_user.id)
     if not member and not is_public_project(db, project_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a project member")
+        raise AppHTTPException(status_code=status.HTTP_403_FORBIDDEN, code="not_a_project_member", message="Not a project member")
 
     all_folders = (
         db.query(Folder)
@@ -269,17 +272,19 @@ def update_folder(
             # Can't move into self or descendant
             descendants = _get_descendant_ids(db, folder_id)
             if new_parent_id == folder_id or new_parent_id in descendants:
-                raise HTTPException(status_code=400, detail="Cannot move folder into itself or a subfolder")
+                raise AppHTTPException(status_code=400, code="cannot_move_folder_into_itself_or_a_subfolder", message="Cannot move folder into itself or a subfolder")
             parent = _get_folder(db, new_parent_id)
             if parent.project_id != folder.project_id:
-                raise HTTPException(status_code=400, detail="Target folder not in same project")
+                raise AppHTTPException(status_code=400, code="target_folder_not_in_same_project", message="Target folder not in same project")
             # Check depth
             depth = _get_depth(db, new_parent_id)
             max_subtree = _max_subtree_depth(db, folder_id)
             if depth + max_subtree + 1 > MAX_FOLDER_DEPTH:
-                raise HTTPException(
+                raise AppHTTPException(
                     status_code=400,
-                    detail=f"Move would exceed maximum folder depth of {MAX_FOLDER_DEPTH}",
+                    code="move_would_exceed_maximum_folder_depth_of",
+                    message=f"Move would exceed maximum folder depth of {MAX_FOLDER_DEPTH}",
+                    MAX_FOLDER_DEPTH=MAX_FOLDER_DEPTH,
                 )
         folder.parent_id = new_parent_id
 
@@ -324,14 +329,14 @@ def move_asset(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
 
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
 
     if body.folder_id is not None:
         target = _get_folder(db, body.folder_id)
         if target.project_id != asset.project_id:
-            raise HTTPException(status_code=400, detail="Target folder not in same project")
+            raise AppHTTPException(status_code=400, code="target_folder_not_in_same_project", message="Target folder not in same project")
 
     asset.folder_id = body.folder_id
     db.commit()
@@ -351,7 +356,7 @@ def bulk_move(
     if body.target_folder_id is not None:
         target = _get_folder(db, body.target_folder_id)
         if target.project_id != project_id:
-            raise HTTPException(status_code=400, detail="Target folder not in this project")
+            raise AppHTTPException(status_code=400, code="target_folder_not_in_this_project", message="Target folder not in this project")
 
     # Move assets
     if body.asset_ids:
@@ -365,7 +370,7 @@ def bulk_move(
             .all()
         )
         if len(assets) != len(body.asset_ids):
-            raise HTTPException(status_code=400, detail="Some assets not found in this project")
+            raise AppHTTPException(status_code=400, code="some_assets_not_found_in_this_project", message="Some assets not found in this project")
         for a in assets:
             a.folder_id = body.target_folder_id
 
@@ -386,13 +391,15 @@ def bulk_move(
             .all()
         )
         if len(folders) != len(body.folder_ids):
-            raise HTTPException(status_code=400, detail="Some folders not found in this project")
+            raise AppHTTPException(status_code=400, code="some_folders_not_found_in_this_project", message="Some folders not found in this project")
 
         for f in folders:
             if f.id in descendants or f.id == body.target_folder_id:
-                raise HTTPException(
+                raise AppHTTPException(
                     status_code=400,
-                    detail=f"Cannot move folder '{f.name}' into itself or a subfolder",
+                    code="cannot_move_named_folder_into_itself_or_a_subfolder",
+                    message=f"Cannot move folder '{f.name}' into itself or a subfolder",
+                    name=f.name,
                 )
             f.parent_id = body.target_folder_id
 
@@ -463,7 +470,7 @@ def restore_asset(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.isnot(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Deleted asset not found")
+        raise AppHTTPException(status_code=404, code="deleted_asset_not_found", message="Deleted asset not found")
 
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
 
@@ -471,7 +478,7 @@ def restore_asset(
     # a false success — the retention GC's project cascade would silently hard-delete it. Refuse.
     project = db.query(Project).filter(Project.id == asset.project_id).first()
     if project is None or project.deleted_at is not None:
-        raise HTTPException(status_code=409, detail="Cannot restore: the project has been deleted")
+        raise AppHTTPException(status_code=409, code="cannot_restore_the_project_has_been_deleted", message="Cannot restore: the project has been deleted")
 
     # If parent folder is deleted, move to root
     if asset.folder_id:
@@ -496,13 +503,13 @@ def restore_folder(
 ):
     folder = db.query(Folder).filter(Folder.id == folder_id, Folder.deleted_at.isnot(None)).first()
     if not folder:
-        raise HTTPException(status_code=404, detail="Deleted folder not found")
+        raise AppHTTPException(status_code=404, code="deleted_folder_not_found", message="Deleted folder not found")
 
     require_project_role(db, folder.project_id, current_user, ProjectRole.editor)
 
     project = db.query(Project).filter(Project.id == folder.project_id).first()
     if project is None or project.deleted_at is not None:
-        raise HTTPException(status_code=409, detail="Cannot restore: the project has been deleted")
+        raise AppHTTPException(status_code=409, code="cannot_restore_the_project_has_been_deleted", message="Cannot restore: the project has been deleted")
 
     # If parent folder is deleted, restore to root
     if folder.parent_id:

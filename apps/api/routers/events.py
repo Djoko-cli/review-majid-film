@@ -4,6 +4,7 @@ import uuid
 from typing import Optional
 from sqlalchemy.orm import Session
 from ..database import get_db
+from ..core.errors import AppHTTPException
 from ..middleware.auth import get_current_user, get_optional_user
 from ..services.auth_service import decode_token, get_user_by_id
 from ..models.user import User, UserStatus
@@ -27,11 +28,11 @@ async def stream_events(
         if payload and payload.get("type") == "access":
             user = get_user_by_id(db, uuid.UUID(payload["sub"]))
     if not user or user.status == UserStatus.deactivated:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authenticated")
+        raise AppHTTPException(status_code=status.HTTP_403_FORBIDDEN, code="not_authenticated", message="Not authenticated")
 
     # Verify user has access to this project
     if not get_project_member(db, project_id, user.id) and not is_public_project(db, project_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a project member")
+        raise AppHTTPException(status_code=status.HTTP_403_FORBIDDEN, code="not_a_project_member", message="Not a project member")
 
     return StreamingResponse(
         event_stream(str(project_id)),

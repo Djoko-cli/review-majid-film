@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from ..config import settings
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..middleware.auth import get_current_user, get_optional_user
 from ..middleware.share_auth import get_share_link
@@ -61,14 +62,14 @@ _START_TC_RE = re.compile(r"^\d{2}[:;]\d{2}[:;]\d{2}[:;]\d{2}$")
 def _get_asset(db: Session, asset_id: uuid.UUID) -> Asset:
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     return asset
 
 
 def _get_comment(db: Session, comment_id: uuid.UUID) -> Comment:
     comment = db.query(Comment).filter(Comment.id == comment_id, Comment.deleted_at.is_(None)).first()
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise AppHTTPException(status_code=404, code="comment_not_found", message="Comment not found")
     return comment
 
 
@@ -361,7 +362,7 @@ def create_comment(
         AssetVersion.deleted_at.is_(None),
     ).first()
     if not version:
-        raise HTTPException(status_code=400, detail="version_id does not belong to this asset")
+        raise AppHTTPException(status_code=400, code="version_id_does_not_belong_to_this_asset", message="version_id does not belong to this asset")
 
     comment = Comment(
         asset_id=asset_id,
@@ -426,7 +427,7 @@ def reply_to_comment(
         Comment.id == comment_id, Comment.asset_id == asset_id, Comment.deleted_at.is_(None),
     ).first()
     if not parent:
-        raise HTTPException(status_code=404, detail="Parent comment not found")
+        raise AppHTTPException(status_code=404, code="parent_comment_not_found", message="Parent comment not found")
 
     # Force body's version_id to match parent
     reply = Comment(
@@ -470,7 +471,7 @@ def update_comment(
 ):
     comment = db.query(Comment).filter(Comment.id == comment_id, Comment.deleted_at.is_(None)).first()
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise AppHTTPException(status_code=404, code="comment_not_found", message="Comment not found")
     # Allow comment owner or project owner to edit
     if comment.author_id != current_user.id:
         asset = _get_asset(db, comment.asset_id)
@@ -481,7 +482,7 @@ def update_comment(
             ProjectMember.deleted_at.is_(None),
         ).first()
         if not member:
-            raise HTTPException(status_code=403, detail="Can only edit your own comments")
+            raise AppHTTPException(status_code=403, code="can_only_edit_your_own_comments", message="Can only edit your own comments")
     comment.body = body.body
     comment.updated_at = datetime.now(timezone.utc)
     db.commit()
@@ -497,7 +498,7 @@ def delete_comment(
 ):
     comment = db.query(Comment).filter(Comment.id == comment_id, Comment.deleted_at.is_(None)).first()
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise AppHTTPException(status_code=404, code="comment_not_found", message="Comment not found")
     # Allow comment owner or project owner to delete
     if comment.author_id != current_user.id:
         asset = _get_asset(db, comment.asset_id)
@@ -508,7 +509,7 @@ def delete_comment(
             ProjectMember.deleted_at.is_(None),
         ).first()
         if not member:
-            raise HTTPException(status_code=403, detail="Can only delete your own comments")
+            raise AppHTTPException(status_code=403, code="can_only_delete_your_own_comments", message="Can only delete your own comments")
     comment.deleted_at = datetime.now(timezone.utc)
     db.commit()
 
@@ -521,7 +522,7 @@ def resolve_comment(
 ):
     comment = db.query(Comment).filter(Comment.id == comment_id, Comment.deleted_at.is_(None)).first()
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise AppHTTPException(status_code=404, code="comment_not_found", message="Comment not found")
     asset = _get_asset(db, comment.asset_id)
     require_asset_access(db, asset, current_user)
     comment.resolved = not comment.resolved
@@ -612,7 +613,7 @@ def delete_attachment(
         CommentAttachment.comment_id == comment_id,
     ).first()
     if not attachment:
-        raise HTTPException(status_code=404, detail="Attachment not found")
+        raise AppHTTPException(status_code=404, code="attachment_not_found", message="Attachment not found")
 
     # Must be comment author OR project owner/editor
     from ..models.project import ProjectRole
@@ -621,7 +622,7 @@ def delete_attachment(
     if not is_comment_author:
         pm = get_project_member(db, asset.project_id, current_user.id)
         if not pm or pm.role not in (ProjectRole.owner, ProjectRole.editor):
-            raise HTTPException(status_code=403, detail="Not authorized to delete this attachment")
+            raise AppHTTPException(status_code=403, code="not_authorized_to_delete_this_attachment", message="Not authorized to delete this attachment")
 
     # Delete from S3
     try:
@@ -699,7 +700,7 @@ def comment_deep_link(
         Comment.deleted_at.is_(None),
     ).first()
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise AppHTTPException(status_code=404, code="comment_not_found", message="Comment not found")
 
     url = f"{settings.frontend_url}/assets/{asset_id}?comment={comment_id}"
     return {"url": url}
@@ -719,9 +720,12 @@ def export_comments(
     """Export a version's comments as NLE timeline markers (#84):
     Resolve marker EDL, FCPXML (Final Cut), FCP7 XML (Premiere), or CSV."""
     if format not in EXPORT_FORMATS:
-        raise HTTPException(
+        raise AppHTTPException(
             status_code=422,
-            detail=f"Unsupported format '{format}'. Use one of: {', '.join(EXPORT_FORMATS)}",
+            code="unsupported_format_use_one_of",
+            message=f"Unsupported format '{format}'. Use one of: {', '.join(EXPORT_FORMATS)}",
+            format=format,
+            supported_formats=', '.join(EXPORT_FORMATS),
         )
 
     asset = _get_asset(db, asset_id)
@@ -740,7 +744,7 @@ def export_comments(
             AssetVersion.deleted_at.is_(None),
         ).order_by(AssetVersion.version_number.desc()).first()
     if not version:
-        raise HTTPException(status_code=404, detail="Version not found")
+        raise AppHTTPException(status_code=404, code="version_not_found", message="Version not found")
 
     spec = None
     if format == "csv":
@@ -750,31 +754,36 @@ def export_comments(
             spec = comment_export.snap_fps(fps or stored_fps)  # None is fine for CSV
     else:
         if asset.asset_type != AssetType.video:
-            raise HTTPException(
+            raise AppHTTPException(
                 status_code=422,
-                detail="EDL/FCPXML/Premiere XML export is only available for video assets; use format=csv",
+                code="edl_fcpxml_premiere_xml_export_is_only_available_for_video",
+                message="EDL/FCPXML/Premiere XML export is only available for video assets; use format=csv",
             )
         media_file = db.query(MediaFile).filter(MediaFile.version_id == version.id).first()
         effective_fps = fps or (media_file.fps if media_file else None)
         if not effective_fps:
-            raise HTTPException(status_code=422, detail={
-                "code": "fps_required",
-                "message": "Frame rate unknown for this version; pass ?fps= "
-                           "(e.g. 23.976, 24, 25, 29.97, 30, 48, 50, 59.94, 60)",
-            })
+            raise AppHTTPException(
+                status_code=422,
+                code="fps_required",
+                message="Frame rate unknown for this version; pass ?fps= "
+                        "(e.g. 23.976, 24, 25, 29.97, 30, 48, 50, 59.94, 60)",
+            )
         spec = comment_export.snap_fps(effective_fps)
         if spec is None:
-            raise HTTPException(
+            raise AppHTTPException(
                 status_code=422,
-                detail=f"Unsupported frame rate {effective_fps}; supported: "
+                code="unsupported_frame_rate_supported",
+                message=f"Unsupported frame rate {effective_fps}; supported: "
                        + ", ".join(str(round(s.fps, 3)) for s in comment_export.FPS_TABLE),
+                effective_fps=effective_fps,
+                supported_rates=", ".join(str(round(s.fps, 3)) for s in comment_export.FPS_TABLE),
             )
         if format == "edl":
             if not _START_TC_RE.match(start_tc):
-                raise HTTPException(status_code=422, detail="start_tc must be HH:MM:SS:FF")
+                raise AppHTTPException(status_code=422, code="start_tc_must_be_hh_mm_ss_ff", message="start_tc must be HH:MM:SS:FF")
             hh, mm, ss, ff = (int(p) for p in re.split(r"[:;]", start_tc))
             if not (hh <= 23 and mm < 60 and ss < 60 and ff < spec.timebase):
-                raise HTTPException(status_code=422, detail="start_tc out of range for the frame rate")
+                raise AppHTTPException(status_code=422, code="start_tc_out_of_range_for_the_frame_rate", message="start_tc out of range for the frame rate")
 
     comments = db.query(Comment).filter(
         Comment.version_id == version.id,
@@ -909,14 +918,14 @@ def guest_comment(
 
     # Check share link permission allows commenting
     if link.permission == SharePermission.view:
-        raise HTTPException(status_code=403, detail="This share link does not allow commenting")
+        raise AppHTTPException(status_code=403, code="this_share_link_does_not_allow_commenting", message="This share link does not allow commenting")
 
     # Resolve asset_id: from the link when it's scoped to one asset; otherwise from the request
     # body (folder/project shares only), validated against the link's actual scope below — the
     # link's own asset_id always wins so a single-asset link can't be redirected to another asset.
     target_asset_id = link.asset_id or body.asset_id
     if not target_asset_id:
-        raise HTTPException(status_code=400, detail="asset_id is required for folder/project shares")
+        raise AppHTTPException(status_code=400, code="asset_id_is_required_for_folder_project_shares", message="asset_id is required for folder/project shares")
     asset = _get_asset(db, target_asset_id)
     validate_asset_in_share(db, link, asset)
 
@@ -932,7 +941,7 @@ def guest_comment(
         if latest:
             version_id = latest.id
         else:
-            raise HTTPException(status_code=400, detail="No ready version found for this asset")
+            raise AppHTTPException(status_code=400, code="no_ready_version_found_for_this_asset", message="No ready version found for this asset")
 
     # Determine author: logged-in user or guest
     author_id = None
@@ -941,7 +950,7 @@ def guest_comment(
         author_id = current_user.id
     else:
         if not body.guest_email or not body.guest_name:
-            raise HTTPException(status_code=400, detail="guest_email and guest_name required for anonymous comments")
+            raise AppHTTPException(status_code=400, code="guest_email_and_guest_name_required_for_anonymous_comments", message="guest_email and guest_name required for anonymous comments")
         guest_email = body.guest_email.lower()
         guest = db.query(GuestUser).filter(GuestUser.email == guest_email).first()
         if not guest:

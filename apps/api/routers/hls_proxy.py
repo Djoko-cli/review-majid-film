@@ -16,6 +16,7 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response
 
 from ..config import settings
+from ..core.errors import AppHTTPException
 from ..services.s3_service import generate_presigned_get_url, get_s3_client
 
 logger = logging.getLogger(__name__)
@@ -38,10 +39,10 @@ def _verify_hls_token(token: str) -> str:
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         if payload.get("sub") != "hls":
-            raise HTTPException(status_code=403, detail="Invalid token type")
+            raise AppHTTPException(status_code=403, code="invalid_token_type", message="Invalid token type")
         return payload["pfx"]
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise AppHTTPException(status_code=401, code="invalid_or_expired_token", message="Invalid or expired token")
 
 
 def _rewrite_manifest(content: str, s3_prefix: str, manifest_path: str, token: str) -> str:
@@ -89,17 +90,17 @@ def hls_proxy(path: str, token: str = Query(...)):
 
     # Only proxy m3u8 manifests
     if not path.endswith(".m3u8"):
-        raise HTTPException(status_code=400, detail="Only .m3u8 files are proxied")
+        raise AppHTTPException(status_code=400, code="only_m3u8_files_are_proxied", message="Only .m3u8 files are proxied")
 
     # Prevent directory traversal
     normalised = posixpath.normpath(path)
     if normalised.startswith("..") or normalised.startswith("/"):
-        raise HTTPException(status_code=400, detail="Invalid path")
+        raise AppHTTPException(status_code=400, code="invalid_path", message="Invalid path")
 
     # Defense-in-depth: verify resolved key stays within the token's prefix
     s3_key = f"{s3_prefix}/{normalised}"
     if not s3_key.startswith(s3_prefix + "/"):
-        raise HTTPException(status_code=400, detail="Invalid path")
+        raise AppHTTPException(status_code=400, code="invalid_path", message="Invalid path")
 
     # Fetch manifest from S3
     s3 = get_s3_client()
@@ -107,10 +108,10 @@ def hls_proxy(path: str, token: str = Query(...)):
         obj = s3.get_object(Bucket=settings.s3_bucket, Key=s3_key)
         content = obj["Body"].read().decode("utf-8")
     except s3.exceptions.NoSuchKey:
-        raise HTTPException(status_code=404, detail="Manifest not found")
+        raise AppHTTPException(status_code=404, code="manifest_not_found", message="Manifest not found")
     except Exception as e:
         logger.error("Failed to fetch HLS manifest %s: %s", s3_key, e)
-        raise HTTPException(status_code=404, detail="Manifest not found")
+        raise AppHTTPException(status_code=404, code="manifest_not_found", message="Manifest not found")
 
     rewritten = _rewrite_manifest(content, s3_prefix, normalised, token)
 

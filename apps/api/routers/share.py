@@ -51,6 +51,7 @@ from ..tasks.email_tasks import send_share_email
 from ..tasks.celery_app import send_task_safe
 from ..services.i18n_service import resolve_recipient_locale
 from ..config import settings
+from ..core.errors import AppHTTPException
 
 router = APIRouter(tags=["sharing"])
 
@@ -58,14 +59,14 @@ router = APIRouter(tags=["sharing"])
 def _get_asset(db: Session, asset_id: uuid.UUID) -> Asset:
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     return asset
 
 
 def _get_folder(db: Session, folder_id: uuid.UUID) -> Folder:
     folder = db.query(Folder).filter(Folder.id == folder_id, Folder.deleted_at.is_(None)).first()
     if not folder:
-        raise HTTPException(status_code=404, detail="Folder not found")
+        raise AppHTTPException(status_code=404, code="folder_not_found", message="Folder not found")
     return folder
 
 
@@ -78,9 +79,9 @@ def _get_project_id_from_link(db: Session, link: ShareLink) -> uuid.UUID:
     elif link.folder_id:
         folder = db.query(Folder).filter(Folder.id == link.folder_id, Folder.deleted_at.is_(None)).first()
         if not folder:
-            raise HTTPException(status_code=404, detail="Shared folder not found")
+            raise AppHTTPException(status_code=404, code="shared_folder_not_found", message="Shared folder not found")
         return folder.project_id
-    raise HTTPException(status_code=400, detail="Invalid share link")
+    raise AppHTTPException(status_code=400, code="invalid_share_link", message="Invalid share link")
 
 
 def _log_share_activity(
@@ -397,9 +398,9 @@ def verify_share_link_password(
             plain_bytes = bcrypt_password_bytes(body.password)
             hashed_bytes = link.password_hash.encode('utf-8')
             if not bcrypt.checkpw(plain_bytes, hashed_bytes):
-                raise HTTPException(status_code=403, detail="Incorrect password")
+                raise AppHTTPException(status_code=403, code="incorrect_password", message="Incorrect password")
         except ValueError:
-            raise HTTPException(status_code=403, detail="Incorrect password")
+            raise AppHTTPException(status_code=403, code="incorrect_password", message="Incorrect password")
 
     # Password verified (or creator bypass) — create a session so
     # subsequent /share/{token}/assets, /comments, etc. skip re-verification.
@@ -437,7 +438,7 @@ def get_share_link_details(
         ShareLink.deleted_at.is_(None),
     ).first()
     if not link:
-        raise HTTPException(status_code=404, detail="Share link not found")
+        raise AppHTTPException(status_code=404, code="share_link_not_found", message="Share link not found")
     project_id = _get_project_id_from_link(db, link)
     require_project_role(db, project_id, current_user, ProjectRole.viewer)
     return _share_link_response(link)
@@ -454,7 +455,7 @@ def update_share_link(
 ):
     link = db.query(ShareLink).filter(ShareLink.token == token, ShareLink.deleted_at.is_(None)).first()
     if not link:
-        raise HTTPException(status_code=404, detail="Share link not found")
+        raise AppHTTPException(status_code=404, code="share_link_not_found", message="Share link not found")
     project_id = _get_project_id_from_link(db, link)
     require_project_role(db, project_id, current_user, ProjectRole.editor)
 
@@ -492,7 +493,7 @@ def revoke_share_link(
 ):
     link = db.query(ShareLink).filter(ShareLink.token == token, ShareLink.deleted_at.is_(None)).first()
     if not link:
-        raise HTTPException(status_code=404, detail="Share link not found")
+        raise AppHTTPException(status_code=404, code="share_link_not_found", message="Share link not found")
     project_id = _get_project_id_from_link(db, link)
     require_project_role(db, project_id, current_user, ProjectRole.editor)
     link.deleted_at = datetime.now(timezone.utc)
@@ -553,7 +554,7 @@ def create_project_share_link(
     """Create a share link for the project root (all root-level folders and assets)."""
     project = db.query(Project).filter(Project.id == project_id, Project.deleted_at.is_(None)).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise AppHTTPException(status_code=404, code="project_not_found", message="Project not found")
     require_project_role(db, project_id, current_user, ProjectRole.editor)
 
     token = secrets.token_urlsafe(32)
@@ -603,13 +604,13 @@ def share_project_with_user(
         if user:
             user_id = user.id
         else:
-            raise HTTPException(status_code=404, detail="User not found with that email")
+            raise AppHTTPException(status_code=404, code="user_not_found_with_that_email", message="User not found with that email")
     if not user_id:
-        raise HTTPException(status_code=400, detail="user_id or email required")
+        raise AppHTTPException(status_code=400, code="user_id_or_email_required", message="user_id or email required")
 
     project = db.query(Project).filter(Project.id == project_id, Project.deleted_at.is_(None)).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise AppHTTPException(status_code=404, code="project_not_found", message="Project not found")
     require_project_role(db, project_id, current_user, ProjectRole.editor)
 
     # For project shares, we store as an AssetShare with project_id context
@@ -673,9 +674,9 @@ def share_folder_with_user(
         if user:
             user_id = user.id
         else:
-            raise HTTPException(status_code=404, detail="User not found with that email")
+            raise AppHTTPException(status_code=404, code="user_not_found_with_that_email", message="User not found with that email")
     if not user_id:
-        raise HTTPException(status_code=400, detail="user_id or email required")
+        raise AppHTTPException(status_code=400, code="user_id_or_email_required", message="user_id or email required")
 
     folder = _get_folder(db, folder_id)
     require_project_role(db, folder.project_id, current_user, ProjectRole.editor)
@@ -732,7 +733,7 @@ def share_folder_with_team(
     current_user: User = Depends(get_current_user),
 ):
     if not body.team_id:
-        raise HTTPException(status_code=400, detail="team_id required")
+        raise AppHTTPException(status_code=400, code="team_id_required", message="team_id required")
     folder = _get_folder(db, folder_id)
     require_project_role(db, folder.project_id, current_user, ProjectRole.editor)
 
@@ -814,7 +815,7 @@ def delete_folder_share(
         AssetShare.deleted_at.is_(None),
     ).first()
     if not share:
-        raise HTTPException(status_code=404, detail="Share not found")
+        raise AppHTTPException(status_code=404, code="share_not_found", message="Share not found")
 
     share.deleted_at = datetime.now(timezone.utc)
     db.commit()
@@ -837,9 +838,9 @@ def share_with_user(
         if user:
             user_id = user.id
         else:
-            raise HTTPException(status_code=404, detail="User not found with that email")
+            raise AppHTTPException(status_code=404, code="user_not_found_with_that_email", message="User not found with that email")
     if not user_id:
-        raise HTTPException(status_code=400, detail="user_id or email required")
+        raise AppHTTPException(status_code=400, code="user_id_or_email_required", message="user_id or email required")
 
     asset = _get_asset(db, asset_id)
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
@@ -898,7 +899,7 @@ def share_with_team(
     current_user: User = Depends(get_current_user),
 ):
     if not body.team_id:
-        raise HTTPException(status_code=400, detail="team_id required")
+        raise AppHTTPException(status_code=400, code="team_id_required", message="team_id required")
     asset = _get_asset(db, asset_id)
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
 
@@ -1051,7 +1052,7 @@ def get_share_link_activity(
 ):
     link = db.query(ShareLink).filter(ShareLink.token == token, ShareLink.deleted_at.is_(None)).first()
     if not link:
-        raise HTTPException(status_code=404, detail="Share link not found")
+        raise AppHTTPException(status_code=404, code="share_link_not_found", message="Share link not found")
     project_id = _get_project_id_from_link(db, link)
     require_project_role(db, project_id, current_user, ProjectRole.viewer)
 
@@ -1077,11 +1078,11 @@ def add_asset_to_share_link(
         ShareLink.deleted_at.is_(None),
     ).first()
     if not link:
-        raise HTTPException(status_code=404, detail="Share link not found")
+        raise AppHTTPException(status_code=404, code="share_link_not_found", message="Share link not found")
 
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
 
     # Determine the share link's project
     link_project_id = _get_project_id_from_link(db, link)
@@ -1092,7 +1093,7 @@ def add_asset_to_share_link(
 
     # Ensure the asset belongs to the same project
     if link_project_id and asset.project_id != link_project_id:
-        raise HTTPException(status_code=403, detail="Asset does not belong to this share link's project")
+        raise AppHTTPException(status_code=403, code="asset_does_not_belong_to_this_share_link_s", message="Asset does not belong to this share link's project")
 
     # Check if asset is already the direct target
     if link.asset_id == asset_id:
@@ -1145,23 +1146,23 @@ def create_multi_share_link(
     """Create a single share link containing multiple selected assets and/or folders."""
     project = db.query(Project).filter(Project.id == project_id, Project.deleted_at.is_(None)).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise AppHTTPException(status_code=404, code="project_not_found", message="Project not found")
     require_project_role(db, project_id, current_user, ProjectRole.editor)
 
     if not body.asset_ids and not body.folder_ids:
-        raise HTTPException(status_code=400, detail="At least one asset or folder is required")
+        raise AppHTTPException(status_code=400, code="at_least_one_asset_or_folder_is_required", message="At least one asset or folder is required")
 
     # Validate all assets belong to this project
     for aid in body.asset_ids:
         asset = db.query(Asset).filter(Asset.id == aid, Asset.deleted_at.is_(None)).first()
         if not asset or asset.project_id != project_id:
-            raise HTTPException(status_code=400, detail=f"Asset {aid} not found in this project")
+            raise AppHTTPException(status_code=400, code="asset_not_found_in_this_project", message=f"Asset {aid} not found in this project", aid=aid)
 
     # Validate all folders belong to this project
     for fid in body.folder_ids:
         folder = db.query(Folder).filter(Folder.id == fid, Folder.deleted_at.is_(None)).first()
         if not folder or folder.project_id != project_id:
-            raise HTTPException(status_code=400, detail=f"Folder {fid} not found in this project")
+            raise AppHTTPException(status_code=400, code="folder_not_found_in_this_project", message=f"Folder {fid} not found in this project", fid=fid)
 
     # Determine title
     title = body.title
@@ -1232,7 +1233,7 @@ def get_folder_share_assets(
 
     is_project_share = link.project_id is not None
     if not link.folder_id and not is_project_share:
-        raise HTTPException(status_code=400, detail="This share link is not a folder or project share")
+        raise AppHTTPException(status_code=400, code="this_share_link_is_not_a_folder_or", message="This share link is not a folder or project share")
 
     # Check if this is a multi-share (project_id set with items in share_link_items)
     multi_share_items = db.query(ShareLinkItem).filter(ShareLinkItem.share_link_id == link.id).all() if is_project_share else []
@@ -1304,9 +1305,9 @@ def get_folder_share_assets(
             # Project share: validate folder belongs to this project
             f = db.query(Folder).filter(Folder.id == folder_id, Folder.deleted_at.is_(None)).first()
             if not f or f.project_id != link.project_id:
-                raise HTTPException(status_code=403, detail="Folder is not within the shared project")
+                raise AppHTTPException(status_code=403, code="folder_is_not_within_the_shared_project", message="Folder is not within the shared project")
         elif folder_id != link.folder_id and not _is_descendant_of(db, folder_id, link.folder_id):
-            raise HTTPException(status_code=403, detail="Folder is not within the shared folder")
+            raise AppHTTPException(status_code=403, code="folder_is_not_within_the_shared_folder", message="Folder is not within the shared folder")
         target_folder_id = folder_id
 
     # Get subfolders
@@ -1433,7 +1434,7 @@ def get_share_stream_url(
 
     # Enforce allow_download when explicit download is requested
     if download and not link.allow_download:
-        raise HTTPException(status_code=403, detail="Downloads are not allowed for this share link")
+        raise AppHTTPException(status_code=403, code="downloads_are_not_allowed_for_this_share_link", message="Downloads are not allowed for this share link")
 
     asset = _get_asset(db, asset_id)
 
@@ -1454,7 +1455,7 @@ def get_share_stream_url(
         # No (or non-visible) version requested — fall back to the latest ready version.
         media_file = _get_latest_media_file(db, asset.id)
     if not media_file:
-        raise HTTPException(status_code=404, detail="No ready media file found")
+        raise AppHTTPException(status_code=404, code="no_ready_media_file_found", message="No ready media file found")
 
     if asset.asset_type == AssetType.video and media_file.s3_key_processed:
         if download:
@@ -1519,7 +1520,7 @@ def get_share_thumbnail_url(
 
     media_file = _get_latest_media_file(db, asset.id)
     if not media_file or not media_file.s3_key_thumbnail:
-        raise HTTPException(status_code=404, detail="Thumbnail not found")
+        raise AppHTTPException(status_code=404, code="thumbnail_not_found", message="Thumbnail not found")
 
     url = generate_presigned_get_url(media_file.s3_key_thumbnail)
     return {"url": url}

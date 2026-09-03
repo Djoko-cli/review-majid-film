@@ -146,7 +146,7 @@ def test_initiate_upload_rejected_when_over_cap(client, auth_headers, mock_db, t
     }
     r = client.post("/upload/initiate", headers=auth_headers, json=body)
     assert r.status_code == 400
-    assert "Storage limit reached" in r.json()["detail"]
+    assert "Storage limit reached" in r.json()["detail"]["message"]
 
 
 def test_initiate_upload_allowed_when_guard_passes(client, auth_headers, mock_db, test_user, monkeypatch):

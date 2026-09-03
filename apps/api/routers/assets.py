@@ -5,6 +5,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.user import User
@@ -169,7 +170,7 @@ def list_assets(
     # Allow access if user is a project member OR the project is public
     member = get_project_member(db, project_id, current_user.id)
     if not member and not is_public_project(db, project_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a project member")
+        raise AppHTTPException(status_code=status.HTTP_403_FORBIDDEN, code="not_a_project_member", message="Not a project member")
 
     query = db.query(Asset).filter(
         Asset.project_id == project_id,
@@ -215,7 +216,7 @@ def get_asset(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_asset_access(db, asset, current_user)
     return _build_asset_response(asset, db)
 
@@ -229,7 +230,7 @@ def update_asset(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(asset, field, value)
@@ -246,7 +247,7 @@ def delete_asset(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
     asset.deleted_at = datetime.now(timezone.utc)
     db.commit()
@@ -260,7 +261,7 @@ def list_asset_versions(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_asset_access(db, asset, current_user)
 
     versions = db.query(AssetVersion).filter(
@@ -292,7 +293,7 @@ def get_stream_url(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_asset_access(db, asset, current_user)
 
     # Get the requested version or latest
@@ -311,13 +312,13 @@ def get_stream_url(
         version = _playable_version(db, asset_id)
 
     if not version:
-        raise HTTPException(status_code=404, detail="No version found")
+        raise AppHTTPException(status_code=404, code="no_version_found", message="No version found")
     if version.processing_status != ProcessingStatus.ready:
-        raise HTTPException(status_code=409, detail="Asset version is not ready yet")
+        raise AppHTTPException(status_code=409, code="asset_version_is_not_ready_yet", message="Asset version is not ready yet")
 
     media_file = db.query(MediaFile).filter(MediaFile.version_id == version.id).first()
     if not media_file:
-        raise HTTPException(status_code=404, detail="Media file not found")
+        raise AppHTTPException(status_code=404, code="media_file_not_found", message="Media file not found")
 
     if asset.asset_type == AssetType.video and media_file.s3_key_processed:
         if download:
@@ -352,14 +353,14 @@ def initiate_new_version(
     """Initiate upload of a new version for an existing asset."""
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
 
     if body.mime_type not in ALLOWED_MIME_TYPES:
-        raise HTTPException(status_code=400, detail="Unsupported file type")
+        raise AppHTTPException(status_code=400, code="unsupported_file_type", message=f"Unsupported file type: {body.mime_type}", mime_type=body.mime_type)
     guard_error = upload_guard_error(db, body.file_size_bytes)
     if guard_error:
-        raise HTTPException(status_code=400, detail=guard_error)
+        raise AppHTTPException(status_code=400, code="upload_guard_error", message=guard_error)
 
     last_version = db.query(AssetVersion).filter(
         AssetVersion.asset_id == asset_id,
@@ -415,7 +416,7 @@ def update_assignment(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_project_role(db, asset.project_id, current_user, ProjectRole.editor)
 
     if "assignee_id" in body.model_fields_set:
@@ -444,7 +445,7 @@ def get_assignment(
 ):
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     require_project_role(db, asset.project_id, current_user, ProjectRole.viewer)
     return {
         "assignee_id": str(asset.assignee_id) if asset.assignee_id else None,

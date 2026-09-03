@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 import uuid
 from datetime import datetime, timezone
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.user import User
@@ -21,7 +22,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 def _get_project(db: Session, project_id: uuid.UUID) -> Project:
     project = db.query(Project).filter(Project.id == project_id, Project.deleted_at.is_(None)).first()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise AppHTTPException(status_code=404, code="project_not_found", message="Project not found")
     return project
 
 def _resolve_poster_url(project: Project) -> str | None:
@@ -36,7 +37,7 @@ def _require_project_owner(db: Session, project_id: uuid.UUID, user: User) -> Pr
         ProjectMember.deleted_at.is_(None),
     ).first()
     if not member or member.role != ProjectRole.owner:
-        raise HTTPException(status_code=403, detail="Project owner access required")
+        raise AppHTTPException(status_code=403, code="project_owner_access_required", message="Project owner access required")
     return member
 
 @router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
@@ -133,7 +134,7 @@ def get_project(project_id: uuid.UUID, db: Session = Depends(get_db), current_us
         ProjectMember.deleted_at.is_(None),
     ).first()
     if not member and not project.is_public:
-        raise HTTPException(status_code=403, detail="Not a project member")
+        raise AppHTTPException(status_code=403, code="not_a_project_member", message="Not a project member")
     resp = ProjectResponse.model_validate(project)
     resp.poster_url = _resolve_poster_url(project)
     if member:
@@ -181,7 +182,7 @@ def list_project_members(project_id: uuid.UUID, db: Session = Depends(get_db), c
         ProjectMember.deleted_at.is_(None),
     ).first()
     if not member:
-        raise HTTPException(status_code=403, detail="Not a project member")
+        raise AppHTTPException(status_code=403, code="not_a_project_member", message="Not a project member")
     
     members = db.query(ProjectMember).filter(
         ProjectMember.project_id == project_id,
@@ -196,7 +197,7 @@ def add_project_member(project_id: uuid.UUID, body: AddProjectMemberRequest, db:
     existing = db.query(ProjectMember).filter(ProjectMember.project_id == project_id, ProjectMember.user_id == body.user_id).first()
     if existing:
         if existing.deleted_at is None:
-            raise HTTPException(status_code=400, detail="User already a project member")
+            raise AppHTTPException(status_code=400, code="user_already_a_project_member", message="User already a project member")
         # Reactivate soft-deleted membership
         existing.deleted_at = None
         existing.role = body.role
@@ -231,7 +232,7 @@ def update_project_member(project_id: uuid.UUID, user_id: uuid.UUID, body: Updat
     _require_project_owner(db, project_id, current_user)
     member = db.query(ProjectMember).filter(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id, ProjectMember.deleted_at.is_(None)).first()
     if not member:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise AppHTTPException(status_code=404, code="member_not_found", message="Member not found")
     member.role = body.role
     db.commit()
     db.refresh(member)
@@ -243,7 +244,7 @@ def remove_project_member(project_id: uuid.UUID, user_id: uuid.UUID, db: Session
     _require_project_owner(db, project_id, current_user)
     member = db.query(ProjectMember).filter(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id, ProjectMember.deleted_at.is_(None)).first()
     if not member:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise AppHTTPException(status_code=404, code="member_not_found", message="Member not found")
     member.deleted_at = datetime.now(timezone.utc)
     db.commit()
 
@@ -261,11 +262,11 @@ async def upload_project_poster(
     _require_project_owner(db, project_id, current_user)
 
     if file.content_type not in ALLOWED_POSTER_TYPES:
-        raise HTTPException(status_code=400, detail="File must be JPEG, PNG, WebP, or GIF")
+        raise AppHTTPException(status_code=400, code="file_must_be_jpeg_png_webp_or_gif", message="File must be JPEG, PNG, WebP, or GIF")
 
     data = await file.read()
     if len(data) > MAX_POSTER_SIZE:
-        raise HTTPException(status_code=400, detail="File must be under 10MB")
+        raise AppHTTPException(status_code=400, code="file_must_be_under_10mb", message="File must be under 10MB")
 
     # Delete old poster if exists
     if project.poster_s3_key:

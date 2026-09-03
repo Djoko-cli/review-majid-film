@@ -43,7 +43,7 @@ def test_initiate_upload_rejects_soft_deleted_or_foreign_folder(
     resp = client.post("/upload/initiate", json=_valid_body(), headers=auth_headers)
 
     assert resp.status_code == 404
-    assert resp.json()["detail"] == "Folder not found"
+    assert resp.json()["detail"]["message"] == "Folder not found"
 
 
 def test_initiate_upload_allows_valid_folder(

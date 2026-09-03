@@ -6,6 +6,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from ..core.errors import AppHTTPException
 from ..database import get_db
 from ..middleware.auth import get_current_user
 from ..models.asset import Asset
@@ -34,7 +35,7 @@ router = APIRouter(tags=["metadata"])
 def _get_project_for_asset(db: Session, asset_id: uuid.UUID) -> uuid.UUID:
     asset = db.query(Asset).filter(Asset.id == asset_id, Asset.deleted_at.is_(None)).first()
     if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        raise AppHTTPException(status_code=404, code="asset_not_found", message="Asset not found")
     return asset.project_id
 
 
@@ -98,7 +99,11 @@ def create_metadata_field(
         MetadataField.deleted_at.is_(None),
     ).first()
     if existing:
-        raise HTTPException(status_code=409, detail="A metadata field with this name already exists")
+        raise AppHTTPException(
+            status_code=409,
+            code="a_metadata_field_with_this_name_already_exists",
+            message="A metadata field with this name already exists",
+        )
 
     field = MetadataField(
         project_id=project_id,
@@ -147,7 +152,7 @@ def delete_metadata_field(
         MetadataField.deleted_at.is_(None),
     ).first()
     if not field:
-        raise HTTPException(status_code=404, detail="Metadata field not found")
+        raise AppHTTPException(status_code=404, code="metadata_field_not_found", message="Metadata field not found")
     field.deleted_at = datetime.now(timezone.utc)
     db.commit()
 
@@ -175,9 +180,11 @@ def set_asset_metadata(
             MetadataField.deleted_at.is_(None),
         ).first()
         if not field:
-            raise HTTPException(
+            raise AppHTTPException(
                 status_code=404,
-                detail=f"Metadata field {item.field_id} not found in this project",
+                code="metadata_field_not_found_in_this_project",
+                message=f"Metadata field {item.field_id} not found in this project",
+                field_id=item.field_id,
             )
 
         existing = db.query(AssetMetadata).filter(
@@ -295,7 +302,7 @@ def get_collection(
         Collection.deleted_at.is_(None),
     ).first()
     if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise AppHTTPException(status_code=404, code="collection_not_found", message="Collection not found")
 
     return _collection_to_response(db, collection)
 
@@ -317,7 +324,7 @@ def delete_collection(
         Collection.deleted_at.is_(None),
     ).first()
     if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise AppHTTPException(status_code=404, code="collection_not_found", message="Collection not found")
     collection.deleted_at = datetime.now(timezone.utc)
     db.commit()
 
@@ -342,7 +349,7 @@ def share_collection(
         Collection.deleted_at.is_(None),
     ).first()
     if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise AppHTTPException(status_code=404, code="collection_not_found", message="Collection not found")
 
     token = secrets.token_urlsafe(32)
     share = CollectionShare(
@@ -375,7 +382,7 @@ def list_collection_shares(
         Collection.deleted_at.is_(None),
     ).first()
     if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise AppHTTPException(status_code=404, code="collection_not_found", message="Collection not found")
 
     shares = db.query(CollectionShare).filter(
         CollectionShare.collection_id == collection_id,
@@ -402,7 +409,7 @@ def remove_collection_share(
         Collection.deleted_at.is_(None),
     ).first()
     if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise AppHTTPException(status_code=404, code="collection_not_found", message="Collection not found")
 
     share = db.query(CollectionShare).filter(
         CollectionShare.id == share_id,
@@ -410,6 +417,6 @@ def remove_collection_share(
         CollectionShare.deleted_at.is_(None),
     ).first()
     if not share:
-        raise HTTPException(status_code=404, detail="Share not found")
+        raise AppHTTPException(status_code=404, code="share_not_found", message="Share not found")
     share.deleted_at = datetime.now(timezone.utc)
     db.commit()
