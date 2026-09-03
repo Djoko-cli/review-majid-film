@@ -8,7 +8,8 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Avatar } from '@/components/shared/avatar'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { useAuthStore } from '@/stores/auth-store'
 import type { ProjectRole, User } from '@/types'
 
@@ -104,6 +105,7 @@ function AddView({
   onMemberAdded: () => void
 }) {
   const t = useTranslations('projects.membersDialog')
+  const tErrors = useTranslations('errors')
   const [query, setQuery] = React.useState('')
   const [role, setRole] = React.useState<ProjectRole>('editor')
   const [suggestions, setSuggestions] = React.useState<User[]>([])
@@ -171,7 +173,7 @@ function AddView({
       setMessage('')
       onMemberAdded()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t('addMemberFailed')
+      const msg = err instanceof ApiError ? translateApiError(err, tErrors) : t('addMemberFailed')
       setError(msg)
     } finally {
       setAdding(false)

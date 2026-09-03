@@ -18,7 +18,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
+import { translateApiError } from "@/lib/api-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CollectionCard } from "@/components/projects/collection-card";
@@ -132,6 +133,7 @@ function CollectionShareDialog({
   onOpenChange,
 }: CollectionShareDialogProps) {
   const t = useTranslations("projects.collections.shareDialog");
+  const tErrors = useTranslations("errors");
   const format = useFormatter();
   const [permission, setPermission] = React.useState<SharePermission>("view");
   const [expiresAt, setExpiresAt] = React.useState("");
@@ -171,7 +173,7 @@ function CollectionShareDialog({
       setGeneratedUrl(url);
       setShares((prev) => [...prev, newShare]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("genericError"));
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t("genericError"));
     } finally {
       setGenerating(false);
     }
@@ -320,6 +322,7 @@ function CollectionShareDialog({
 
 export default function CollectionsPage() {
   const t = useTranslations("projects.collections");
+  const tErrors = useTranslations("errors");
   const params = useParams();
   const projectId = params.id as string;
 
@@ -389,7 +392,7 @@ export default function CollectionsPage() {
       resetForm();
     } catch (err) {
       setFormError(
-        err instanceof Error ? err.message : t("createError"),
+        err instanceof ApiError ? translateApiError(err, tErrors) : t("createError"),
       );
     } finally {
       setIsCreating(false);

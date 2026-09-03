@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { setTokens } from '@/lib/auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
@@ -41,7 +42,8 @@ function validate(name: string, password: string, confirmPassword: string, t: (k
 }
 
 export function InviteAccept({ token }: InviteAcceptProps) {
-  const t = useTranslations('inviteAccept')
+  const t = useTranslations('auth.inviteAccept')
+  const tErrors = useTranslations('errors')
   const router = useRouter()
   const [invite, setInvite] = useState<InviteDetails | null>(null)
   const [inviteError, setInviteError] = useState<string | null>(null)
@@ -60,7 +62,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         setInvite(data)
       } catch (err) {
         if (err instanceof ApiError) {
-          setInviteError(err.status === 404 ? t('inviteInvalidOrExpired') : err.detail)
+          setInviteError(err.status === 404 ? t('inviteInvalidOrExpired') : translateApiError(err, tErrors))
         } else {
           setInviteError(t('failedToLoadInvite'))
         }
@@ -69,7 +71,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
       }
     }
     fetchInvite()
-    // `t` intentionally omitted: next-intl's translator isn't referentially
+    // `t`/`tErrors` intentionally omitted: next-intl's translator isn't referentially
     // stable across renders, and including it here would retrigger this
     // fetch effect on every render — an infinite loop, not just a lint nitpick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,13 +92,13 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         token,
         name,
         password,
-      })
+      }, { skipAuthRetry: true })
       setTokens(res.access_token, res.refresh_token)
       await useAuthStore.getState().fetchUser()
       router.replace('/')
     } catch (err) {
       if (err instanceof ApiError) {
-        setErrors({ general: err.detail })
+        setErrors({ general: translateApiError(err, tErrors) })
       } else {
         setErrors({ general: t('genericError') })
       }

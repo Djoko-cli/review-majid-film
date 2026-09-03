@@ -174,7 +174,7 @@ function SlideView({
  *  never a placeholder image, matching PRODUCT.md's "don't fabricate
  *  content" principle. */
 export function BrandPanel({ showCaption = true }: { showCaption?: boolean }) {
-  const t = useTranslations('brandPanel')
+  const t = useTranslations('auth.brandPanel')
   const [order, setOrder] = React.useState<Slide[]>([])
   const [current, setCurrent] = React.useState(0)
   const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false)

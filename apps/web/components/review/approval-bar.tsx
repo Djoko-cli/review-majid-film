@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Avatar } from '@/components/shared/avatar'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import type { Approval, User, ApprovalStatus } from '@/types'
 
 // ─── Extended approval type ───────────────────────────────────────────────────
@@ -108,6 +109,7 @@ function RejectNoteDialog({ onConfirm, onCancel }: RejectNoteProps) {
 
 export function ApprovalBar({ assetId, versionId, currentUserId, className }: ApprovalBarProps) {
   const t = useTranslations('review.approvalBar')
+  const tErrors = useTranslations('errors')
   const swrKey = assetId ? `/assets/${assetId}/approvals?version_id=${versionId}` : null
 
   const { data, isLoading, mutate } = useSWR<ApprovalsResponse>(
@@ -130,7 +132,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
       await api.post(`/assets/${assetId}/approve`, { version_id: versionId })
       await mutate()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : t('failedToApprove'))
+      setActionError(err instanceof ApiError ? translateApiError(err, tErrors) : t('failedToApprove'))
     } finally {
       setApproving(false)
     }
@@ -142,7 +144,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
       await api.post(`/assets/${assetId}/reject`, { version_id: versionId, note })
       await mutate()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : t('failedToReject'))
+      setActionError(err instanceof ApiError ? translateApiError(err, tErrors) : t('failedToReject'))
       throw err
     } finally {
       setShowRejectDialog(false)

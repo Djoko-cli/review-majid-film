@@ -24,7 +24,8 @@ import { cn, formatTime, formatTimecode, formatFrames } from "@/lib/utils";
 import { useReviewStore } from "@/stores/review-store";
 import { useReview } from "./review-provider";
 import { useDrawing } from "@/hooks/use-drawing";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
+import { translateApiError } from "@/lib/api-error";
 import { resolveSubmitTimecode } from "@/lib/resolve-submit-timecode";
 import type { User } from "@/types";
 
@@ -207,6 +208,7 @@ export function CommentInput({
   className,
 }: CommentInputProps) {
   const t = useTranslations("review.commentInput");
+  const tErrors = useTranslations("errors");
   const {
     isDrawingMode,
     drawingTool,
@@ -431,7 +433,7 @@ export function CommentInput({
       }
       if (replyToId && onCancelReply) onCancelReply();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("failedToPostComment"));
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t("failedToPostComment"));
     } finally {
       setSubmitting(false);
     }

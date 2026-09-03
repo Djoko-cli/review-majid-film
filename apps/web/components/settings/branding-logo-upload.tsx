@@ -5,7 +5,8 @@ import { Upload, X, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 
 const TYPE_MAP: Record<string, string> = {
   logo_light: 'logo-light',
@@ -56,6 +57,7 @@ export function BrandingLogoUpload({
   onRemove,
 }: BrandingLogoUploadProps) {
   const t = useTranslations('settings.brandingLogoUpload')
+  const tErrors = useTranslations('errors')
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -109,7 +111,7 @@ export function BrandingLogoUpload({
         onUpload(logoUrl, s3Key)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('uploadFailedGeneric'))
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('uploadFailedGeneric'))
     } finally {
       setUploading(false)
     }
@@ -126,7 +128,7 @@ export function BrandingLogoUpload({
       await api.delete(`/instance/branding/logo/${type}`)
       onRemove()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('resetFailed'))
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('resetFailed'))
     }
   }
 

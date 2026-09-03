@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, KeyboardEvent, ClipboardEvent } from 'reac
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { setTokens } from '@/lib/auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
@@ -76,6 +77,7 @@ export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations('auth.loginForm')
+  const tErrors = useTranslations('errors')
   const [step, setStep] = useState<Step>('classic')
   const [oauthError, setOauthError] = useState(() => {
     const reason = searchParams.get('oauth_error')
@@ -134,11 +136,11 @@ export function LoginForm() {
 
     setLoading(true)
     try {
-      await api.post('/auth/send-magic-code', { email })
+      await api.post('/auth/send-magic-code', { email }, { skipAuthRetry: true })
       setStep('code')
     } catch (err) {
       if (err instanceof ApiError) {
-        setGeneralError(err.detail)
+        setGeneralError(translateApiError(err, tErrors))
       } else {
         setGeneralError(t('validation.sendCodeFailed'))
       }
@@ -196,7 +198,7 @@ export function LoginForm() {
       const res = await api.post<VerifyCodeResponse>('/auth/verify-magic-code', {
         email,
         code: codeStr,
-      })
+      }, { skipAuthRetry: true })
 
       if (res.needs_password) {
         // Persist the tokens issued by verify-magic-code before moving on:
@@ -212,7 +214,7 @@ export function LoginForm() {
       }
     } catch (err) {
       if (err instanceof ApiError) {
-        setCodeError(err.detail)
+        setCodeError(translateApiError(err, tErrors))
       } else {
         setCodeError(t('validation.codeInvalid'))
       }
@@ -259,14 +261,14 @@ export function LoginForm() {
         email,
         code: code.join(''),
         password,
-      })
+      }, { skipAuthRetry: true })
       setTokens(res.access_token, res.refresh_token)
       await useAuthStore.getState().fetchUser()
       const u = useAuthStore.getState().user
       router.replace('/projects')
     } catch (err) {
       if (err instanceof ApiError) {
-        setGeneralError(err.detail)
+        setGeneralError(translateApiError(err, tErrors))
       } else {
         setGeneralError(t('validation.setPasswordFailed'))
       }
@@ -295,14 +297,14 @@ export function LoginForm() {
       const res = await api.post<AuthTokens>('/auth/login', {
         email: classicEmail,
         password: classicPassword,
-      })
+      }, { skipAuthRetry: true })
       setTokens(res.access_token, res.refresh_token)
       await useAuthStore.getState().fetchUser()
       const u = useAuthStore.getState().user
       router.replace('/projects')
     } catch (err) {
       if (err instanceof ApiError) {
-        setClassicError(err.detail)
+        setClassicError(translateApiError(err, tErrors))
       } else {
         setClassicError(t('validation.classicInvalid'))
       }

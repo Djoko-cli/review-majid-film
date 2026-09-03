@@ -49,6 +49,11 @@ function parseErrorDetail(errorBody: unknown, fallback: string): { detail: strin
 
 interface RequestOptions {
   headers?: Record<string, string>
+  /** Set on an endpoint that itself grants/attempts authentication (login,
+   *  magic-code send/verify, set-password, accept-invite, ...): a 401 from
+   *  one of these means the submitted credentials were rejected, not that an
+   *  existing session expired, so the usual refresh-and-retry must be skipped. */
+  skipAuthRetry?: boolean
 }
 
 async function request<T>(
@@ -79,8 +84,14 @@ async function request<T>(
   let token = getAccessToken()
   let response = await execute(token)
 
-  // On 401, attempt a token refresh and retry once
-  if (response.status === 401) {
+  // On 401, attempt a token refresh and retry once — except for a request that
+  // opted out via skipAuthRetry. That's for endpoints where a 401 means "the
+  // credentials/code you just submitted were rejected" (login, magic-code,
+  // set-password, accept-invite, ...), not "your session expired": there is no
+  // session to refresh yet, and refreshAccessToken() falling through to
+  // clearTokens() would force-navigate to /login, wiping out whatever error the
+  // caller was about to show for the *current* request's own failure.
+  if (response.status === 401 && !options?.skipAuthRetry) {
     const newToken = await refreshAccessToken()
     if (newToken) {
       response = await execute(newToken)

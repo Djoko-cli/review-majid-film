@@ -1,3 +1,4 @@
+import type { useTranslations } from 'next-intl'
 import type { ApiError } from './api'
 
 /** Translates an ApiError for display. Uses the `errors` message catalog
@@ -14,11 +15,14 @@ import type { ApiError } from './api'
  */
 export function translateApiError(
   error: ApiError,
-  t: (key: string, values?: Record<string, unknown>) => string,
+  t: ReturnType<typeof useTranslations>,
 ): string {
   if (!error.code) return error.detail
   try {
-    return t(error.code, error.params)
+    // ApiError.params comes straight off the JSON response — every value is a
+    // string or number by construction (see AppHTTPException on the backend),
+    // never the Date next-intl's type also allows, so the cast is safe.
+    return t(error.code, error.params as Record<string, string | number>)
   } catch {
     return error.detail
   }

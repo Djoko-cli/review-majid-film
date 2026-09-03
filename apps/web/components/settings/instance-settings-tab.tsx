@@ -3,7 +3,8 @@
 import * as React from "react";
 import useSWR, { mutate } from "swr";
 import { useTranslations } from "next-intl";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
+import { translateApiError } from "@/lib/api-error";
 import { bytesToGb, gbToBytes } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import type { InstanceSettings } from "@/types";
 
 export function InstanceSettingsTab() {
   const t = useTranslations("settings.instanceSettingsTab");
+  const tErrors = useTranslations("errors");
   const { data } = useSWR<InstanceSettings>(
     "/instance/settings",
     () => api.get<InstanceSettings>("/instance/settings"),
@@ -38,7 +40,7 @@ export function InstanceSettingsTab() {
       mutate("/instance/settings");
       setSaved(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("failedToSave"));
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t("failedToSave"));
     } finally {
       setSaving(false);
     }

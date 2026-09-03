@@ -10,7 +10,8 @@ import React, {
   useState,
 } from "react";
 import { useTranslations } from "next-intl";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
+import { translateApiError } from "@/lib/api-error";
 import { useReviewStore } from "@/stores/review-store";
 import type { AssetResponse, AssetVersion, Comment } from "@/types";
 
@@ -63,6 +64,7 @@ export function ReviewProvider({
   children,
 }: ReviewProviderProps) {
   const t = useTranslations("review.provider");
+  const tErrors = useTranslations("errors");
   const [asset, setAsset] = useState<AssetResponse | null>(null);
   const [versions, setVersions] = useState<AssetVersion[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -203,9 +205,9 @@ export function ReviewProvider({
       }
     } catch (err) {
       if (!mountedRef.current) return;
-      setError(err instanceof Error ? err.message : t("failedToLoadAsset"));
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t("failedToLoadAsset"));
     }
-    // `t` intentionally omitted: next-intl's translator isn't referentially
+    // `t`/`tErrors` intentionally omitted: next-intl's translator isn't referentially
     // stable across renders, and including it here would recreate this
     // callback (and retrigger the initial-load effect that calls it) on
     // every render — an infinite loop, not just a lint nitpick.

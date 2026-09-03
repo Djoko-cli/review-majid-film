@@ -6,7 +6,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useTranslations } from "next-intl";
 import { Users, Plus, X, Shield, Link2, Check, KeyRound, Copy } from "lucide-react";
 import { cn, copyToClipboard } from "@/lib/utils";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
+import { translateApiError } from "@/lib/api-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/shared/avatar";
@@ -19,6 +20,7 @@ import { BrandingTab } from "@/components/settings/branding-tab";
 
 function BulkInviteDialog() {
   const t = useTranslations("settings.admin.bulkInvite");
+  const tErrors = useTranslations("errors");
   const [open, setOpen] = React.useState(false);
   const [emails, setEmails] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -45,8 +47,7 @@ function BulkInviteDialog() {
           await api.post("/users/invite", { email, name });
           sent++;
         } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : "";
-          if (msg.toLowerCase().includes("already registered")) {
+          if (err instanceof ApiError && err.code === "email_already_registered") {
             skipped.push(email);
           } else {
             failed.push(email);
@@ -69,7 +70,7 @@ function BulkInviteDialog() {
         setError(t("failedToInvite", { emails: failed.join(", ") }));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("genericError"));
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t("genericError"));
     } finally {
       setLoading(false);
     }
@@ -237,6 +238,7 @@ function userStatusBadge(status: UserStatus, t: (key: string) => string) {
 
 export default function AdminPage() {
   const t = useTranslations("settings.admin");
+  const tErrors = useTranslations("errors");
   const { user, isSuperAdmin } = useAuthStore();
   const router = useRouter();
   const [tab, setTab] = React.useState<"users" | "instance" | "branding">("users");
@@ -267,7 +269,7 @@ export default function AdminPage() {
       mutate("/admin/users");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("errors.deactivate");
+        err instanceof ApiError ? translateApiError(err, tErrors) : t("errors.deactivate");
       alert(message);
     }
   };
@@ -278,7 +280,7 @@ export default function AdminPage() {
       mutate("/admin/users");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("errors.reactivate");
+        err instanceof ApiError ? translateApiError(err, tErrors) : t("errors.reactivate");
       alert(message);
     }
   };
@@ -297,7 +299,7 @@ export default function AdminPage() {
       setResetResult({ user: u, password: res.temporary_password });
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("resetPassword.error");
+        err instanceof ApiError ? translateApiError(err, tErrors) : t("resetPassword.error");
       alert(message);
     } finally {
       setResettingId(null);
@@ -326,7 +328,7 @@ export default function AdminPage() {
       mutate("/admin/users");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("errors.toggleRole");
+        err instanceof ApiError ? translateApiError(err, tErrors) : t("errors.toggleRole");
       alert(message);
     }
   };

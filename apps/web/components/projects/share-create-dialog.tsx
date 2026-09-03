@@ -27,7 +27,8 @@ import * as Switch from '@radix-ui/react-switch'
 import { useTranslations } from 'next-intl'
 import { cn, copyToClipboard, endOfDayISO } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import type { AssetResponse, Folder, ShareLink, ShareLinkAppearance } from '@/types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -988,6 +989,7 @@ export function ShareCreateDialog({
   type Phase = 'selection' | 'configure' | 'result'
 
   const t = useTranslations('projects.shareCreateDialog')
+  const tErrors = useTranslations('errors')
   const [selectedItems, setSelectedItems] = React.useState<Map<string, SelectedItem>>(new Map())
   const [phase, setPhase] = React.useState<Phase>(initialResult ? 'result' : 'selection')
   const [configureDefaultTitle, setConfigureDefaultTitle] = React.useState('')
@@ -1140,7 +1142,7 @@ export function ShareCreateDialog({
       onShareCreated()
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('createError'))
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('createError'))
     } finally {
       setCreating(false)
     }

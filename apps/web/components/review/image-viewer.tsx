@@ -18,7 +18,8 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
 import { useReviewStore } from '@/stores/review-store'
 import { useReview } from '@/components/review/review-provider'
@@ -145,6 +146,7 @@ interface ImageViewerProps {
 
 export function ImageViewer({ asset, version, className, annotationCanvas }: ImageViewerProps) {
   const t = useTranslations('review.imageViewer')
+  const tErrors = useTranslations('errors')
   const { isDrawingMode, setFocusedCommentId, setActiveAnnotation } = useReviewStore()
 
   const handleImageClick = () => {
@@ -235,7 +237,7 @@ export function ImageViewer({ asset, version, className, annotationCanvas }: Ima
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : t('failedToLoad'))
+          setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('failedToLoad'))
         }
       } finally {
         if (!cancelled) setIsLoading(false)

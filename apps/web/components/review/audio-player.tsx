@@ -14,7 +14,8 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn, formatTime, formatTimecode, formatFrames } from '@/lib/utils'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { useReviewStore, type TimeFormat } from '@/stores/review-store'
 import { useReview } from '@/components/review/review-provider'
 import { ProgressBar } from './progress-bar'
@@ -37,6 +38,7 @@ interface AudioPlayerProps {
 
 export function AudioPlayer({ asset, version, comments = [], className }: AudioPlayerProps) {
   const t = useTranslations('review.audioPlayer')
+  const tErrors = useTranslations('errors')
   const { setPlayheadTime, seekTarget, timeFormat, setTimeFormat } = useReviewStore()
   const [timeFormatOpen, setTimeFormatOpen] = React.useState(false)
   const timeFormatRef = React.useRef<HTMLDivElement>(null)
@@ -110,7 +112,7 @@ export function AudioPlayer({ asset, version, comments = [], className }: AudioP
         if (!cancelled) setAudioUrl(data.url)
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : t('failedToLoad'))
+          setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('failedToLoad'))
           setIsLoading(false)
         }
       }

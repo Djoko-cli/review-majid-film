@@ -6,7 +6,8 @@ import { Star, ChevronDown, Check, CalendarDays, Tag, X } from 'lucide-react'
 import * as Select from '@radix-ui/react-select'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar } from '@/components/shared/avatar'
@@ -180,6 +181,7 @@ interface AssetMetadataEditorProps {
 
 export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetadataEditorProps) {
   const t = useTranslations('projects.assetMetadata')
+  const tErrors = useTranslations('errors')
   const assetKey = `/assets/${asset.id}`
 
   // Built-in fields
@@ -244,7 +246,7 @@ export function AssetMetadataEditor({ asset, projectId, onUpdated }: AssetMetada
       globalMutate(assetKey)
       onUpdated?.()
     } catch (err: unknown) {
-      setMsg(err instanceof Error ? err.message : t('saveFailed'))
+      setMsg(err instanceof ApiError ? translateApiError(err, tErrors) : t('saveFailed'))
     } finally {
       setSaving(false)
     }

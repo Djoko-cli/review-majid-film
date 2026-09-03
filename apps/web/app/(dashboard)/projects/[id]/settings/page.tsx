@@ -20,7 +20,8 @@ import {
   Upload,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type {
@@ -82,6 +83,7 @@ function SimpleSelect<T extends string>({
 function BrandingTab({ projectId }: { projectId: string }) {
   const t = useTranslations('projects.settings.branding')
   const tGeneric = useTranslations('projects.settings')
+  const tErrors = useTranslations('errors')
   const key = `/projects/${projectId}/branding`
   const { data: branding } = useSWR<ProjectBranding>(key, () =>
     api.get<ProjectBranding>(key),
@@ -117,7 +119,7 @@ function BrandingTab({ projectId }: { projectId: string }) {
       setMsg(t('savedMessage'))
       globalMutate(key)
     } catch (err: unknown) {
-      setMsg(err instanceof Error ? err.message : tGeneric('genericSaveError'))
+      setMsg(err instanceof ApiError ? translateApiError(err, tErrors) : tGeneric('genericSaveError'))
     } finally {
       setSaving(false)
     }
@@ -271,6 +273,7 @@ function BrandingTab({ projectId }: { projectId: string }) {
 function WatermarkTab({ projectId }: { projectId: string }) {
   const t = useTranslations('projects.settings.watermark')
   const tGeneric = useTranslations('projects.settings')
+  const tErrors = useTranslations('errors')
   const key = `/projects/${projectId}/watermark`
   const { data: wm } = useSWR<WatermarkSettings>(key, () =>
     api.get<WatermarkSettings>(key),
@@ -307,7 +310,7 @@ function WatermarkTab({ projectId }: { projectId: string }) {
       setMsg(t('savedMessage'))
       globalMutate(key)
     } catch (err: unknown) {
-      setMsg(err instanceof Error ? err.message : tGeneric('genericSaveError'))
+      setMsg(err instanceof ApiError ? translateApiError(err, tErrors) : tGeneric('genericSaveError'))
     } finally {
       setSaving(false)
     }
@@ -401,6 +404,7 @@ const FIELD_TYPE_VALUES: MetadataFieldType[] = [
 
 function CreateFieldDialog({ projectId, onDone }: { projectId: string; onDone: () => void }) {
   const t = useTranslations('projects.settings.metadata')
+  const tErrors = useTranslations('errors')
   const FIELD_TYPES: { value: MetadataFieldType; label: string }[] = FIELD_TYPE_VALUES.map(
     (value) => ({ value, label: t(`fieldTypes.${value}`) }),
   )
@@ -438,7 +442,7 @@ function CreateFieldDialog({ projectId, onDone }: { projectId: string; onDone: (
       setRequired(false)
       onDone()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('createDialog.createError'))
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('createDialog.createError'))
     } finally {
       setLoading(false)
     }

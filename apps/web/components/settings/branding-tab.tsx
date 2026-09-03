@@ -5,7 +5,8 @@ import { Upload, RotateCcw, Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
 import { HARDCODED_DEFAULTS, useBrandingStore } from '@/stores/branding-store'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -39,6 +40,7 @@ function QuickUpload({
   onSlotUpload: (slot: BrandingSlot, url: string) => void
 }) {
   const t = useTranslations('settings.brandingTab.quickUpload')
+  const tErrors = useTranslations('errors')
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -79,7 +81,7 @@ function QuickUpload({
         if (url) onSlotUpload(slot, url)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('uploadFailedGeneric'))
+      setError(err instanceof ApiError ? translateApiError(err, tErrors) : t('uploadFailedGeneric'))
     } finally {
       setUploading(false)
     }
@@ -116,6 +118,7 @@ function QuickUpload({
 
 export function BrandingTab() {
   const t = useTranslations('settings.brandingTab')
+  const tErrors = useTranslations('errors')
   const { user } = useAuthStore()
   const {
     orgName,
@@ -229,7 +232,7 @@ export function BrandingTab() {
     } catch (err) {
       // Rethrow so ConfirmDialog leaves itself open instead of closing as if the
       // reset had worked — the message below tells the admin what went wrong.
-      setResetError(err instanceof Error ? err.message : t('resetFailed'))
+      setResetError(err instanceof ApiError ? translateApiError(err, tErrors) : t('resetFailed'))
       throw err
     } finally {
       setResetting(false)

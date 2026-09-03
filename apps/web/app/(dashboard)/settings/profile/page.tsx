@@ -4,7 +4,8 @@ import * as React from 'react'
 import { User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar } from '@/components/shared/avatar'
@@ -12,6 +13,7 @@ import { setTokens } from '@/lib/auth'
 
 export default function ProfilePage() {
   const t = useTranslations('settings.profile')
+  const tErrors = useTranslations('errors')
   const { user, fetchUser } = useAuthStore()
 
   const [name, setName] = React.useState(user?.name ?? '')
@@ -46,7 +48,7 @@ export default function ProfilePage() {
       setProfileSuccess(true)
       setTimeout(() => setProfileSuccess(false), 3000)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('saveProfileError')
+      const message = err instanceof ApiError ? translateApiError(err, tErrors) : t('saveProfileError')
       setProfileError(message)
     } finally {
       setIsSavingProfile(false)
@@ -88,7 +90,7 @@ export default function ProfilePage() {
       setPasswordSuccess(true)
       setTimeout(() => setPasswordSuccess(false), 3000)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('changePasswordError')
+      const message = err instanceof ApiError ? translateApiError(err, tErrors) : t('changePasswordError')
       setPasswordError(message)
     } finally {
       setIsSavingPassword(false)

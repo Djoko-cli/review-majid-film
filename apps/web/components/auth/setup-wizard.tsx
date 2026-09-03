@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { api, ApiError } from '@/lib/api'
+import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useBrandingStore } from '@/stores/branding-store'
@@ -47,7 +48,8 @@ function validate(form: FormState, t: (key: string) => string): FormErrors {
 }
 
 export function SetupWizard() {
-  const t = useTranslations('setupWizard')
+  const t = useTranslations('auth.setupWizard')
+  const tErrors = useTranslations('errors')
   const router = useRouter()
   const orgName = useBrandingStore((s) => s.orgName)
   const [form, setForm] = useState<FormState>({
@@ -85,14 +87,14 @@ export function SetupWizard() {
         email: form.email,
         name: form.name,
         password: form.password,
-      })
+      }, { skipAuthRetry: true })
       setSuccess(true)
       setTimeout(() => {
         router.push('/login')
       }, 1800)
     } catch (err) {
       if (err instanceof ApiError) {
-        setErrors({ general: err.detail })
+        setErrors({ general: translateApiError(err, tErrors) })
       } else {
         setErrors({ general: t('genericError') })
       }

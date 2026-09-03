@@ -16,7 +16,8 @@ import {
   Globe,
 } from "lucide-react";
 import { cn, formatBytes } from "@/lib/utils";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
+import { translateApiError } from "@/lib/api-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProjectCard } from "@/components/projects/project-card";
@@ -212,6 +213,7 @@ function ProjectSection({
 
 export default function ProjectsPage() {
   const t = useTranslations("projects");
+  const tErrors = useTranslations("errors");
   usePageTitle(t("pageTitle"));
   const router = useRouter();
   const { user } = useAuthStore();
@@ -275,7 +277,7 @@ export default function ProjectsPage() {
       router.push(`/projects/${created.id}`);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : t("createDialog.createError");
+        err instanceof ApiError ? translateApiError(err, tErrors) : t("createDialog.createError");
       setFormError(message);
     } finally {
       setIsCreating(false);
