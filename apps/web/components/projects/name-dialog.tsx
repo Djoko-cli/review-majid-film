@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -22,11 +23,12 @@ export function NameDialog({
   onOpenChange,
   title,
   description,
-  placeholder = 'Enter name...',
+  placeholder,
   defaultValue = '',
-  submitLabel = 'Create',
+  submitLabel,
   onSubmit,
 }: NameDialogProps) {
+  const t = useTranslations('shared.nameDialog')
   const [value, setValue] = React.useState(defaultValue)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
@@ -72,7 +74,7 @@ export function NameDialog({
               ref={inputRef}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder={placeholder}
+              placeholder={placeholder ?? t('defaultPlaceholder')}
               autoComplete="off"
             />
             <div className="flex justify-end gap-2">
@@ -82,10 +84,10 @@ export function NameDialog({
                 size="sm"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" size="sm" disabled={!value.trim()}>
-                {submitLabel}
+                {submitLabel ?? t('defaultSubmitLabel')}
               </Button>
             </div>
           </form>

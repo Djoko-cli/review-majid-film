@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Filter, Layers } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import type { Collection } from '@/types'
 
@@ -12,20 +13,19 @@ interface CollectionCardProps {
   className?: string
 }
 
-function summarizeFilterRules(rules: Record<string, unknown> | null): string {
-  if (!rules) return 'No filters'
-  const keys = Object.keys(rules)
-  if (keys.length === 0) return 'No filters'
-  if (keys.length === 1) return `1 filter rule`
-  return `${keys.length} filter rules`
-}
-
 export function CollectionCard({
   collection,
   assetCount = 0,
   onClick,
   className,
 }: CollectionCardProps) {
+  const t = useTranslations('projects.collections.card')
+
+  function summarizeFilterRules(rules: Record<string, unknown> | null): string {
+    const count = rules ? Object.keys(rules).length : 0
+    return t('filterRules', { count })
+  }
+
   return (
     <button
       onClick={onClick}
@@ -60,7 +60,7 @@ export function CollectionCard({
         </span>
         <span className="flex items-center gap-1">
           <Layers className="h-3 w-3" />
-          {assetCount} asset{assetCount !== 1 ? 's' : ''}
+          {t('assetCount', { count: assetCount })}
         </span>
       </div>
     </button>

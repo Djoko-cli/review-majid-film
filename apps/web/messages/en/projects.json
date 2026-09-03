@@ -105,6 +105,10 @@
     }
   },
   "collections": {
+    "card": {
+      "filterRules": "{count, plural, =0 {No filters} one {# filter rule} other {# filter rules}}",
+      "assetCount": "{count, plural, one {# asset} other {# assets}}"
+    },
     "breadcrumbProjects": "Projects",
     "heading": "Collections",
     "collectionCount": "{count, plural, one {# collection} other {# collections}}",

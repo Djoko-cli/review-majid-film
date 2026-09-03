@@ -1,1 +1,19 @@
-{}
+{
+  "nameDialog": {
+    "defaultPlaceholder": "Enter name...",
+    "defaultSubmitLabel": "Create",
+    "cancel": "Cancel"
+  },
+  "sortPopover": {
+    "sortedBy": "Sorted by",
+    "ascending": "A-Z",
+    "descending": "Z-A",
+    "options": {
+      "custom": "Custom",
+      "date": "Date",
+      "name": "Name",
+      "status": "Status",
+      "type": "Type"
+    }
+  }
+}

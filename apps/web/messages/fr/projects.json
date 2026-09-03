@@ -105,6 +105,10 @@
     }
   },
   "collections": {
+    "card": {
+      "filterRules": "{count, plural, =0 {Aucun filtre} one {# règle de filtrage} other {# règles de filtrage}}",
+      "assetCount": "{count, plural, one {# média} other {# médias}}"
+    },
     "breadcrumbProjects": "Projets",
     "heading": "Collections",
     "collectionCount": "{count, plural, one {# collection} other {# collections}}",

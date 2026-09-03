@@ -1,1 +1,19 @@
-{}
+{
+  "nameDialog": {
+    "defaultPlaceholder": "Saisissez un nom...",
+    "defaultSubmitLabel": "Créer",
+    "cancel": "Annuler"
+  },
+  "sortPopover": {
+    "sortedBy": "Trié par",
+    "ascending": "A-Z",
+    "descending": "Z-A",
+    "options": {
+      "custom": "Personnalisé",
+      "date": "Date",
+      "name": "Nom",
+      "status": "Statut",
+      "type": "Type"
+    }
+  }
+}
