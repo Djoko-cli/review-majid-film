@@ -8,6 +8,30 @@
   },
   "shownOnOtherSide": "Shown on the other side",
   "inUse": "in use",
+  "approvalBar": {
+    "status": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending"
+    },
+    "rejectWithNote": "Reject with note",
+    "rejectNoteHint": "Optionally add a note explaining why this version is being rejected.",
+    "rejectNotePlaceholder": "Optional rejection note…",
+    "cancel": "Cancel",
+    "reject": "Reject",
+    "loading": "Loading approvals…",
+    "reviewsLabel": "Reviews:",
+    "unknownUser": "Unknown",
+    "approvedCount": "{count} approved",
+    "rejectedCount": "{count} rejected",
+    "pendingCount": "{count} pending",
+    "noReviewRequests": "No review requests yet",
+    "failedToApprove": "Failed to approve",
+    "failedToReject": "Failed to reject",
+    "youApproved": "You approved",
+    "youRejected": "You rejected",
+    "approve": "Approve"
+  },
   "attachment": {
     "download": "Download",
     "deleteAttachment": "Delete attachment"

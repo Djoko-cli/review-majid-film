@@ -3,6 +3,7 @@
 import * as React from 'react'
 import useSWR from 'swr'
 import { CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Avatar } from '@/components/shared/avatar'
@@ -21,23 +22,22 @@ interface ApprovalsResponse {
 
 // ─── Status visual config ─────────────────────────────────────────────────────
 
+/** Icon/color per status — the label is translated at each call site via
+ *  t(`status.${status}`), since this module-level object can't call a hook. */
 const statusConfig: Record<
   ApprovalStatus,
-  { icon: React.ReactNode; label: string; className: string }
+  { icon: React.ReactNode; className: string }
 > = {
   approved: {
     icon: <CheckCircle2 className="h-4 w-4" />,
-    label: 'Approved',
     className: 'text-status-success',
   },
   rejected: {
     icon: <XCircle className="h-4 w-4" />,
-    label: 'Rejected',
     className: 'text-status-error',
   },
   pending: {
     icon: <Clock className="h-4 w-4" />,
-    label: 'Pending',
     className: 'text-text-tertiary',
   },
 }
@@ -59,6 +59,7 @@ interface RejectNoteProps {
 }
 
 function RejectNoteDialog({ onConfirm, onCancel }: RejectNoteProps) {
+  const t = useTranslations('review.approvalBar')
   const [note, setNote] = React.useState('')
   const [submitting, setSubmitting] = React.useState(false)
 
@@ -74,20 +75,20 @@ function RejectNoteDialog({ onConfirm, onCancel }: RejectNoteProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="glass-panel w-full max-w-sm rounded-xl p-5 animate-slide-up">
-        <h3 className="text-sm font-semibold text-text-primary mb-1">Reject with note</h3>
+        <h3 className="text-sm font-semibold text-text-primary mb-1">{t('rejectWithNote')}</h3>
         <p className="text-xs text-text-tertiary mb-3">
-          Optionally add a note explaining why this version is being rejected.
+          {t('rejectNoteHint')}
         </p>
         <textarea
           className="w-full resize-none rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-border-focus min-h-[80px]"
-          placeholder="Optional rejection note…"
+          placeholder={t('rejectNotePlaceholder')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           autoFocus
         />
         <div className="mt-3 flex items-center justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant="destructive"
@@ -95,7 +96,7 @@ function RejectNoteDialog({ onConfirm, onCancel }: RejectNoteProps) {
             onClick={handleConfirm}
             loading={submitting}
           >
-            Reject
+            {t('reject')}
           </Button>
         </div>
       </div>
@@ -106,6 +107,7 @@ function RejectNoteDialog({ onConfirm, onCancel }: RejectNoteProps) {
 // ─── Approval bar ─────────────────────────────────────────────────────────────
 
 export function ApprovalBar({ assetId, versionId, currentUserId, className }: ApprovalBarProps) {
+  const t = useTranslations('review.approvalBar')
   const swrKey = assetId ? `/assets/${assetId}/approvals?version_id=${versionId}` : null
 
   const { data, isLoading, mutate } = useSWR<ApprovalsResponse>(
@@ -128,7 +130,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
       await api.post(`/assets/${assetId}/approve`, { version_id: versionId })
       await mutate()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Failed to approve')
+      setActionError(err instanceof Error ? err.message : t('failedToApprove'))
     } finally {
       setApproving(false)
     }
@@ -140,7 +142,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
       await api.post(`/assets/${assetId}/reject`, { version_id: versionId, note })
       await mutate()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Failed to reject')
+      setActionError(err instanceof Error ? err.message : t('failedToReject'))
       throw err
     } finally {
       setShowRejectDialog(false)
@@ -171,14 +173,14 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
         {isLoading && (
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin text-text-tertiary" />
-            <span className="text-xs text-text-tertiary">Loading approvals…</span>
+            <span className="text-xs text-text-tertiary">{t('loading')}</span>
           </div>
         )}
 
         {/* Reviewer list */}
         {!isLoading && approvals.length > 0 && (
           <div className="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto">
-            <span className="text-2xs text-text-tertiary shrink-0">Reviews:</span>
+            <span className="text-2xs text-text-tertiary shrink-0">{t('reviewsLabel')}</span>
             <div className="flex items-center gap-1.5">
               {approvals.map((approval) => {
                 const config = statusConfig[approval.status]
@@ -186,7 +188,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
                   <div
                     key={approval.id}
                     className="flex items-center gap-1 rounded-full border border-border bg-bg-tertiary px-2 py-0.5"
-                    title={`${approval.user?.name ?? 'Unknown'}: ${config.label}`}
+                    title={`${approval.user?.name ?? t('unknownUser')}: ${t(`status.${approval.status}`)}`}
                   >
                     <Avatar
                       src={approval.user?.avatar_url}
@@ -205,17 +207,17 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
             <div className="flex items-center gap-2 ml-2 shrink-0">
               {approvedCount > 0 && (
                 <span className="text-2xs text-status-success font-medium">
-                  {approvedCount} approved
+                  {t('approvedCount', { count: approvedCount })}
                 </span>
               )}
               {rejectedCount > 0 && (
                 <span className="text-2xs text-status-error font-medium">
-                  {rejectedCount} rejected
+                  {t('rejectedCount', { count: rejectedCount })}
                 </span>
               )}
               {pendingCount > 0 && (
                 <span className="text-2xs text-text-tertiary">
-                  {pendingCount} pending
+                  {t('pendingCount', { count: pendingCount })}
                 </span>
               )}
             </div>
@@ -223,7 +225,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
         )}
 
         {!isLoading && approvals.length === 0 && (
-          <span className="text-xs text-text-tertiary flex-1">No review requests yet</span>
+          <span className="text-xs text-text-tertiary flex-1">{t('noReviewRequests')}</span>
         )}
 
         {/* Error */}
@@ -237,13 +239,13 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
             {myApproval?.status === 'approved' && (
               <span className="inline-flex items-center gap-1 text-xs text-status-success font-medium">
                 <CheckCircle2 className="h-4 w-4" />
-                You approved
+                {t('youApproved')}
               </span>
             )}
             {myApproval?.status === 'rejected' && (
               <span className="inline-flex items-center gap-1 text-xs text-status-error font-medium">
                 <XCircle className="h-4 w-4" />
-                You rejected
+                {t('youRejected')}
               </span>
             )}
             {(!myApproval || myApproval.status === 'pending') && (
@@ -256,7 +258,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
                   className="text-status-error border-status-error/30 hover:border-status-error/60 hover:bg-status-error/10"
                 >
                   <XCircle className="h-4 w-4" />
-                  Reject
+                  {t('reject')}
                 </Button>
                 <Button
                   variant="primary"
@@ -266,7 +268,7 @@ export function ApprovalBar({ assetId, versionId, currentUserId, className }: Ap
                   className="bg-status-success hover:opacity-90"
                 >
                   <CheckCircle2 className="h-4 w-4" />
-                  Approve
+                  {t('approve')}
                 </Button>
               </>
             )}

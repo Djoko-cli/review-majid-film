@@ -8,6 +8,30 @@
   },
   "shownOnOtherSide": "Affiché de l'autre côté",
   "inUse": "en cours d'utilisation",
+  "approvalBar": {
+    "status": {
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "pending": "En attente"
+    },
+    "rejectWithNote": "Rejeter avec une note",
+    "rejectNoteHint": "Vous pouvez ajouter une note expliquant pourquoi cette version est rejetée.",
+    "rejectNotePlaceholder": "Note de rejet facultative…",
+    "cancel": "Annuler",
+    "reject": "Rejeter",
+    "loading": "Chargement des approbations…",
+    "reviewsLabel": "Révisions :",
+    "unknownUser": "Inconnu",
+    "approvedCount": "{count} approuvé(s)",
+    "rejectedCount": "{count} rejeté(s)",
+    "pendingCount": "{count} en attente",
+    "noReviewRequests": "Aucune demande de révision pour l'instant",
+    "failedToApprove": "Impossible d'approuver",
+    "failedToReject": "Impossible de rejeter",
+    "youApproved": "Vous avez approuvé",
+    "youRejected": "Vous avez rejeté",
+    "approve": "Approuver"
+  },
   "attachment": {
     "download": "Télécharger",
     "deleteAttachment": "Supprimer la pièce jointe"
