@@ -1,1 +1,36 @@
-{}
+{
+  "pageTitle": "Projects",
+  "projectCount": "{count, plural, one {# project} other {# projects}}",
+  "gridView": "Grid view",
+  "listView": "List view",
+  "newProject": "New Project",
+  "createFirstProject": "Create your first project",
+  "createFirstProjectHint": "Organize and review your media assets",
+  "itemCountWithSize": "{count, plural, one {# item} other {# items}} · {size}",
+  "noAssetsYet": "No assets yet",
+  "emptyTitle": "No projects yet",
+  "emptyDescription": "Create your first project to start organizing assets.",
+  "roles": {
+    "owner": "Owner",
+    "editor": "Editor",
+    "reviewer": "Reviewer",
+    "viewer": "Viewer",
+    "member": "Member"
+  },
+  "sections": {
+    "myProjects": "My Projects",
+    "sharedWithMe": "Shared with Me",
+    "publicProjects": "Public Projects"
+  },
+  "createDialog": {
+    "description": "Create a new project to organize your assets.",
+    "nameLabel": "Project name",
+    "namePlaceholder": "e.g. Brand Campaign 2025",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Optional description...",
+    "nameRequired": "Project name is required.",
+    "createError": "Failed to create project",
+    "cancel": "Cancel",
+    "create": "Create project"
+  }
+}

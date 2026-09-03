@@ -1,1 +1,48 @@
-{}
+{
+  "notFound": {
+    "heading": "Page not found",
+    "body": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "error": {
+    "heading": "Something went wrong",
+    "errorIdLabel": "Error ID:",
+    "retry": "Try again"
+  },
+  "assets": {
+    "filtersLabel": "Filters",
+    "filters": {
+      "all": "All Assets",
+      "owned": "Owned",
+      "shared": "Shared with me",
+      "mentioned": "Mentioned",
+      "assigned": "Assigned",
+      "dueSoon": "Due soon"
+    },
+    "myAssets": "My Assets",
+    "description": {
+      "all": "All assets accessible to you across projects.",
+      "owned": "Assets you created.",
+      "shared": "Assets shared with you by others.",
+      "dueSoon": "Assets due within the next 7 days.",
+      "filtered": "Filtered assets."
+    },
+    "emptyTitle": "No assets found",
+    "emptyAll": "Assets from your projects will appear here once uploaded.",
+    "emptyFiltered": "No assets match the current filter."
+  },
+  "notifications": {
+    "pageTitle": "Notifications",
+    "unreadCount": "{count} unread",
+    "markAllRead": "Mark all read",
+    "emptyTitle": "No Updates Yet",
+    "emptyDescription": "New activity on your account will show here.",
+    "types": {
+      "mention": "mentioned you",
+      "assignment": "assigned you to an asset",
+      "due_soon": "asset due soon",
+      "comment": "commented on an asset",
+      "approval": "updated approval status"
+    }
+  }
+}

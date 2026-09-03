@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { User } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import { Avatar } from '@/components/shared/avatar'
 import { setTokens } from '@/lib/auth'
 
 export default function ProfilePage() {
+  const t = useTranslations('settings.profile')
   const { user, fetchUser } = useAuthStore()
 
   const [name, setName] = React.useState(user?.name ?? '')
@@ -34,7 +36,7 @@ export default function ProfilePage() {
     setProfileError('')
     setProfileSuccess(false)
     if (!name.trim()) {
-      setProfileError('Name is required')
+      setProfileError(t('nameRequired'))
       return
     }
     setIsSavingProfile(true)
@@ -44,7 +46,7 @@ export default function ProfilePage() {
       setProfileSuccess(true)
       setTimeout(() => setProfileSuccess(false), 3000)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to save profile'
+      const message = err instanceof Error ? err.message : t('saveProfileError')
       setProfileError(message)
     } finally {
       setIsSavingProfile(false)
@@ -57,15 +59,15 @@ export default function ProfilePage() {
     setPasswordSuccess(false)
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError('All fields are required')
+      setPasswordError(t('allFieldsRequired'))
       return
     }
     if (newPassword.length < 8) {
-      setPasswordError('Password must be at least 8 characters')
+      setPasswordError(t('passwordTooShort'))
       return
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match')
+      setPasswordError(t('passwordsDoNotMatch'))
       return
     }
 
@@ -86,7 +88,7 @@ export default function ProfilePage() {
       setPasswordSuccess(true)
       setTimeout(() => setPasswordSuccess(false), 3000)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to change password'
+      const message = err instanceof Error ? err.message : t('changePasswordError')
       setPasswordError(message)
     } finally {
       setIsSavingPassword(false)
@@ -100,9 +102,9 @@ export default function ProfilePage() {
           <User className="h-5 w-5 text-text-primary" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-text-primary">Profile</h1>
+          <h1 className="text-lg font-semibold text-text-primary">{t('heading')}</h1>
           <p className="text-sm text-text-secondary">
-            Manage your profile and account settings
+            {t('subheading')}
           </p>
         </div>
       </div>
@@ -110,14 +112,14 @@ export default function ProfilePage() {
       {/* Profile section */}
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-text-primary border-b border-border pb-2">
-          Profile
+          {t('sectionProfile')}
         </h2>
 
         <div className="flex items-center gap-4">
           <Avatar src={user?.avatar_url} name={user?.name} size="lg" />
           <div>
             <p className="text-sm font-medium text-text-primary">
-              {user?.name ?? 'Loading...'}
+              {user?.name ?? t('loadingName')}
             </p>
             <p className="text-xs text-text-tertiary">{user?.email ?? ''}</p>
           </div>
@@ -126,19 +128,19 @@ export default function ProfilePage() {
         <form onSubmit={handleProfileSave} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="name" className="text-xs font-medium text-text-secondary">
-              Full Name
+              {t('fullNameLabel')}
             </label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
+              placeholder={t('namePlaceholder')}
             />
           </div>
 
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-xs font-medium text-text-secondary">
-              Email
+              {t('emailLabel')}
             </label>
             <Input
               id="email"
@@ -147,7 +149,7 @@ export default function ProfilePage() {
               className="opacity-60 cursor-not-allowed"
             />
             <p className="text-2xs text-text-tertiary">
-              Email cannot be changed. Contact your admin for help.
+              {t('emailHint')}
             </p>
           </div>
 
@@ -155,11 +157,11 @@ export default function ProfilePage() {
             <p className="text-xs text-status-error">{profileError}</p>
           )}
           {profileSuccess && (
-            <p className="text-xs text-status-success">Profile saved successfully.</p>
+            <p className="text-xs text-status-success">{t('saveProfileSuccess')}</p>
           )}
 
           <Button type="submit" variant="primary" size="sm" loading={isSavingProfile}>
-            Save Profile
+            {t('saveProfile')}
           </Button>
         </form>
       </section>
@@ -167,46 +169,46 @@ export default function ProfilePage() {
       {/* Password section */}
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-text-primary border-b border-border pb-2">
-          Change Password
+          {t('changePassword')}
         </h2>
 
         <form onSubmit={handlePasswordSave} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="currentPassword" className="text-xs font-medium text-text-secondary">
-              Current Password
+              {t('currentPasswordLabel')}
             </label>
             <Input
               id="currentPassword"
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Enter current password"
+              placeholder={t('currentPasswordPlaceholder')}
             />
           </div>
 
           <div className="space-y-1.5">
             <label htmlFor="newPassword" className="text-xs font-medium text-text-secondary">
-              New Password
+              {t('newPasswordLabel')}
             </label>
             <Input
               id="newPassword"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Min 8 characters"
+              placeholder={t('newPasswordPlaceholder')}
             />
           </div>
 
           <div className="space-y-1.5">
             <label htmlFor="confirmPassword" className="text-xs font-medium text-text-secondary">
-              Confirm New Password
+              {t('confirmPasswordLabel')}
             </label>
             <Input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repeat new password"
+              placeholder={t('confirmPasswordPlaceholder')}
             />
           </div>
 
@@ -214,7 +216,7 @@ export default function ProfilePage() {
             <p className="text-xs text-status-error">{passwordError}</p>
           )}
           {passwordSuccess && (
-            <p className="text-xs text-status-success">Password changed successfully.</p>
+            <p className="text-xs text-status-success">{t('changePasswordSuccess')}</p>
           )}
 
           <Button
@@ -223,7 +225,7 @@ export default function ProfilePage() {
             size="sm"
             loading={isSavingPassword}
           >
-            Change Password
+            {t('changePassword')}
           </Button>
         </form>
       </section>

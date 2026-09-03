@@ -1,1 +1,36 @@
-{}
+{
+  "pageTitle": "Projets",
+  "projectCount": "{count, plural, one {# projet} other {# projets}}",
+  "gridView": "Vue grille",
+  "listView": "Vue liste",
+  "newProject": "Nouveau projet",
+  "createFirstProject": "Créez votre premier projet",
+  "createFirstProjectHint": "Organisez et révisez vos médias",
+  "itemCountWithSize": "{count, plural, one {# élément} other {# éléments}} · {size}",
+  "noAssetsYet": "Aucun média pour l'instant",
+  "emptyTitle": "Aucun projet pour l'instant",
+  "emptyDescription": "Créez votre premier projet pour commencer à organiser vos médias.",
+  "roles": {
+    "owner": "Propriétaire",
+    "editor": "Éditeur",
+    "reviewer": "Réviseur",
+    "viewer": "Lecteur",
+    "member": "Membre"
+  },
+  "sections": {
+    "myProjects": "Mes projets",
+    "sharedWithMe": "Partagés avec moi",
+    "publicProjects": "Projets publics"
+  },
+  "createDialog": {
+    "description": "Créez un nouveau projet pour organiser vos médias.",
+    "nameLabel": "Nom du projet",
+    "namePlaceholder": "ex. Campagne de marque 2025",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Description facultative...",
+    "nameRequired": "Le nom du projet est requis.",
+    "createError": "Impossible de créer le projet",
+    "cancel": "Annuler",
+    "create": "Créer le projet"
+  }
+}

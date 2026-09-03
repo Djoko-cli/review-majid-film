@@ -1,8 +1,11 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { FileQuestion, ArrowLeft } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function DashboardNotFound() {
+  const t = useTranslations('dashboard.notFound')
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-16 text-center">
       {/* Illustration */}
@@ -16,10 +19,10 @@ export default function DashboardNotFound() {
       {/* Copy */}
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-text-primary">
-          Page not found
+          {t('heading')}
         </h2>
         <p className="max-w-xs text-sm text-text-secondary">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          {t('body')}
         </p>
       </div>
 
@@ -29,7 +32,7 @@ export default function DashboardNotFound() {
         className="flex items-center gap-2 rounded-lg border border-border bg-bg-secondary px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-hover"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to home
+        {t('backHome')}
       </Link>
     </div>
   )

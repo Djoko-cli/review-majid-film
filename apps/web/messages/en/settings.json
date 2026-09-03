@@ -1,1 +1,149 @@
-{}
+{
+  "heading": "Settings",
+  "defaultUser": "User",
+  "nav": {
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "admin": "Admin"
+  },
+  "profile": {
+    "heading": "Profile",
+    "subheading": "Manage your profile and account settings",
+    "sectionProfile": "Profile",
+    "loadingName": "Loading...",
+    "fullNameLabel": "Full Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailHint": "Email cannot be changed. Contact your admin for help.",
+    "nameRequired": "Name is required",
+    "saveProfileError": "Failed to save profile",
+    "saveProfileSuccess": "Profile saved successfully.",
+    "saveProfile": "Save Profile",
+    "currentPasswordLabel": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPasswordLabel": "New Password",
+    "newPasswordPlaceholder": "Min 8 characters",
+    "confirmPasswordLabel": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Repeat new password",
+    "allFieldsRequired": "All fields are required",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "changePasswordError": "Failed to change password",
+    "changePasswordSuccess": "Password changed successfully.",
+    "changePassword": "Change Password"
+  },
+  "notifications": {
+    "heading": "Notifications",
+    "subheading": "Manage your notification preferences",
+    "emailFrequency": {
+      "title": "Email Notifications Frequency",
+      "description": "Email updates will be sent to your email address",
+      "options": {
+        "instant": "Instantly",
+        "15min": "15 Minutes",
+        "hourly": "Hourly",
+        "daily": "Daily",
+        "never": "Never"
+      }
+    },
+    "comments": "Comments",
+    "assets": "Assets",
+    "levelOptions": {
+      "all_on": "All On",
+      "in_app": "In-App Only",
+      "all_off": "All Off"
+    },
+    "items": {
+      "general_comments": {
+        "title": "General Comments",
+        "description": "When someone comments on an asset"
+      },
+      "comment_replies": {
+        "title": "Comment Replies",
+        "description": "When someone replies to your comment"
+      },
+      "mentions": {
+        "title": "@Mentions",
+        "description": "When someone @mentions you in a comment"
+      },
+      "other_uploads": {
+        "title": "Other Uploads",
+        "description": "When other users upload assets"
+      },
+      "status_updates": {
+        "title": "Status Updates",
+        "description": "When someone changes an asset's status"
+      },
+      "assigned_to_you": {
+        "title": "Assigned to You",
+        "description": "When someone assigns an asset to you"
+      }
+    },
+    "adminNote": "You will always get important administrative emails, such as password resets and account billing."
+  },
+  "admin": {
+    "heading": "Admin Dashboard",
+    "tabDescription": {
+      "instance": "Configure this instance",
+      "branding": "Make this instance look like yours",
+      "users": "Manage platform users"
+    },
+    "tabs": {
+      "users": "Users",
+      "instance": "Instance settings",
+      "branding": "Branding"
+    },
+    "bulkInvite": {
+      "trigger": "Bulk Invite",
+      "title": "Bulk Invite Users",
+      "description": "Enter email addresses separated by commas or newlines.",
+      "emailsLabel": "Email addresses",
+      "close": "Close",
+      "sendInvites": "Send Invites",
+      "sentCount": "{count, plural, one {# invite sent} other {# invites sent}}",
+      "alreadyRegisteredCount": "{count, plural, one {# already registered} other {# already registered}}",
+      "failedCount": "{count, plural, one {# failed} other {# failed}}",
+      "failedToInvite": "Failed to invite: {emails}",
+      "genericError": "Failed to send invites"
+    },
+    "resetPassword": {
+      "titleFor": "New password for {name}",
+      "description": "Shown once — copy it now and share it with {email} directly. This signs them out of any session they were already in.",
+      "copied": "Copied",
+      "copy": "Copy",
+      "done": "Done",
+      "error": "Failed to reset password"
+    },
+    "status": {
+      "active": "Active",
+      "deactivated": "Deactivated",
+      "pending": "Pending",
+      "unverified": "Unverified"
+    },
+    "platformUsers": "Platform Users",
+    "emptyTitle": "No users",
+    "emptyDescription": "Users will appear here once they register or are invited.",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "joined": "Joined",
+      "actions": "Actions"
+    },
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "copyInviteLink": "Copy Invite Link",
+    "copied": "Copied",
+    "resetPasswordAction": "Reset Password",
+    "removeAdmin": "Remove Admin",
+    "makeAdmin": "Make Admin",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "you": "You",
+    "errors": {
+      "deactivate": "Failed to deactivate user",
+      "reactivate": "Failed to reactivate user",
+      "toggleRole": "Failed to update user role"
+    }
+  }
+}

@@ -3,21 +3,22 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { User, Bell, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 
 interface SettingsNavItem {
   href: string
-  label: string
+  labelKey: string
   icon: React.ElementType
   adminOnly?: boolean
 }
 
 const settingsNavItems: SettingsNavItem[] = [
-  { href: '/settings/profile', label: 'Profile', icon: User },
-  { href: '/settings/notifications', label: 'Notifications', icon: Bell },
-  { href: '/settings/admin', label: 'Admin', icon: Shield, adminOnly: true },
+  { href: '/settings/profile', labelKey: 'profile', icon: User },
+  { href: '/settings/notifications', labelKey: 'notifications', icon: Bell },
+  { href: '/settings/admin', labelKey: 'admin', icon: Shield, adminOnly: true },
 ]
 
 export default function SettingsLayout({
@@ -25,6 +26,7 @@ export default function SettingsLayout({
 }: {
   children: React.ReactNode
 }) {
+  const t = useTranslations('settings')
   const pathname = usePathname()
   const { user, isSuperAdmin } = useAuthStore()
 
@@ -33,9 +35,9 @@ export default function SettingsLayout({
       {/* Settings Sidebar */}
       <aside className="w-56 border-r border-border bg-bg-secondary shrink-0">
         <div className="p-4 border-b border-border">
-          <h2 className="text-sm font-semibold text-text-primary">Settings</h2>
+          <h2 className="text-sm font-semibold text-text-primary">{t('heading')}</h2>
           <p className="text-xs text-text-tertiary mt-0.5">
-            {user?.name ?? 'User'}
+            {user?.name ?? t('defaultUser')}
           </p>
         </div>
 
@@ -59,7 +61,7 @@ export default function SettingsLayout({
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span>{item.label}</span>
+                <span>{t(`nav.${item.labelKey}`)}</span>
               </Link>
             )
           })}

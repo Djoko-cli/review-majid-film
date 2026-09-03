@@ -1,1 +1,48 @@
-{}
+{
+  "notFound": {
+    "heading": "Page introuvable",
+    "body": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "error": {
+    "heading": "Une erreur est survenue",
+    "errorIdLabel": "ID d'erreur :",
+    "retry": "Réessayer"
+  },
+  "assets": {
+    "filtersLabel": "Filtres",
+    "filters": {
+      "all": "Tous les médias",
+      "owned": "Les miens",
+      "shared": "Partagés avec moi",
+      "mentioned": "Mentions",
+      "assigned": "Assignés",
+      "dueSoon": "Échéance proche"
+    },
+    "myAssets": "Mes médias",
+    "description": {
+      "all": "Tous les médias accessibles dans vos projets.",
+      "owned": "Médias que vous avez créés.",
+      "shared": "Médias partagés avec vous par d'autres.",
+      "dueSoon": "Médias à rendre dans les 7 prochains jours.",
+      "filtered": "Médias filtrés."
+    },
+    "emptyTitle": "Aucun média trouvé",
+    "emptyAll": "Les médias de vos projets apparaîtront ici une fois importés.",
+    "emptyFiltered": "Aucun média ne correspond au filtre actuel."
+  },
+  "notifications": {
+    "pageTitle": "Notifications",
+    "unreadCount": "{count, plural, one {# non lu} other {# non lus}}",
+    "markAllRead": "Tout marquer comme lu",
+    "emptyTitle": "Aucune mise à jour",
+    "emptyDescription": "L'activité récente de votre compte s'affichera ici.",
+    "types": {
+      "mention": "vous a mentionné",
+      "assignment": "vous a assigné un média",
+      "due_soon": "média à rendre bientôt",
+      "comment": "a commenté un média",
+      "approval": "a mis à jour le statut d'approbation"
+    }
+  }
+}

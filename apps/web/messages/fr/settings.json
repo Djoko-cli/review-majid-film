@@ -1,1 +1,149 @@
-{}
+{
+  "heading": "Paramètres",
+  "defaultUser": "Utilisateur",
+  "nav": {
+    "profile": "Profil",
+    "notifications": "Notifications",
+    "admin": "Admin"
+  },
+  "profile": {
+    "heading": "Profil",
+    "subheading": "Gérez votre profil et les paramètres de votre compte",
+    "sectionProfile": "Profil",
+    "loadingName": "Chargement...",
+    "fullNameLabel": "Nom complet",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "Email",
+    "emailHint": "L'email ne peut pas être modifié. Contactez votre administrateur pour obtenir de l'aide.",
+    "nameRequired": "Le nom est requis",
+    "saveProfileError": "Impossible d'enregistrer le profil",
+    "saveProfileSuccess": "Profil enregistré avec succès.",
+    "saveProfile": "Enregistrer le profil",
+    "currentPasswordLabel": "Mot de passe actuel",
+    "currentPasswordPlaceholder": "Saisissez le mot de passe actuel",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "newPasswordPlaceholder": "8 caractères minimum",
+    "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+    "confirmPasswordPlaceholder": "Répétez le nouveau mot de passe",
+    "allFieldsRequired": "Tous les champs sont requis",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+    "changePasswordError": "Impossible de modifier le mot de passe",
+    "changePasswordSuccess": "Mot de passe modifié avec succès.",
+    "changePassword": "Modifier le mot de passe"
+  },
+  "notifications": {
+    "heading": "Notifications",
+    "subheading": "Gérez vos préférences de notification",
+    "emailFrequency": {
+      "title": "Fréquence des notifications par email",
+      "description": "Les mises à jour par email seront envoyées à votre adresse email",
+      "options": {
+        "instant": "Instantané",
+        "15min": "Toutes les 15 minutes",
+        "hourly": "Toutes les heures",
+        "daily": "Une fois par jour",
+        "never": "Jamais"
+      }
+    },
+    "comments": "Commentaires",
+    "assets": "Médias",
+    "levelOptions": {
+      "all_on": "Tout activer",
+      "in_app": "Dans l'app uniquement",
+      "all_off": "Tout désactiver"
+    },
+    "items": {
+      "general_comments": {
+        "title": "Commentaires généraux",
+        "description": "Quand quelqu'un commente un média"
+      },
+      "comment_replies": {
+        "title": "Réponses aux commentaires",
+        "description": "Quand quelqu'un répond à votre commentaire"
+      },
+      "mentions": {
+        "title": "@Mentions",
+        "description": "Quand quelqu'un vous mentionne dans un commentaire"
+      },
+      "other_uploads": {
+        "title": "Autres imports",
+        "description": "Quand d'autres utilisateurs importent des médias"
+      },
+      "status_updates": {
+        "title": "Mises à jour de statut",
+        "description": "Quand quelqu'un change le statut d'un média"
+      },
+      "assigned_to_you": {
+        "title": "Assignés à vous",
+        "description": "Quand quelqu'un vous assigne un média"
+      }
+    },
+    "adminNote": "Vous recevrez toujours les emails administratifs importants, comme les réinitialisations de mot de passe et la facturation du compte."
+  },
+  "admin": {
+    "heading": "Tableau de bord admin",
+    "tabDescription": {
+      "instance": "Configurer cette instance",
+      "branding": "Personnaliser l'apparence de cette instance",
+      "users": "Gérer les utilisateurs de la plateforme"
+    },
+    "tabs": {
+      "users": "Utilisateurs",
+      "instance": "Paramètres de l'instance",
+      "branding": "Personnalisation"
+    },
+    "bulkInvite": {
+      "trigger": "Invitation groupée",
+      "title": "Inviter plusieurs utilisateurs",
+      "description": "Saisissez les adresses email séparées par des virgules ou des retours à la ligne.",
+      "emailsLabel": "Adresses email",
+      "close": "Fermer",
+      "sendInvites": "Envoyer les invitations",
+      "sentCount": "{count, plural, one {# invitation envoyée} other {# invitations envoyées}}",
+      "alreadyRegisteredCount": "{count, plural, one {# déjà inscrit} other {# déjà inscrits}}",
+      "failedCount": "{count, plural, one {# échec} other {# échecs}}",
+      "failedToInvite": "Échec de l'invitation : {emails}",
+      "genericError": "Échec de l'envoi des invitations"
+    },
+    "resetPassword": {
+      "titleFor": "Nouveau mot de passe pour {name}",
+      "description": "Affiché une seule fois — copiez-le maintenant et transmettez-le directement à {email}. Cela déconnecte toute session déjà ouverte.",
+      "copied": "Copié",
+      "copy": "Copier",
+      "done": "Terminé",
+      "error": "Impossible de réinitialiser le mot de passe"
+    },
+    "status": {
+      "active": "Actif",
+      "deactivated": "Désactivé",
+      "pending": "En attente",
+      "unverified": "Non vérifié"
+    },
+    "platformUsers": "Utilisateurs de la plateforme",
+    "emptyTitle": "Aucun utilisateur",
+    "emptyDescription": "Les utilisateurs apparaîtront ici une fois inscrits ou invités.",
+    "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "status": "Statut",
+      "joined": "Inscrit le",
+      "actions": "Actions"
+    },
+    "roleAdmin": "Admin",
+    "roleUser": "Utilisateur",
+    "copyInviteLink": "Copier le lien d'invitation",
+    "copied": "Copié",
+    "resetPasswordAction": "Réinitialiser le mot de passe",
+    "removeAdmin": "Retirer l'accès admin",
+    "makeAdmin": "Rendre admin",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "you": "Vous",
+    "errors": {
+      "deactivate": "Impossible de désactiver l'utilisateur",
+      "reactivate": "Impossible de réactiver l'utilisateur",
+      "toggleRole": "Impossible de modifier le rôle de l'utilisateur"
+    }
+  }
+}
