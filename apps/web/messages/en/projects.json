@@ -103,5 +103,58 @@
       "description": "This will move the asset to the trash. You can restore it later from Recently Deleted.",
       "confirm": "Delete"
     }
+  },
+  "collections": {
+    "breadcrumbProjects": "Projects",
+    "heading": "Collections",
+    "collectionCount": "{count, plural, one {# collection} other {# collections}}",
+    "newCollection": "New Collection",
+    "nameRequired": "Collection name is required.",
+    "createError": "Failed to create collection",
+    "emptyTitle": "No collections yet",
+    "emptyDescription": "Create a smart collection to automatically group assets by metadata rules.",
+    "createDialog": {
+      "description": "Smart collections automatically group assets based on metadata filter rules.",
+      "nameLabel": "Collection name",
+      "namePlaceholder": "e.g. Approved Videos",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description...",
+      "filterRulesLabel": "Filter rules",
+      "addRule": "Add rule",
+      "noFilterRules": "No filter rules — collection will include all assets.",
+      "cancel": "Cancel",
+      "create": "Create collection"
+    },
+    "filterRule": {
+      "fieldPlaceholder": "field name",
+      "valuePlaceholder": "value",
+      "removeRule": "Remove rule",
+      "operators": {
+        "equals": "equals",
+        "contains": "contains",
+        "greater_than": "greater than",
+        "less_than": "less than",
+        "in": "in (comma-separated)"
+      }
+    },
+    "shareDialog": {
+      "title": "Share collection",
+      "description": "Generate a public link to share \"{name}\".",
+      "permissionLabel": "Permission",
+      "permissions": {
+        "view": "View",
+        "comment": "Comment",
+        "approve": "Approve"
+      },
+      "expiryLabel": "Expiry (optional)",
+      "genericError": "Failed to generate link",
+      "generateLink": "Generate link",
+      "copied": "Copied!",
+      "copy": "Copy",
+      "existingLinks": "Existing links",
+      "loading": "Loading…",
+      "expires": "expires {date}",
+      "copyLinkTooltip": "Copy link"
+    }
   }
 }

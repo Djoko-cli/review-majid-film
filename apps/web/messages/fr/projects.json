@@ -103,5 +103,58 @@
       "description": "Ceci déplacera le média vers la corbeille. Vous pourrez le restaurer plus tard depuis « Supprimés récemment ».",
       "confirm": "Supprimer"
     }
+  },
+  "collections": {
+    "breadcrumbProjects": "Projets",
+    "heading": "Collections",
+    "collectionCount": "{count, plural, one {# collection} other {# collections}}",
+    "newCollection": "Nouvelle collection",
+    "nameRequired": "Le nom de la collection est requis.",
+    "createError": "Impossible de créer la collection",
+    "emptyTitle": "Aucune collection pour l'instant",
+    "emptyDescription": "Créez une collection intelligente pour regrouper automatiquement des médias selon des règles de métadonnées.",
+    "createDialog": {
+      "description": "Les collections intelligentes regroupent automatiquement les médias selon des règles de filtrage sur les métadonnées.",
+      "nameLabel": "Nom de la collection",
+      "namePlaceholder": "ex. Vidéos approuvées",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Description facultative...",
+      "filterRulesLabel": "Règles de filtrage",
+      "addRule": "Ajouter une règle",
+      "noFilterRules": "Aucune règle de filtrage — la collection inclura tous les médias.",
+      "cancel": "Annuler",
+      "create": "Créer la collection"
+    },
+    "filterRule": {
+      "fieldPlaceholder": "nom du champ",
+      "valuePlaceholder": "valeur",
+      "removeRule": "Supprimer la règle",
+      "operators": {
+        "equals": "égal à",
+        "contains": "contient",
+        "greater_than": "supérieur à",
+        "less_than": "inférieur à",
+        "in": "dans (séparé par des virgules)"
+      }
+    },
+    "shareDialog": {
+      "title": "Partager la collection",
+      "description": "Générez un lien public pour partager « {name} ».",
+      "permissionLabel": "Permission",
+      "permissions": {
+        "view": "Visualisation",
+        "comment": "Commentaire",
+        "approve": "Approbation"
+      },
+      "expiryLabel": "Expiration (facultatif)",
+      "genericError": "Impossible de générer le lien",
+      "generateLink": "Générer le lien",
+      "copied": "Copié !",
+      "copy": "Copier",
+      "existingLinks": "Liens existants",
+      "loading": "Chargement…",
+      "expires": "expire le {date}",
+      "copyLinkTooltip": "Copier le lien"
+    }
   }
 }
