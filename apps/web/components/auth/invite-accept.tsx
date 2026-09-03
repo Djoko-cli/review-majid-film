@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { api, ApiError } from '@/lib/api'
 import { setTokens } from '@/lib/auth'
 import { useAuthStore } from '@/stores/auth-store'
@@ -27,19 +28,20 @@ interface FormErrors {
   general?: string
 }
 
-function validate(name: string, password: string, confirmPassword: string): FormErrors {
+function validate(name: string, password: string, confirmPassword: string, t: (key: string) => string): FormErrors {
   const errors: FormErrors = {}
-  if (!name.trim()) errors.name = 'Name is required'
+  if (!name.trim()) errors.name = t('validation.nameRequired')
   if (!password) {
-    errors.password = 'Password is required'
+    errors.password = t('validation.passwordRequired')
   } else if (password.length < 8) {
-    errors.password = 'Password must be at least 8 characters'
+    errors.password = t('validation.passwordTooShort')
   }
-  if (password !== confirmPassword) errors.confirmPassword = 'Passwords do not match'
+  if (password !== confirmPassword) errors.confirmPassword = t('validation.passwordMismatch')
   return errors
 }
 
 export function InviteAccept({ token }: InviteAcceptProps) {
+  const t = useTranslations('inviteAccept')
   const router = useRouter()
   const [invite, setInvite] = useState<InviteDetails | null>(null)
   const [inviteError, setInviteError] = useState<string | null>(null)
@@ -58,20 +60,24 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         setInvite(data)
       } catch (err) {
         if (err instanceof ApiError) {
-          setInviteError(err.status === 404 ? 'This invite link is invalid or has expired.' : err.detail)
+          setInviteError(err.status === 404 ? t('inviteInvalidOrExpired') : err.detail)
         } else {
-          setInviteError('Failed to load invite details.')
+          setInviteError(t('failedToLoadInvite'))
         }
       } finally {
         setInviteLoading(false)
       }
     }
     fetchInvite()
+    // `t` intentionally omitted: next-intl's translator isn't referentially
+    // stable across renders, and including it here would retrigger this
+    // fetch effect on every render — an infinite loop, not just a lint nitpick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const validation = validate(name, password, confirmPassword)
+    const validation = validate(name, password, confirmPassword, t)
     if (Object.keys(validation).length > 0) {
       setErrors(validation)
       return
@@ -92,7 +98,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
       if (err instanceof ApiError) {
         setErrors({ general: err.detail })
       } else {
-        setErrors({ general: 'Something went wrong. Please try again.' })
+        setErrors({ general: t('genericError') })
       }
     } finally {
       setSubmitting(false)
@@ -115,7 +121,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-text-primary mb-2">Invalid invite</h2>
+        <h2 className="text-lg font-semibold text-text-primary mb-2">{t('invalidInviteTitle')}</h2>
         <p className="text-sm text-text-secondary">{inviteError}</p>
       </div>
     )
@@ -126,19 +132,23 @@ export function InviteAccept({ token }: InviteAcceptProps) {
       {/* Invite card */}
       {invite && (
         <div className="panel-glass mb-8 rounded-lg p-4">
-          <p className="text-xs text-text-tertiary uppercase tracking-wider mb-2">You&apos;ve been invited to</p>
+          <p className="text-xs text-text-tertiary uppercase tracking-wider mb-2">{t('invitedTo')}</p>
           <p className="text-base font-semibold text-text-primary mb-1">{invite.org_name}</p>
           <p className="text-sm text-text-secondary">
-            Invited by <span className="text-text-primary">{invite.inviter_name}</span>{' '}
-            as <span className="capitalize text-text-primary">{invite.role}</span>
+            {t.rich('invitedByAs', {
+              name: invite.inviter_name,
+              role: t(`roles.${invite.role}`),
+              inviterName: (chunks) => <span className="text-text-primary">{chunks}</span>,
+              roleName: (chunks) => <span className="capitalize text-text-primary">{chunks}</span>,
+            })}
           </p>
           <p className="text-sm text-text-tertiary mt-1">{invite.email}</p>
         </div>
       )}
 
       <div className="mb-6">
-        <h1 className="text-auth-title font-black text-text-primary mb-1">Accept invite</h1>
-        <p className="text-sm text-text-secondary">Set up your account to get started.</p>
+        <h1 className="text-auth-title font-black text-text-primary mb-1">{t('title')}</h1>
+        <p className="text-sm text-text-secondary">{t('subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -150,9 +160,9 @@ export function InviteAccept({ token }: InviteAcceptProps) {
 
         <Input
           variant="onGlass"
-          label="Full name"
+          label={t('fullNameLabel')}
           type="text"
-          placeholder="Alex Johnson"
+          placeholder={t('fullNamePlaceholder')}
           autoComplete="name"
           value={name}
           onChange={(e) => { setName(e.target.value); setErrors((p) => ({ ...p, name: undefined })) }}
@@ -161,9 +171,9 @@ export function InviteAccept({ token }: InviteAcceptProps) {
 
         <Input
           variant="onGlass"
-          label="Password"
+          label={t('passwordLabel')}
           type="password"
-          placeholder="Min. 8 characters"
+          placeholder={t('passwordPlaceholder')}
           autoComplete="new-password"
           value={password}
           onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })) }}
@@ -172,9 +182,9 @@ export function InviteAccept({ token }: InviteAcceptProps) {
 
         <Input
           variant="onGlass"
-          label="Confirm password"
+          label={t('confirmPasswordLabel')}
           type="password"
-          placeholder="Repeat password"
+          placeholder={t('confirmPasswordPlaceholder')}
           autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: undefined })) }}
@@ -182,7 +192,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
         />
 
         <Button type="submit" size="lg" loading={submitting} className="mt-2 w-full">
-          Create account &amp; join
+          {t('submit')}
         </Button>
       </form>
     </div>

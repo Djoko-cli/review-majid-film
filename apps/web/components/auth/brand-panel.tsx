@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Pause, Play } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -173,6 +174,7 @@ function SlideView({
  *  never a placeholder image, matching PRODUCT.md's "don't fabricate
  *  content" principle. */
 export function BrandPanel({ showCaption = true }: { showCaption?: boolean }) {
+  const t = useTranslations('brandPanel')
   const [order, setOrder] = React.useState<Slide[]>([])
   const [current, setCurrent] = React.useState(0)
   const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false)
@@ -251,7 +253,7 @@ export function BrandPanel({ showCaption = true }: { showCaption?: boolean }) {
             <button
               type="button"
               onClick={() => setIsPaused((p) => !p)}
-              aria-label={isPaused ? 'Play' : 'Pause'}
+              aria-label={isPaused ? t('play') : t('pause')}
               className="pointer-events-auto flex h-11 w-11 items-center justify-center text-white [filter:drop-shadow(0_1px_2px_rgba(0,0,0,0.6))]"
             >
               {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
