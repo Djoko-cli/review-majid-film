@@ -17,6 +17,27 @@
     "viewer": "Viewer",
     "member": "Member"
   },
+  "folderCard": {
+    "rename": "Rename",
+    "share": "Share",
+    "delete": "Delete",
+    "itemCount": "{count, plural, one {# Item} other {# Items}}",
+    "renameDialog": {
+      "title": "Rename Folder",
+      "placeholder": "Folder name"
+    },
+    "deleteDialog": {
+      "title": "Delete \"{name}\"?",
+      "description": "This folder and all its contents will be moved to trash. You can restore them later."
+    }
+  },
+  "folderTree": {
+    "rename": "Rename",
+    "newSubfolder": "New Subfolder",
+    "delete": "Delete",
+    "deleteConfirm": "Delete folder \"{name}\" and all its contents?",
+    "recentlyDeleted": "Recently Deleted"
+  },
   "assetCard": {
     "createShareLink": "Create Share Link",
     "download": "Download",

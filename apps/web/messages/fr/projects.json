@@ -17,6 +17,27 @@
     "viewer": "Lecteur",
     "member": "Membre"
   },
+  "folderCard": {
+    "rename": "Renommer",
+    "share": "Partager",
+    "delete": "Supprimer",
+    "itemCount": "{count, plural, one {# élément} other {# éléments}}",
+    "renameDialog": {
+      "title": "Renommer le dossier",
+      "placeholder": "Nom du dossier"
+    },
+    "deleteDialog": {
+      "title": "Supprimer « {name} » ?",
+      "description": "Ce dossier et tout son contenu seront déplacés vers la corbeille. Vous pourrez les restaurer plus tard."
+    }
+  },
+  "folderTree": {
+    "rename": "Renommer",
+    "newSubfolder": "Nouveau sous-dossier",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer le dossier « {name} » et tout son contenu ?",
+    "recentlyDeleted": "Supprimés récemment"
+  },
   "assetCard": {
     "createShareLink": "Créer un lien de partage",
     "download": "Télécharger",

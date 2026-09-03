@@ -12,6 +12,7 @@ import {
   FolderPlus,
   Trash,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import type { FolderTreeNode } from '@/types'
 
@@ -50,6 +51,7 @@ function FolderNode({
   onDeleteFolder,
   onDropItems,
 }: FolderNodeProps) {
+  const t = useTranslations('projects.folderTree')
   const [expanded, setExpanded] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [renaming, setRenaming] = useState(false)
@@ -176,7 +178,7 @@ function FolderNode({
               setRenameName(node.name)
             }}
           >
-            <Pencil className="h-3 w-3" /> Rename
+            <Pencil className="h-3 w-3" /> {t('rename')}
           </button>
           <button
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-text-secondary hover:bg-bg-hover hover:text-text-primary"
@@ -185,19 +187,19 @@ function FolderNode({
               onCreateFolder('', node.id)
             }}
           >
-            <FolderPlus className="h-3 w-3" /> New Subfolder
+            <FolderPlus className="h-3 w-3" /> {t('newSubfolder')}
           </button>
           <div className="my-1 border-t border-border" />
           <button
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-red-400 hover:bg-red-500/10"
             onClick={async () => {
               setMenuOpen(false)
-              if (confirm(`Delete folder "${node.name}" and all its contents?`)) {
+              if (confirm(t('deleteConfirm', { name: node.name }))) {
                 await onDeleteFolder(node.id)
               }
             }}
           >
-            <Trash className="h-3 w-3" /> Delete
+            <Trash className="h-3 w-3" /> {t('delete')}
           </button>
         </div>
       )}
@@ -236,6 +238,7 @@ export function FolderTree({
   onDeleteFolder,
   onDropItems,
 }: FolderTreeProps) {
+  const t = useTranslations('projects.folderTree')
   const [isDragOverRoot, setIsDragOverRoot] = useState(false)
 
   return (
@@ -294,7 +297,7 @@ export function FolderTree({
         onClick={onShowTrash}
       >
         <Trash2 className="h-3.5 w-3.5 shrink-0" />
-        <span>Recently Deleted</span>
+        <span>{t('recentlyDeleted')}</span>
       </div>
     </div>
   )
