@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import { useTranslations, useFormatter } from 'next-intl'
 import { api } from '@/lib/api'
 import { formatRelativeTime } from '@/lib/utils'
+import { getAvatarColorClass as avatarColor } from '@/lib/avatar-color'
 import type { ShareActivityAction, ShareLinkActivity } from '@/types'
 
 interface ShareLinkActivityPanelProps {
@@ -15,25 +16,6 @@ function actionLabelColor(action: ShareActivityAction): string {
   if (action === 'approved') return 'text-status-success'
   if (action === 'rejected') return 'text-status-error'
   return 'text-text-secondary'
-}
-
-const AVATAR_COLORS = [
-  'bg-violet-500',
-  'bg-blue-500',
-  'bg-sky-500',
-  'bg-teal-500',
-  'bg-amber-500',
-  'bg-rose-500',
-  'bg-pink-500',
-  'bg-indigo-500',
-]
-
-function avatarColor(seed: string): string {
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
-  }
-  return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
 function groupByDate(

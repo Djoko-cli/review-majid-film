@@ -194,7 +194,7 @@ function AddView({
 
       {/* Search input with role dropdown */}
       <div className="px-6" ref={containerRef}>
-        <div className="flex items-center gap-2 rounded-lg border-2 border-accent bg-bg-tertiary px-3 py-2 focus-within:border-accent">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-tertiary px-3 py-2 focus-within:border-border-focus">
           <input
             type="text"
             value={query}

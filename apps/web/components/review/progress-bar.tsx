@@ -5,23 +5,11 @@ import { createPortal } from 'react-dom'
 import Hls from 'hls.js'
 import { useTranslations } from 'next-intl'
 import { cn, formatTimecode } from '@/lib/utils'
+import { getAvatarColorHex as getAvatarColor } from '@/lib/avatar-color'
 import { useReviewStore } from '@/stores/review-store'
 import type { Comment } from '@/types'
 
 // ─── Avatar helpers ───────────────────────────────────────────────────────────
-
-const AVATAR_COLORS = [
-  '#E67E22', '#E74C3C', '#9B59B6', '#3498DB', '#1ABC9C',
-  '#2ECC71', '#F39C12', '#D35400', '#8E44AD', '#2980B9',
-]
-
-export function getAvatarColor(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
-}
 
 export function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/)

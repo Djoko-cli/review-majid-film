@@ -42,6 +42,11 @@ interface AssetGridProps {
   fileSizes?: Record<string, number>
   selectedAssetId?: string | null
   onUpload?: () => void
+  /** Files dropped directly on the empty state — same effect as clicking Upload
+   *  then picking these files, so it lands on the existing review-before-upload
+   *  step instead of a separate silent-upload path. Empty state isn't a dropzone
+   *  at all when this is omitted. */
+  onFilesSelected?: (files: File[]) => void
   onAssetSelect?: (asset: Asset, e?: React.MouseEvent) => void
   onAssetOpen?: (asset: Asset) => void
   folders?: Folder[]
@@ -94,6 +99,7 @@ export function AssetGrid({
   fileSizes = {},
   selectedAssetId,
   onUpload,
+  onFilesSelected,
   onAssetSelect,
   onAssetOpen,
   folders,
@@ -122,6 +128,15 @@ export function AssetGrid({
   const [selectedAssetIds, setSelectedAssetIds] = React.useState<Set<string>>(new Set())
   const [selectedFolderIds, setSelectedFolderIds] = React.useState<Set<string>>(new Set())
   const [moveDialogOpen, setMoveDialogOpen] = React.useState(false)
+  const [isDraggingFiles, setIsDraggingFiles] = React.useState(false)
+
+  const handleEmptyStateDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingFiles(false)
+    const files = Array.from(e.dataTransfer.files)
+    if (files.length > 0) onFilesSelected?.(files)
+  }
 
   // Legacy alias
   const selectedIds = selectedAssetIds
@@ -321,7 +336,18 @@ export function AssetGrid({
 
       {/* ─── Assets (grid) ───────────────────────────────────────────── */}
       {filtered.length === 0 && !showFolders ? (
-        <div className="rounded-lg border border-border bg-bg-secondary">
+        <div
+          className={cn(
+            'rounded-lg border transition-colors',
+            isDraggingFiles ? 'border-accent bg-accent-muted/40' : 'border-border bg-bg-secondary',
+          )}
+          onDragEnter={onFilesSelected ? (e) => { e.preventDefault(); setIsDraggingFiles(true) } : undefined}
+          onDragOver={onFilesSelected ? (e) => e.preventDefault() : undefined}
+          onDragLeave={onFilesSelected ? (e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDraggingFiles(false)
+          } : undefined}
+          onDrop={onFilesSelected ? handleEmptyStateDrop : undefined}
+        >
           <EmptyState
             icon={Layers}
             title={t('emptyTitle')}

@@ -6,7 +6,8 @@ import { Pause, Play, RotateCcw } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn, formatTimecode } from '@/lib/utils'
 import { frameStep, markerPosition, type SideTiming } from '@/lib/compare-time'
-import { getAvatarColor, getInitials } from '@/components/review/progress-bar'
+import { getInitials } from '@/components/review/progress-bar'
+import { getAvatarColorHex as getAvatarColor } from '@/lib/avatar-color'
 
 export interface ScrubberMarker {
   id: string

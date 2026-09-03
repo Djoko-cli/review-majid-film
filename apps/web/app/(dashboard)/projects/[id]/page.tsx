@@ -702,6 +702,10 @@ export default function ProjectDetailPage() {
               fileSizes={fileSizes}
               selectedAssetId={selectedAsset?.id}
               onUpload={() => setUploadOpen(true)}
+              onFilesSelected={(files) => {
+                handleFilesSelected(files)
+                setUploadOpen(true)
+              }}
               onAssetSelect={(asset, e) => {
                 e?.stopPropagation();
                 setSelectedAsset(asset as AssetResponse);

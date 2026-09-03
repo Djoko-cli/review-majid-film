@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useViewStore } from '@/stores/view-store'
 import { useBreadcrumbStore } from '@/stores/breadcrumb-store'
+import { LanguageSwitcher } from '@/components/shared/language-switcher'
 
 interface HeaderProps {
   onSearchOpen: () => void
@@ -85,6 +86,8 @@ export function Header({ onSearchOpen }: HeaderProps) {
 
       {/* Right side actions */}
       <div className="flex items-center gap-1.5">
+        <LanguageSwitcher />
+
         {/* Search trigger */}
         <button
           onClick={onSearchOpen}

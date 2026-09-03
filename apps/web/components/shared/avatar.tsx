@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as RadixAvatar from '@radix-ui/react-avatar'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { getAvatarColorClass } from '@/lib/avatar-color'
 
 type AvatarSize = 'sm' | 'md' | 'lg'
 
@@ -29,10 +30,16 @@ function getInitials(name?: string | null): string {
 
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
   const t = useTranslations('shared.avatar')
+  // Same hash-based palette used everywhere else an avatar renders (comments,
+  // share-link activity, the compare timeline, ...), so a given person is the
+  // same color regardless of which screen shows them. No name to hash (still
+  // loading, or genuinely anonymous) falls back to the neutral accent tint.
+  const bgClass = name ? getAvatarColorClass(name) : 'bg-accent-muted'
   return (
     <RadixAvatar.Root
       className={cn(
-        'relative inline-flex items-center justify-center rounded-full overflow-hidden bg-accent-muted shrink-0',
+        'relative inline-flex items-center justify-center rounded-full overflow-hidden shrink-0',
+        bgClass,
         sizeClasses[size],
         className,
       )}

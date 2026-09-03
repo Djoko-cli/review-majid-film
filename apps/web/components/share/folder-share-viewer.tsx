@@ -20,6 +20,7 @@ import {
   ArrowLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getAvatarColorClass as getAvatarColor } from '@/lib/avatar-color'
 import { useShareAppearance } from '@/hooks/use-share-appearance'
 import { withBasePath } from '@/lib/base-path'
 import { useReview, type CreateCommentPayload } from '@/components/review/review-provider'
@@ -450,17 +451,6 @@ function RightPanel({ selectedAsset, token, permission, allowDownload, onOpenAss
 }
 
 // ─── Share Comment List (matches project review panel style) ─────────────────
-
-const AVATAR_COLORS = [
-  'bg-purple-500', 'bg-blue-500', 'bg-green-500', 'bg-orange-500',
-  'bg-pink-500', 'bg-cyan-500', 'bg-indigo-500', 'bg-rose-500',
-]
-
-function getAvatarColor(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
-}
 
 interface ShareCommentListProps {
   comments: GuestComment[]
