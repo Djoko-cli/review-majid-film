@@ -19,6 +19,7 @@ import {
   Globe,
   Lock,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn, formatTime, formatTimecode, formatFrames } from "@/lib/utils";
 import { useReviewStore } from "@/stores/review-store";
 import { useReview } from "./review-provider";
@@ -85,15 +86,16 @@ const EMOJIS = [
 
 type DrawingTool = "pen" | "rectangle" | "arrow" | "line";
 
+/** Icon per tool — the label is translated at the call site via
+ *  t(`drawTools.${id}`), since this module-level array can't call a hook. */
 const DRAW_TOOLS: {
   id: DrawingTool;
   icon: React.ElementType;
-  label: string;
 }[] = [
-  { id: "pen", icon: Pencil, label: "Pencil" },
-  { id: "arrow", icon: MousePointer, label: "Arrow" },
-  { id: "line", icon: Minus, label: "Line" },
-  { id: "rectangle", icon: Square, label: "Rectangle" },
+  { id: "pen", icon: Pencil },
+  { id: "arrow", icon: MousePointer },
+  { id: "line", icon: Minus },
+  { id: "rectangle", icon: Square },
 ];
 
 const DRAW_COLORS = [
@@ -115,6 +117,7 @@ function MentionDropdown({
   onSelect: (user: User) => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("review.commentInput");
   const [members, setMembers] = React.useState<User[]>([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -155,7 +158,7 @@ function MentionDropdown({
   if (filtered.length === 0) {
     return (
       <div className="py-2 px-4 text-xs text-text-tertiary">
-        No members found
+        {t("noMembersFound")}
       </div>
     );
   }
@@ -203,6 +206,7 @@ export function CommentInput({
   onToggleAnnotation,
   className,
 }: CommentInputProps) {
+  const t = useTranslations("review.commentInput");
   const {
     isDrawingMode,
     drawingTool,
@@ -427,7 +431,7 @@ export function CommentInput({
       }
       if (replyToId && onCancelReply) onCancelReply();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to post comment");
+      setError(err instanceof Error ? err.message : t("failedToPostComment"));
     } finally {
       setSubmitting(false);
     }
@@ -443,7 +447,7 @@ export function CommentInput({
       {/* Reply indicator */}
       {replyToId && (
         <div className="flex items-center justify-between px-4 py-2 bg-accent/5 border-b border-accent/10 text-xs text-accent">
-          <span>Replying to comment</span>
+          <span>{t("replyingToComment")}</span>
           <button
             className="text-text-tertiary hover:text-text-primary"
             onClick={onCancelReply}
@@ -467,7 +471,7 @@ export function CommentInput({
               ref={textareaRef}
               className="flex-1 resize-none bg-transparent px-2.5 py-2.5 text-[13px] text-text-primary placeholder:text-text-tertiary focus:outline-none min-h-[38px] max-h-[120px]"
               placeholder={
-                replyToId ? "Write a reply..." : "Leave your comment..."
+                replyToId ? t("writeReplyPlaceholder") : t("leaveCommentPlaceholder")
               }
               value={body}
               onChange={handleTextChange}
@@ -504,7 +508,7 @@ export function CommentInput({
             <button
               onClick={() => exitDrawingMode()}
               className="h-7 w-7 flex items-center justify-center rounded-md text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary transition-colors"
-              title="Exit drawing"
+              title={t("exitDrawing")}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -517,7 +521,7 @@ export function CommentInput({
                 <button
                   key={tool.id}
                   onClick={() => setDrawingTool(tool.id as DrawingTool)}
-                  title={tool.label}
+                  title={t(`drawTools.${tool.id}`)}
                   className={cn(
                     "h-7 w-7 flex items-center justify-center rounded-md transition-colors",
                     drawingTool === tool.id
@@ -551,14 +555,14 @@ export function CommentInput({
             <button
               onClick={undo}
               className="h-7 w-7 flex items-center justify-center rounded-md text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
-              title="Undo"
+              title={t("undo")}
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={clear}
               className="h-7 w-7 flex items-center justify-center rounded-md text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
-              title="Clear"
+              title={t("clear")}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -578,7 +582,7 @@ export function CommentInput({
                   )}
                   onClick={() => setTimecodeAttached((p) => !p)}
                   title={
-                    timecodeAttached ? "Detach timecode" : "Attach timecode"
+                    timecodeAttached ? t("detachTimecode") : t("attachTimecode")
                   }
                 >
                   <Clock className="h-4 w-4" />
@@ -595,7 +599,7 @@ export function CommentInput({
                       : "text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary",
                   )}
                   onClick={() => toggleAnnotation()}
-                  title="Draw annotation"
+                  title={t("drawAnnotation")}
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
@@ -605,7 +609,7 @@ export function CommentInput({
               <div className="relative" ref={emojiRef}>
                 <button
                   className="h-7 w-7 flex items-center justify-center rounded-md text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
-                  title="Add emoji"
+                  title={t("addEmoji")}
                   onClick={() => setEmojiOpen((p) => !p)}
                 >
                   <Smile className="h-4 w-4" />
@@ -649,7 +653,7 @@ export function CommentInput({
                   ) : (
                     <Globe className="h-3 w-3" />
                   )}
-                  {commentVisibility === "internal" ? "Internal" : "Public"}
+                  {commentVisibility === "internal" ? t("internal") : t("public")}
                   <ChevronDown className="h-3 w-3" />
                 </button>
                 {visDropdownOpen && (
@@ -667,7 +671,7 @@ export function CommentInput({
                       }}
                     >
                       <Globe className="h-3.5 w-3.5" />
-                      Public
+                      {t("public")}
                     </button>
                     <button
                       className={cn(
@@ -682,7 +686,7 @@ export function CommentInput({
                       }}
                     >
                       <Lock className="h-3.5 w-3.5" />
-                      Internal
+                      {t("internal")}
                     </button>
                   </div>
                 )}
@@ -693,7 +697,7 @@ export function CommentInput({
                 onClick={handleSubmit}
                 disabled={!body.trim() || submitting}
                 className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent text-text-primary hover:bg-accent/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                title="Send (Enter)"
+                title={t("sendEnter")}
               >
                 {submitting ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />

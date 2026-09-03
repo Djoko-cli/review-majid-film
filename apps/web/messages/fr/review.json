@@ -8,6 +8,29 @@
   },
   "shownOnOtherSide": "Affiché de l'autre côté",
   "inUse": "en cours d'utilisation",
+  "commentInput": {
+    "noMembersFound": "Aucun membre trouvé",
+    "drawTools": {
+      "pen": "Crayon",
+      "arrow": "Flèche",
+      "line": "Ligne",
+      "rectangle": "Rectangle"
+    },
+    "failedToPostComment": "Impossible de publier le commentaire",
+    "replyingToComment": "Réponse au commentaire",
+    "writeReplyPlaceholder": "Écrivez une réponse...",
+    "leaveCommentPlaceholder": "Laissez votre commentaire...",
+    "exitDrawing": "Quitter le dessin",
+    "undo": "Annuler",
+    "clear": "Effacer",
+    "detachTimecode": "Détacher le timecode",
+    "attachTimecode": "Attacher le timecode",
+    "drawAnnotation": "Dessiner une annotation",
+    "addEmoji": "Ajouter un emoji",
+    "internal": "Interne",
+    "public": "Public",
+    "sendEnter": "Envoyer (Entrée)"
+  },
   "compareOverlay": {
     "unknownAuthor": "Inconnu",
     "switchToSideBySide": "Passer en côte à côte",

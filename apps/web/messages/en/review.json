@@ -8,6 +8,29 @@
   },
   "shownOnOtherSide": "Shown on the other side",
   "inUse": "in use",
+  "commentInput": {
+    "noMembersFound": "No members found",
+    "drawTools": {
+      "pen": "Pencil",
+      "arrow": "Arrow",
+      "line": "Line",
+      "rectangle": "Rectangle"
+    },
+    "failedToPostComment": "Failed to post comment",
+    "replyingToComment": "Replying to comment",
+    "writeReplyPlaceholder": "Write a reply...",
+    "leaveCommentPlaceholder": "Leave your comment...",
+    "exitDrawing": "Exit drawing",
+    "undo": "Undo",
+    "clear": "Clear",
+    "detachTimecode": "Detach timecode",
+    "attachTimecode": "Attach timecode",
+    "drawAnnotation": "Draw annotation",
+    "addEmoji": "Add emoji",
+    "internal": "Internal",
+    "public": "Public",
+    "sendEnter": "Send (Enter)"
+  },
   "compareOverlay": {
     "unknownAuthor": "Unknown",
     "switchToSideBySide": "Switch to side-by-side",
