@@ -32,5 +32,76 @@
     "createError": "Failed to create project",
     "cancel": "Cancel",
     "create": "Create project"
+  },
+  "detail": {
+    "assetsHeading": "Assets",
+    "newFolderTooltip": "New folder",
+    "shareLinksHeading": "Share Links",
+    "createShareLinkTooltip": "Create share link",
+    "allShareLinks": "All Share Links ({count})",
+    "shareLinkMenu": {
+      "openShare": "Open Share",
+      "copyLink": "Copy Link",
+      "disableAccess": "Disable Access",
+      "enableAccess": "Enable Access",
+      "delete": "Delete"
+    },
+    "recentlyDeleted": "Recently Deleted",
+    "noDeletedItems": "No deleted items",
+    "folderLabel": "Folder",
+    "restore": "Restore",
+    "defaultProjectName": "Project",
+    "sharedFolderFallback": "Shared Folder",
+    "sharedAssetFallback": "Shared Asset",
+    "share": "Share",
+    "newFolder": "New Folder",
+    "upload": "Upload",
+    "uploadDialog": {
+      "title": "Upload asset",
+      "description": "Add new media to this project.",
+      "filesSelected": "{count, plural, one {# file selected} other {# files selected}}",
+      "assetNameLabel": "Asset name",
+      "assetNamePlaceholder": "e.g. Hero Video Final",
+      "changeFiles": "Change files",
+      "startUpload": "Start upload"
+    },
+    "tabs": {
+      "comments": "Comments",
+      "fields": "Fields"
+    },
+    "noCommentsYet": "No comments yet",
+    "noCommentsHint": "Double-click the asset to open the viewer and leave comments.",
+    "openInViewerToComment": "Open in viewer to comment",
+    "fields": {
+      "type": "Type",
+      "uploaded": "Uploaded",
+      "uploadedBy": "Uploaded by",
+      "fileSize": "File size",
+      "version": "Version",
+      "assignee": "Assignee"
+    },
+    "openInPlayer": "Open in Player",
+    "download": "Download",
+    "selectAssetToViewComments": "Select an asset to view comments",
+    "createFolderDialog": {
+      "title": "New Folder",
+      "placeholder": "Folder name",
+      "submit": "Create"
+    },
+    "bulkDelete": {
+      "title": "{count, plural, one {Delete # item?} other {Delete # items?}}",
+      "description": "This will move the selected items to the trash. You can restore them later from Recently Deleted.",
+      "confirm": "Delete"
+    },
+    "renameAssetDialog": {
+      "title": "Rename asset",
+      "placeholder": "Asset name...",
+      "submit": "Rename"
+    },
+    "deleteAsset": {
+      "title": "Delete \"{name}\"?",
+      "description": "This will move the asset to the trash. You can restore it later from Recently Deleted.",
+      "confirm": "Delete"
+    }
   }
 }

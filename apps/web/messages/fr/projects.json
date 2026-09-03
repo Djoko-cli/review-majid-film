@@ -32,5 +32,76 @@
     "createError": "Impossible de créer le projet",
     "cancel": "Annuler",
     "create": "Créer le projet"
+  },
+  "detail": {
+    "assetsHeading": "Médias",
+    "newFolderTooltip": "Nouveau dossier",
+    "shareLinksHeading": "Liens de partage",
+    "createShareLinkTooltip": "Créer un lien de partage",
+    "allShareLinks": "Tous les liens ({count})",
+    "shareLinkMenu": {
+      "openShare": "Ouvrir le partage",
+      "copyLink": "Copier le lien",
+      "disableAccess": "Désactiver l'accès",
+      "enableAccess": "Activer l'accès",
+      "delete": "Supprimer"
+    },
+    "recentlyDeleted": "Supprimés récemment",
+    "noDeletedItems": "Aucun élément supprimé",
+    "folderLabel": "Dossier",
+    "restore": "Restaurer",
+    "defaultProjectName": "Projet",
+    "sharedFolderFallback": "Dossier partagé",
+    "sharedAssetFallback": "Média partagé",
+    "share": "Partager",
+    "newFolder": "Nouveau dossier",
+    "upload": "Importer",
+    "uploadDialog": {
+      "title": "Importer un média",
+      "description": "Ajoutez de nouveaux médias à ce projet.",
+      "filesSelected": "{count, plural, one {# fichier sélectionné} other {# fichiers sélectionnés}}",
+      "assetNameLabel": "Nom du média",
+      "assetNamePlaceholder": "ex. Vidéo hero finale",
+      "changeFiles": "Changer de fichiers",
+      "startUpload": "Démarrer l'import"
+    },
+    "tabs": {
+      "comments": "Commentaires",
+      "fields": "Champs"
+    },
+    "noCommentsYet": "Aucun commentaire pour l'instant",
+    "noCommentsHint": "Double-cliquez sur le média pour ouvrir la visionneuse et laisser des commentaires.",
+    "openInViewerToComment": "Ouvrir dans la visionneuse pour commenter",
+    "fields": {
+      "type": "Type",
+      "uploaded": "Importé",
+      "uploadedBy": "Importé par",
+      "fileSize": "Taille du fichier",
+      "version": "Version",
+      "assignee": "Assigné à"
+    },
+    "openInPlayer": "Ouvrir dans le lecteur",
+    "download": "Télécharger",
+    "selectAssetToViewComments": "Sélectionnez un média pour voir les commentaires",
+    "createFolderDialog": {
+      "title": "Nouveau dossier",
+      "placeholder": "Nom du dossier",
+      "submit": "Créer"
+    },
+    "bulkDelete": {
+      "title": "{count, plural, one {Supprimer # élément ?} other {Supprimer # éléments ?}}",
+      "description": "Ceci déplacera les éléments sélectionnés vers la corbeille. Vous pourrez les restaurer plus tard depuis « Supprimés récemment ».",
+      "confirm": "Supprimer"
+    },
+    "renameAssetDialog": {
+      "title": "Renommer le média",
+      "placeholder": "Nom du média...",
+      "submit": "Renommer"
+    },
+    "deleteAsset": {
+      "title": "Supprimer « {name} » ?",
+      "description": "Ceci déplacera le média vers la corbeille. Vous pourrez le restaurer plus tard depuis « Supprimés récemment ».",
+      "confirm": "Supprimer"
+    }
   }
 }
