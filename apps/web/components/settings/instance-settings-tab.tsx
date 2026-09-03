@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import useSWR, { mutate } from "swr";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import { bytesToGb, gbToBytes } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { StorageUsage } from "@/components/shared/storage-usage";
 import type { InstanceSettings } from "@/types";
 
 export function InstanceSettingsTab() {
+  const t = useTranslations("settings.instanceSettingsTab");
   const { data } = useSWR<InstanceSettings>(
     "/instance/settings",
     () => api.get<InstanceSettings>("/instance/settings"),
@@ -36,7 +38,7 @@ export function InstanceSettingsTab() {
       mutate("/instance/settings");
       setSaved(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      setError(err instanceof Error ? err.message : t("failedToSave"));
     } finally {
       setSaving(false);
     }
@@ -44,13 +46,13 @@ export function InstanceSettingsTab() {
 
   return (
     <section className="space-y-4 max-w-md">
-      <h2 className="text-sm font-semibold text-text-primary">Instance storage</h2>
+      <h2 className="text-sm font-semibold text-text-primary">{t("title")}</h2>
       {data && (
         <StorageUsage used={data.storage_used_bytes} limit={data.storage_limit_bytes} variant="panel" />
       )}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="storage-limit-gb" className="text-sm font-medium text-text-secondary">
-          Storage limit (GB)
+          {t("storageLimitLabel")}
         </label>
         <Input
           id="storage-limit-gb"
@@ -58,14 +60,14 @@ export function InstanceSettingsTab() {
           min={0}
           value={gb}
           onChange={(e) => setGb(e.target.value)}
-          placeholder="0 = unlimited"
+          placeholder={t("storageLimitPlaceholder")}
         />
-        <p className="text-xs text-text-tertiary">Leave blank or 0 for unlimited.</p>
+        <p className="text-xs text-text-tertiary">{t("storageLimitHint")}</p>
       </div>
       {error && <p className="text-xs text-status-error">{error}</p>}
-      {saved && <p className="text-xs text-status-success">Saved.</p>}
+      {saved && <p className="text-xs text-status-success">{t("saved")}</p>}
       {/* disabled until settings load, so a click before the fetch resolves can't PUT 0 and wipe an existing cap */}
-      <Button size="sm" onClick={handleSave} loading={saving} disabled={!data}>Save</Button>
+      <Button size="sm" onClick={handleSave} loading={saving} disabled={!data}>{t("save")}</Button>
     </section>
   );
 }

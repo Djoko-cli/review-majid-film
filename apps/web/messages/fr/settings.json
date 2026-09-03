@@ -145,5 +145,109 @@
       "reactivate": "Impossible de réactiver l'utilisateur",
       "toggleRole": "Impossible de modifier le rôle de l'utilisateur"
     }
+  },
+  "instanceSettingsTab": {
+    "title": "Stockage de l'instance",
+    "storageLimitLabel": "Limite de stockage (Go)",
+    "storageLimitPlaceholder": "0 = illimité",
+    "storageLimitHint": "Laissez vide ou 0 pour illimité.",
+    "failedToSave": "Échec de l'enregistrement",
+    "saved": "Enregistré.",
+    "save": "Enregistrer"
+  },
+  "brandingPreview": {
+    "screens": {
+      "app": "Application",
+      "login": "Connexion",
+      "email": "Email"
+    },
+    "preview": "Aperçu",
+    "description": {
+      "login": "Ce que voient les utilisateurs avant de se connecter",
+      "email": "Ce que cette instance envoie",
+      "app": "Ce que voit votre équipe une fois connectée"
+    },
+    "caption": {
+      "login": "Utilise le logo de connexion s'il est défini, sinon le logo de l'organisation. Reproduit l'espacement réel de l'écran, pour que le repère s'affiche à sa taille réelle.",
+      "email": "Chaque email envoyé par cette instance porte votre nom dans l'en-tête et le pied de page. La ligne « De » le reprend aussi, sauf si MAIL_FROM_NAME en impose une autre.",
+      "app": "La barre latérale est une copie fidèle : mêmes largeurs, espacements et taille de logo que la vraie. Les projets et avatars sont des exemples."
+    }
+  },
+  "appShellMock": {
+    "shell": {
+      "projects": "Projets",
+      "uploads": "Imports",
+      "collapse": "Réduire",
+      "upload": "Importer"
+    },
+    "email": {
+      "useCodeToSignIn": "Utilisez ce code pour vous connecter à {orgName} :",
+      "copyright": "© {year} {orgName}. Tous droits réservés.",
+      "receivingBecause": "Vous recevez cet email car vous possédez un compte sur {orgName}."
+    },
+    "login": {
+      "tagline": "Révision collaborative et validation de médias"
+    }
+  },
+  "brandingLogoUpload": {
+    "fileTooLarge": "Le fichier doit faire moins de 2 Mo",
+    "uploadFailed": "Échec de l'import du fichier",
+    "uploadFailedGeneric": "Échec de l'import",
+    "unknownLogoType": "Type de logo inconnu",
+    "resetFailed": "Échec de la réinitialisation",
+    "defaultAlt": "Par défaut",
+    "replace": "Remplacer",
+    "upload": "Importer",
+    "remove": "Supprimer",
+    "maxFileSize": "max 2 Mo"
+  },
+  "brandingTab": {
+    "quickUpload": {
+      "fileTooLarge": "Le fichier doit faire moins de 2 Mo",
+      "failedToUploadFor": "Échec de l'import pour {slot}",
+      "uploadFailedGeneric": "Échec de l'import",
+      "uploading": "Import en cours...",
+      "uploadYourLogo": "Importer votre logo",
+      "helperFormats": "PNG, SVG ou WebP · 512×512px+ · Fond transparent",
+      "helperApplyAll": "Nous l'appliquerons à tous les emplacements en une fois."
+    },
+    "resetFailed": "Échec de la réinitialisation",
+    "identity": "Identité",
+    "workspaceName": {
+      "label": "Nom de l'espace de travail",
+      "description": "Barre latérale, écran de connexion, et les emails envoyés par cette instance.",
+      "placeholder": "ex. Studio Acme"
+    },
+    "accentColor": {
+      "label": "Couleur d'accent",
+      "description": "Boutons principaux, liens et anneaux de focus, y compris les boutons de téléchargement et de commentaire d'un invité.",
+      "ariaLabel": "Couleur d'accent"
+    },
+    "save": "Enregistrer",
+    "logosIcons": {
+      "title": "Logos et icônes",
+      "subtitle": "Importez une image pour remplir tous les emplacements, ou définissez-les individuellement ci-dessous."
+    },
+    "slots": {
+      "logoLight": { "label": "Logo (fond clair)", "description": "Barre latérale et interface en thème clair." },
+      "logoDark": { "label": "Logo (fond sombre)", "description": "Barre latérale et interface en thème sombre." },
+      "favicon": { "label": "Favicon", "description": "Onglet du navigateur. S'affiche à 16-32px, restez simple." },
+      "appleIcon": { "label": "Icône tactile Apple", "description": "Affichée quand quelqu'un ajoute cette instance à un écran d'accueil iOS." },
+      "loginLogo": { "label": "Logo de connexion", "description": "Facultatif. Utilise votre logo ci-dessus par défaut." }
+    },
+    "attribution": {
+      "title": "Attribution",
+      "poweredByLabel": "Afficher « Powered by FreeFrame »",
+      "description": "Un petit lien vers le projet, en bas à droite de l'application et sous la carte de connexion. Désactivez-le pour un marque blanche complète.",
+      "on": "Activé",
+      "off": "Désactivé"
+    },
+    "resetAllBranding": "Réinitialiser toute l'identité visuelle",
+    "adminOnlyNotice": "Seuls les super-administrateurs peuvent modifier les paramètres d'identité visuelle.",
+    "resetDialog": {
+      "title": "Réinitialiser toute l'identité visuelle ?",
+      "description": "Cette action efface votre nom personnalisé, vos logos et votre couleur d'accent, et réactive le badge « Powered by FreeFrame ».",
+      "confirm": "Réinitialiser"
+    }
   }
 }

@@ -145,5 +145,109 @@
       "reactivate": "Failed to reactivate user",
       "toggleRole": "Failed to update user role"
     }
+  },
+  "instanceSettingsTab": {
+    "title": "Instance storage",
+    "storageLimitLabel": "Storage limit (GB)",
+    "storageLimitPlaceholder": "0 = unlimited",
+    "storageLimitHint": "Leave blank or 0 for unlimited.",
+    "failedToSave": "Failed to save",
+    "saved": "Saved.",
+    "save": "Save"
+  },
+  "brandingPreview": {
+    "screens": {
+      "app": "App",
+      "login": "Sign-in",
+      "email": "Email"
+    },
+    "preview": "Preview",
+    "description": {
+      "login": "What people see before signing in",
+      "email": "What this instance sends from",
+      "app": "What your team sees after signing in"
+    },
+    "caption": {
+      "login": "Uses the sign-in logo when one is set, falling back to your org logo. Copies the real screen’s spacing, so the mark is shown at the size it will actually render.",
+      "email": "Every email this instance sends carries your name in the header and footer. The From line follows it too, unless MAIL_FROM_NAME pins a different one.",
+      "app": "The sidebar is a faithful copy: same widths, spacing and logo size as the real one. Projects and avatars are placeholders."
+    }
+  },
+  "appShellMock": {
+    "shell": {
+      "projects": "Projects",
+      "uploads": "Uploads",
+      "collapse": "Collapse",
+      "upload": "Upload"
+    },
+    "email": {
+      "useCodeToSignIn": "Use this code to sign in to {orgName}:",
+      "copyright": "© {year} {orgName}. All rights reserved.",
+      "receivingBecause": "You're receiving this email because you have an account on {orgName}."
+    },
+    "login": {
+      "tagline": "Collaborative media review & approval"
+    }
+  },
+  "brandingLogoUpload": {
+    "fileTooLarge": "File must be under 2 MB",
+    "uploadFailed": "Failed to upload file",
+    "uploadFailedGeneric": "Upload failed",
+    "unknownLogoType": "Unknown logo type",
+    "resetFailed": "Reset failed",
+    "defaultAlt": "Default",
+    "replace": "Replace",
+    "upload": "Upload",
+    "remove": "Remove",
+    "maxFileSize": "max 2 MB"
+  },
+  "brandingTab": {
+    "quickUpload": {
+      "fileTooLarge": "File must be under 2 MB",
+      "failedToUploadFor": "Failed to upload for {slot}",
+      "uploadFailedGeneric": "Upload failed",
+      "uploading": "Uploading...",
+      "uploadYourLogo": "Upload your logo",
+      "helperFormats": "PNG, SVG, or WebP · 512×512px+ · Transparent background",
+      "helperApplyAll": "We'll apply it to all branding slots at once."
+    },
+    "resetFailed": "Reset failed",
+    "identity": "Identity",
+    "workspaceName": {
+      "label": "Workspace name",
+      "description": "Sidebar, sign-in screen, and the emails this instance sends.",
+      "placeholder": "e.g. Acme Studio"
+    },
+    "accentColor": {
+      "label": "Accent color",
+      "description": "Primary buttons, links and focus rings, including a guest's download and comment buttons.",
+      "ariaLabel": "Accent color"
+    },
+    "save": "Save",
+    "logosIcons": {
+      "title": "Logos & icons",
+      "subtitle": "Upload one image to fill every slot, or set them individually below."
+    },
+    "slots": {
+      "logoLight": { "label": "Logo (light background)", "description": "Sidebar and app chrome in light theme." },
+      "logoDark": { "label": "Logo (dark background)", "description": "Sidebar and app chrome in dark theme." },
+      "favicon": { "label": "Favicon", "description": "Browser tab. Renders at 16-32px, so keep it simple." },
+      "appleIcon": { "label": "Apple touch icon", "description": "Shown when someone adds this instance to an iOS home screen." },
+      "loginLogo": { "label": "Sign-in logo", "description": "Optional. Falls back to your logo above." }
+    },
+    "attribution": {
+      "title": "Attribution",
+      "poweredByLabel": "Show \"Powered by FreeFrame\"",
+      "description": "A small link to the project, bottom-right of the app and under the sign-in card. Turn it off to white-label completely.",
+      "on": "On",
+      "off": "Off"
+    },
+    "resetAllBranding": "Reset all branding",
+    "adminOnlyNotice": "Only super admins can edit branding settings.",
+    "resetDialog": {
+      "title": "Reset all branding?",
+      "description": "This clears your custom name, logos and accent color, and turns the \"Powered by FreeFrame\" badge back on.",
+      "confirm": "Reset"
+    }
   }
 }

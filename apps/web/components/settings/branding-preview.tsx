@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Eye } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useBrandingStore } from '@/stores/branding-store'
 import { useResolvedTheme } from '@/hooks/use-resolved-theme'
@@ -14,9 +15,9 @@ import {
 } from './app-shell-mock'
 
 const SCREENS = [
-  { key: 'app', label: 'App' },
-  { key: 'login', label: 'Sign-in' },
-  { key: 'email', label: 'Email' },
+  { key: 'app' },
+  { key: 'login' },
+  { key: 'email' },
 ] as const
 
 type ScreenKey = (typeof SCREENS)[number]['key']
@@ -33,6 +34,7 @@ type ScreenKey = (typeof SCREENS)[number]['key']
  * lands rather than waiting for a reload.
  */
 export function BrandingPreview() {
+  const t = useTranslations('settings.brandingPreview')
   const { orgName, orgLogoDark, orgLogoLight, loginLogoUrl } = useBrandingStore()
   const theme = useResolvedTheme()
   const [screen, setScreen] = React.useState<ScreenKey>('app')
@@ -71,13 +73,9 @@ export function BrandingPreview() {
           <Eye className="h-4 w-4 text-text-primary" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-text-primary">Preview</p>
+          <p className="text-sm font-semibold text-text-primary">{t('preview')}</p>
           <p className="text-xs text-text-tertiary">
-            {screen === 'login'
-              ? 'What people see before signing in'
-              : screen === 'email'
-                ? 'What this instance sends from'
-                : 'What your team sees after signing in'}
+            {t(`description.${screen}`)}
           </p>
         </div>
 
@@ -95,7 +93,7 @@ export function BrandingPreview() {
                   : 'text-text-tertiary hover:text-text-secondary',
               )}
             >
-              {s.label}
+              {t(`screens.${s.key}`)}
             </button>
           ))}
         </div>
@@ -144,11 +142,7 @@ export function BrandingPreview() {
       </div>
 
       <p className="mt-3 text-xs text-text-tertiary">
-        {screen === 'login'
-          ? 'Uses the sign-in logo when one is set, falling back to your org logo. Copies the real screen’s spacing, so the mark is shown at the size it will actually render.'
-          : screen === 'email'
-            ? 'Every email this instance sends carries your name in the header and footer. The From line follows it too, unless MAIL_FROM_NAME pins a different one.'
-            : 'The sidebar is a faithful copy: same widths, spacing and logo size as the real one. Projects and avatars are placeholders.'}
+        {t(`caption.${screen}`)}
       </p>
     </div>
   )

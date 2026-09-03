@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Upload, RotateCcw, Check } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
 import { HARDCODED_DEFAULTS, useBrandingStore } from '@/stores/branding-store'
 import { api } from '@/lib/api'
@@ -37,6 +38,7 @@ function QuickUpload({
 }: {
   onSlotUpload: (slot: BrandingSlot, url: string) => void
 }) {
+  const t = useTranslations('settings.brandingTab.quickUpload')
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -48,7 +50,7 @@ function QuickUpload({
     setError(null)
 
     if (file.size > 2 * 1024 * 1024) {
-      setError('File must be under 2 MB')
+      setError(t('fileTooLarge'))
       return
     }
 
@@ -68,7 +70,7 @@ function QuickUpload({
           body: file,
           headers: { 'Content-Type': contentType },
         })
-        if (!uploadRes.ok) throw new Error(`Failed to upload for ${slot}`)
+        if (!uploadRes.ok) throw new Error(t('failedToUploadFor', { slot }))
 
         const data = await api.put<BrandingUrls>('/instance/branding', { [keyField]: s3Key })
         const url = data[urlField]
@@ -77,7 +79,7 @@ function QuickUpload({
         if (url) onSlotUpload(slot, url)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed')
+      setError(err instanceof Error ? err.message : t('uploadFailedGeneric'))
     } finally {
       setUploading(false)
     }
@@ -101,18 +103,19 @@ function QuickUpload({
         className="w-full max-w-xs"
       >
         <Upload className="h-4 w-4" />
-        {uploading ? 'Uploading...' : 'Upload your logo'}
+        {uploading ? t('uploading') : t('uploadYourLogo')}
       </Button>
       <p className="text-xs text-text-tertiary text-center">
-        PNG, SVG, or WebP · 512×512px+ · Transparent background
+        {t('helperFormats')}
         <br />
-        We&apos;ll apply it to all branding slots at once.
+        {t('helperApplyAll')}
       </p>
     </div>
   )
 }
 
 export function BrandingTab() {
+  const t = useTranslations('settings.brandingTab')
   const { user } = useAuthStore()
   const {
     orgName,
@@ -226,7 +229,7 @@ export function BrandingTab() {
     } catch (err) {
       // Rethrow so ConfirmDialog leaves itself open instead of closing as if the
       // reset had worked — the message below tells the admin what went wrong.
-      setResetError(err instanceof Error ? err.message : 'Reset failed')
+      setResetError(err instanceof Error ? err.message : t('resetFailed'))
       throw err
     } finally {
       setResetting(false)
@@ -256,13 +259,13 @@ export function BrandingTab() {
       {/* ── Identity: the two single-value settings, side by side rather than
              as two more full-width cards in the stack ── */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary">Identity</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t('identity')}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 rounded-lg border border-border bg-bg-secondary p-4">
             <div>
-              <p className="text-sm font-medium text-text-primary">Workspace name</p>
+              <p className="text-sm font-medium text-text-primary">{t('workspaceName.label')}</p>
               <p className="text-xs text-text-tertiary mt-0.5">
-                Sidebar, sign-in screen, and the emails this instance sends.
+                {t('workspaceName.description')}
               </p>
             </div>
             {isAdmin ? (
@@ -270,7 +273,7 @@ export function BrandingTab() {
                 <Input
                   value={nameValue}
                   onChange={(e) => setNameValue(e.target.value)}
-                  placeholder="e.g. Acme Studio"
+                  placeholder={t('workspaceName.placeholder')}
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
                   className="flex-1"
                 />
@@ -280,7 +283,7 @@ export function BrandingTab() {
                   loading={savingName}
                   disabled={!nameValue.trim() || nameValue.trim() === orgName}
                 >
-                  {nameSaved ? <Check className="h-3.5 w-3.5" /> : 'Save'}
+                  {nameSaved ? <Check className="h-3.5 w-3.5" /> : t('save')}
                 </Button>
               </div>
             ) : (
@@ -290,17 +293,16 @@ export function BrandingTab() {
 
           <div className="space-y-2 rounded-lg border border-border bg-bg-secondary p-4">
             <div>
-              <p className="text-sm font-medium text-text-primary">Accent color</p>
+              <p className="text-sm font-medium text-text-primary">{t('accentColor.label')}</p>
               <p className="text-xs text-text-tertiary mt-0.5">
-                Primary buttons, links and focus rings, including a guest&apos;s download
-                and comment buttons.
+                {t('accentColor.description')}
               </p>
             </div>
             {isAdmin ? (
               <div className="flex items-center gap-2 pt-1">
                 <input
                   type="color"
-                  aria-label="Accent color"
+                  aria-label={t('accentColor.ariaLabel')}
                   value={colorValue || '#ff7a00'}
                   onChange={(e) => setColorValue(e.target.value)}
                   className="h-9 w-10 shrink-0 cursor-pointer rounded border border-border bg-transparent p-0.5"
@@ -323,7 +325,7 @@ export function BrandingTab() {
                     !/^#[0-9A-Fa-f]{6}$/.test(colorValue.trim())
                   }
                 >
-                  Save
+                  {t('save')}
                 </Button>
               </div>
             ) : (
@@ -337,9 +339,9 @@ export function BrandingTab() {
 
       {/* ── Section: Logos & Icons ── */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary">Logos &amp; icons</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t('logosIcons.title')}</h2>
         <p className="-mt-1 text-sm text-text-secondary">
-          Upload one image to fill every slot, or set them individually below.
+          {t('logosIcons.subtitle')}
         </p>
 
         {isAdmin && (
@@ -362,8 +364,8 @@ export function BrandingTab() {
         <div className="grid gap-4 lg:grid-cols-2">
             <BrandingLogoUpload
               slotKey="logo_light"
-              label="Logo (light background)"
-              description="Sidebar and app chrome in light theme."
+              label={t('slots.logoLight.label')}
+              description={t('slots.logoLight.description')}
               acceptedFormats={['PNG', 'SVG', 'WebP']}
               minResolution="256px+"
               currentUrl={orgLogoLight}
@@ -376,8 +378,8 @@ export function BrandingTab() {
 
             <BrandingLogoUpload
               slotKey="logo_dark"
-              label="Logo (dark background)"
-              description="Sidebar and app chrome in dark theme."
+              label={t('slots.logoDark.label')}
+              description={t('slots.logoDark.description')}
               acceptedFormats={['PNG', 'SVG', 'WebP']}
               minResolution="256px+"
               currentUrl={orgLogoDark}
@@ -390,8 +392,8 @@ export function BrandingTab() {
 
             <BrandingLogoUpload
               slotKey="favicon"
-              label="Favicon"
-              description="Browser tab. Renders at 16-32px, so keep it simple."
+              label={t('slots.favicon.label')}
+              description={t('slots.favicon.description')}
               acceptedFormats={['ICO', 'PNG']}
               minResolution="32px+"
               currentUrl={faviconUrl}
@@ -403,8 +405,8 @@ export function BrandingTab() {
 
             <BrandingLogoUpload
               slotKey="apple_icon"
-              label="Apple touch icon"
-              description="Shown when someone adds this instance to an iOS home screen."
+              label={t('slots.appleIcon.label')}
+              description={t('slots.appleIcon.description')}
               acceptedFormats={['PNG']}
               minResolution="180px+"
               currentUrl={appleIconUrl}
@@ -417,8 +419,8 @@ export function BrandingTab() {
 
             <BrandingLogoUpload
               slotKey="login_logo"
-              label="Sign-in logo"
-              description="Optional. Falls back to your logo above."
+              label={t('slots.loginLogo.label')}
+              description={t('slots.loginLogo.description')}
               acceptedFormats={['PNG', 'SVG', 'WebP']}
               minResolution="512px+"
               currentUrl={loginLogoUrl}
@@ -434,15 +436,14 @@ export function BrandingTab() {
       {/* ── Attribution: one switch, so it reads as a row rather than another
              full section competing with the ones that hold real work ── */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary">Attribution</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t('attribution.title')}</h2>
         <div className="flex items-center justify-between gap-6 rounded-lg border border-border bg-bg-secondary p-4">
           <div className="min-w-0">
             <p className="text-sm font-medium text-text-primary">
-              Show &ldquo;Powered by FreeFrame&rdquo;
+              {t('attribution.poweredByLabel')}
             </p>
             <p className="mt-0.5 text-xs text-text-tertiary">
-              A small link to the project, bottom-right of the app and under the sign-in
-              card. Turn it off to white-label completely.
+              {t('attribution.description')}
             </p>
           </div>
           {isAdmin ? (
@@ -453,7 +454,7 @@ export function BrandingTab() {
             />
           ) : (
             <span className="shrink-0 text-sm text-text-secondary">
-              {poweredByFreeframe ? 'On' : 'Off'}
+              {poweredByFreeframe ? t('attribution.on') : t('attribution.off')}
             </span>
           )}
         </div>
@@ -472,7 +473,7 @@ export function BrandingTab() {
             }}
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Reset all branding
+            {t('resetAllBranding')}
           </Button>
           {resetError && (
             <p className="mt-2 text-xs text-status-error">{resetError}</p>
@@ -482,16 +483,16 @@ export function BrandingTab() {
 
       {!isAdmin && (
         <p className="text-xs text-text-tertiary">
-          Only super admins can edit branding settings.
+          {t('adminOnlyNotice')}
         </p>
       )}
 
       <ConfirmDialog
         open={resetOpen}
         onOpenChange={setResetOpen}
-        title="Reset all branding?"
-        description='This clears your custom name, logos and accent color, and turns the "Powered by FreeFrame" badge back on.'
-        confirmLabel="Reset"
+        title={t('resetDialog.title')}
+        description={t('resetDialog.description')}
+        confirmLabel={t('resetDialog.confirm')}
         variant="danger"
         loading={resetting}
         error={resetError}
