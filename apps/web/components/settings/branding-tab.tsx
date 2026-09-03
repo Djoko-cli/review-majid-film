@@ -1,18 +1,15 @@
 'use client'
 
 import * as React from 'react'
-import { Upload, RotateCcw, Check } from 'lucide-react'
+import { Upload, RotateCcw } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
 import { HARDCODED_DEFAULTS, useBrandingStore } from '@/stores/branding-store'
 import { api, ApiError } from '@/lib/api'
 import { translateApiError } from '@/lib/api-error'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { BrandingLogoUpload } from '@/components/settings/branding-logo-upload'
-import { BrandingPreview } from '@/components/settings/branding-preview'
 
 type BrandingSlot = 'logo-light' | 'logo-dark' | 'favicon' | 'apple-icon' | 'login-logo'
 
@@ -129,27 +126,18 @@ export function BrandingTab() {
     loginLogoUrl,
     poweredByFreeframe,
     primaryColor,
-    setOrgName,
     setOrgLogoDark,
     setOrgLogoLight,
     setFaviconUrl,
     setAppleIconUrl,
     setLoginLogoUrl,
-    setPoweredByFreeframe,
-    setPrimaryColor,
     fetchBranding,
     loaded,
   } = useBrandingStore()
 
-  const [nameValue, setNameValue] = React.useState(orgName)
-  const [nameSaved, setNameSaved] = React.useState(false)
   const [resetOpen, setResetOpen] = React.useState(false)
   const [resetting, setResetting] = React.useState(false)
   const [resetError, setResetError] = React.useState<string | null>(null)
-  const [savingPowered, setSavingPowered] = React.useState(false)
-  const [savingName, setSavingName] = React.useState(false)
-  const [savingColor, setSavingColor] = React.useState(false)
-  const [colorValue, setColorValue] = React.useState(primaryColor || '')
 
   const isAdmin = user?.is_superadmin
 
@@ -157,57 +145,13 @@ export function BrandingTab() {
     if (!loaded) fetchBranding()
   }, [loaded, fetchBranding])
 
-  React.useEffect(() => {
-    const state = useBrandingStore.getState()
-    setNameValue(state.orgName)
-    setColorValue(state.primaryColor || '')
-  }, [orgName, primaryColor])
-
-  async function handleSaveName() {
-    const trimmed = nameValue.trim()
-    if (!trimmed || trimmed === orgName) return
-    setSavingName(true)
-    try {
-      const data = await api.put<{ org_name: string }>('/instance/branding', { org_name: trimmed })
-      setOrgName(data.org_name || trimmed)
-      setNameSaved(true)
-      setTimeout(() => setNameSaved(false), 2000)
-    } catch {
-      setNameSaved(false)
-    } finally {
-      setSavingName(false)
-    }
-  }
-
-  async function handleTogglePowered(value: boolean) {
-    setSavingPowered(true)
-    try {
-      await api.put('/instance/branding', { powered_by_freeframe: value })
-      setPoweredByFreeframe(value)
-    } catch {
-      // revert on error
-    } finally {
-      setSavingPowered(false)
-    }
-  }
-
-  async function handleSaveColor() {
-    const trimmed = colorValue.trim()
-    if (!trimmed || trimmed === primaryColor) return
-    if (!/^#[0-9A-Fa-f]{6}$/.test(trimmed)) {
-      return
-    }
-    setSavingColor(true)
-    try {
-      await api.put('/instance/branding', { primary_color: trimmed })
-      setPrimaryColor(trimmed)
-    } catch {
-      // silent
-    } finally {
-      setSavingColor(false)
-    }
-  }
-
+  // Name, accent color, the live preview, and the "Powered by FreeFrame"
+  // toggle used to live here too. This instance's identity is fixed now
+  // (Review's own logo, hardcoded as the default everywhere it renders —
+  // sidebar, login, favicon, share pages), so only the logo slots stay
+  // editable, in case a real replacement is ever needed. Reset still zeroes
+  // out name/color/attribution along with the logos, so it remains a true
+  // full reset even though nothing here edits those three directly.
   async function handleResetAll() {
     setResetting(true)
     setResetError(null)
@@ -220,14 +164,10 @@ export function BrandingTab() {
         apple_icon_key: null,
         login_logo_key: null,
         primary_color: null,
-        // Included so "reset all" really is all: the attribution toggle counts
-        // toward hasCustomBranding, so leaving it out left the Reset section
-        // on screen after a reset that had already finished.
         powered_by_freeframe: HARDCODED_DEFAULTS.poweredByFreeframe,
       })
       const { syncBranding } = useBrandingStore.getState()
       syncBranding(data as never)
-      setNameValue(HARDCODED_DEFAULTS.orgName)
       setResetOpen(false)
     } catch (err) {
       // Rethrow so ConfirmDialog leaves itself open instead of closing as if the
@@ -254,93 +194,8 @@ export function BrandingTab() {
   }
 
   return (
-    // No heading of its own: this renders under the Admin Dashboard header as a
-    // sub-tab, the same way InstanceSettingsTab does.
+    // No heading of its own: this renders under the Admin Dashboard header as a sub-tab.
     <div className="max-w-5xl space-y-10">
-      <BrandingPreview />
-
-      {/* ── Identity: the two single-value settings, side by side rather than
-             as two more full-width cards in the stack ── */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary">{t('identity')}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 rounded-lg border border-border bg-bg-secondary p-4">
-            <div>
-              <p className="text-sm font-medium text-text-primary">{t('workspaceName.label')}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">
-                {t('workspaceName.description')}
-              </p>
-            </div>
-            {isAdmin ? (
-              <div className="flex items-center gap-2 pt-1">
-                <Input
-                  value={nameValue}
-                  onChange={(e) => setNameValue(e.target.value)}
-                  placeholder={t('workspaceName.placeholder')}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-                  className="flex-1"
-                />
-                <Button
-                  size="sm"
-                  onClick={handleSaveName}
-                  loading={savingName}
-                  disabled={!nameValue.trim() || nameValue.trim() === orgName}
-                >
-                  {nameSaved ? <Check className="h-3.5 w-3.5" /> : t('save')}
-                </Button>
-              </div>
-            ) : (
-              <p className="pt-1 text-sm text-text-secondary">{orgName}</p>
-            )}
-          </div>
-
-          <div className="space-y-2 rounded-lg border border-border bg-bg-secondary p-4">
-            <div>
-              <p className="text-sm font-medium text-text-primary">{t('accentColor.label')}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">
-                {t('accentColor.description')}
-              </p>
-            </div>
-            {isAdmin ? (
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="color"
-                  aria-label={t('accentColor.ariaLabel')}
-                  value={colorValue || '#ff7a00'}
-                  onChange={(e) => setColorValue(e.target.value)}
-                  className="h-9 w-10 shrink-0 cursor-pointer rounded border border-border bg-transparent p-0.5"
-                />
-                <Input
-                  value={colorValue}
-                  onChange={(e) => setColorValue(e.target.value)}
-                  placeholder="#ff7a00"
-                  maxLength={7}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveColor()}
-                  className="flex-1 font-mono text-sm"
-                />
-                <Button
-                  size="sm"
-                  onClick={handleSaveColor}
-                  loading={savingColor}
-                  disabled={
-                    !colorValue.trim() ||
-                    colorValue.trim() === primaryColor ||
-                    !/^#[0-9A-Fa-f]{6}$/.test(colorValue.trim())
-                  }
-                >
-                  {t('save')}
-                </Button>
-              </div>
-            ) : (
-              <p className="pt-1 font-mono text-sm text-text-secondary">
-                {primaryColor || '#ff7a00'}
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section: Logos & Icons ── */}
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-text-primary">{t('logosIcons.title')}</h2>
         <p className="-mt-1 text-sm text-text-secondary">
@@ -365,100 +220,73 @@ export function BrandingTab() {
         )}
 
         <div className="grid gap-4 lg:grid-cols-2">
-            <BrandingLogoUpload
-              slotKey="logo_light"
-              label={t('slots.logoLight.label')}
-              description={t('slots.logoLight.description')}
-              acceptedFormats={['PNG', 'SVG', 'WebP']}
-              minResolution="256px+"
-              currentUrl={orgLogoLight}
-              defaultUrl="/logo-icon-dark.png"
-              previewBg="bg-white"
-              {...slotProps}
-              onUpload={(url) => setOrgLogoLight(url)}
-              onRemove={() => setOrgLogoLight(null)}
-            />
+          <BrandingLogoUpload
+            slotKey="logo_light"
+            label={t('slots.logoLight.label')}
+            description={t('slots.logoLight.description')}
+            acceptedFormats={['PNG', 'SVG', 'WebP']}
+            minResolution="256px+"
+            currentUrl={orgLogoLight}
+            defaultUrl="/logo-icon-dark.png"
+            previewBg="bg-white"
+            {...slotProps}
+            onUpload={(url) => setOrgLogoLight(url)}
+            onRemove={() => setOrgLogoLight(null)}
+          />
 
-            <BrandingLogoUpload
-              slotKey="logo_dark"
-              label={t('slots.logoDark.label')}
-              description={t('slots.logoDark.description')}
-              acceptedFormats={['PNG', 'SVG', 'WebP']}
-              minResolution="256px+"
-              currentUrl={orgLogoDark}
-              defaultUrl="/logo-icon.png"
-              previewBg="bg-zinc-900"
-              {...slotProps}
-              onUpload={(url) => setOrgLogoDark(url)}
-              onRemove={() => setOrgLogoDark(null)}
-            />
+          <BrandingLogoUpload
+            slotKey="logo_dark"
+            label={t('slots.logoDark.label')}
+            description={t('slots.logoDark.description')}
+            acceptedFormats={['PNG', 'SVG', 'WebP']}
+            minResolution="256px+"
+            currentUrl={orgLogoDark}
+            defaultUrl="/logo-icon.png"
+            previewBg="bg-zinc-900"
+            {...slotProps}
+            onUpload={(url) => setOrgLogoDark(url)}
+            onRemove={() => setOrgLogoDark(null)}
+          />
 
-            <BrandingLogoUpload
-              slotKey="favicon"
-              label={t('slots.favicon.label')}
-              description={t('slots.favicon.description')}
-              acceptedFormats={['ICO', 'PNG']}
-              minResolution="32px+"
-              currentUrl={faviconUrl}
-              previewBg="bg-zinc-900"
-              {...slotProps}
-              onUpload={(url) => setFaviconUrl(url)}
-              onRemove={() => setFaviconUrl(null)}
-            />
+          <BrandingLogoUpload
+            slotKey="favicon"
+            label={t('slots.favicon.label')}
+            description={t('slots.favicon.description')}
+            acceptedFormats={['ICO', 'PNG']}
+            minResolution="32px+"
+            currentUrl={faviconUrl}
+            previewBg="bg-zinc-900"
+            {...slotProps}
+            onUpload={(url) => setFaviconUrl(url)}
+            onRemove={() => setFaviconUrl(null)}
+          />
 
-            <BrandingLogoUpload
-              slotKey="apple_icon"
-              label={t('slots.appleIcon.label')}
-              description={t('slots.appleIcon.description')}
-              acceptedFormats={['PNG']}
-              minResolution="180px+"
-              currentUrl={appleIconUrl}
-              defaultUrl="/apple-icon.png"
-              previewBg="bg-zinc-900"
-              {...slotProps}
-              onUpload={(url) => setAppleIconUrl(url)}
-              onRemove={() => setAppleIconUrl(null)}
-            />
+          <BrandingLogoUpload
+            slotKey="apple_icon"
+            label={t('slots.appleIcon.label')}
+            description={t('slots.appleIcon.description')}
+            acceptedFormats={['PNG']}
+            minResolution="180px+"
+            currentUrl={appleIconUrl}
+            defaultUrl="/apple-icon.png"
+            previewBg="bg-zinc-900"
+            {...slotProps}
+            onUpload={(url) => setAppleIconUrl(url)}
+            onRemove={() => setAppleIconUrl(null)}
+          />
 
-            <BrandingLogoUpload
-              slotKey="login_logo"
-              label={t('slots.loginLogo.label')}
-              description={t('slots.loginLogo.description')}
-              acceptedFormats={['PNG', 'SVG', 'WebP']}
-              minResolution="512px+"
-              currentUrl={loginLogoUrl}
-              previewBg="bg-zinc-900"
-              {...slotProps}
-              onUpload={(url) => setLoginLogoUrl(url)}
-              onRemove={() => setLoginLogoUrl(null)}
-            />
-          </div>
-      </section>
-
-      {/* ── Attribution: one switch, so it reads as a row rather than another
-             full section competing with the ones that hold real work ── */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary">{t('attribution.title')}</h2>
-        <div className="flex items-center justify-between gap-6 rounded-lg border border-border bg-bg-secondary p-4">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-text-primary">
-              {t('attribution.poweredByLabel')}
-            </p>
-            <p className="mt-0.5 text-xs text-text-tertiary">
-              {t('attribution.description')}
-            </p>
-          </div>
-          {isAdmin ? (
-            <Switch
-              checked={poweredByFreeframe}
-              onCheckedChange={handleTogglePowered}
-              disabled={savingPowered}
-            />
-          ) : (
-            <span className="shrink-0 text-sm text-text-secondary">
-              {poweredByFreeframe ? t('attribution.on') : t('attribution.off')}
-            </span>
-          )}
+          <BrandingLogoUpload
+            slotKey="login_logo"
+            label={t('slots.loginLogo.label')}
+            description={t('slots.loginLogo.description')}
+            acceptedFormats={['PNG', 'SVG', 'WebP']}
+            minResolution="512px+"
+            currentUrl={loginLogoUrl}
+            previewBg="bg-zinc-900"
+            {...slotProps}
+            onUpload={(url) => setLoginLogoUrl(url)}
+            onRemove={() => setLoginLogoUrl(null)}
+          />
         </div>
       </section>
 

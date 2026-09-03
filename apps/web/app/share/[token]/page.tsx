@@ -151,7 +151,7 @@ function PasswordGate({ onSubmit, error, loading }: PasswordGateProps) {
           ) : (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-icon.png" alt="FreeFrame" className="logo-dark h-10 w-10" />
+              <img src="/logo-icon.png" alt={orgName} className="logo-dark h-10 w-10" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-icon-dark.png" alt="" aria-hidden="true" className="logo-light h-10 w-10" />
             </>

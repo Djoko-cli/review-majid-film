@@ -31,10 +31,15 @@ export function AuthBrandingHeader() {
           className="h-12 mx-auto mb-3 object-contain"
         />
       ) : (
-        // No custom mark configured yet: the org name alone carries the
-        // identity rather than falling back to freeframe's own logo, which
-        // would misrepresent this instance's brand.
-        <div className="mb-3 h-2 w-2 mx-auto rounded-full bg-accent" />
+        // Shown when an admin hasn't set a custom mark — Review's own logo,
+        // not freeframe's, which would misrepresent this instance's brand
+        // (matches sidebar.tsx's same default-icon convention).
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-icon.png" alt={orgName} className="logo-dark mx-auto mb-3 h-12 w-12 object-contain" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-icon-dark.png" alt={orgName} className="logo-light mx-auto mb-3 h-12 w-12 object-contain" />
+        </>
       )}
       <h1 className="text-halo text-xl font-semibold text-text-primary">{orgName}</h1>
       <p className="text-halo mt-1.5 text-sm text-text-secondary">{t('tagline')}</p>
