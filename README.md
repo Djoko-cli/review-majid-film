@@ -1,5 +1,7 @@
 # Review
 
+*[Lire en français](README.fr.md)*
+
 **Self-hosted media review — frame-accurate feedback, real-time collaboration, and a client-facing review experience that never leaves your own infrastructure.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
