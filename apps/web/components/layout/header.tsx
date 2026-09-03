@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Search, ChevronRight, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -12,13 +13,7 @@ interface HeaderProps {
   onSearchOpen: () => void
 }
 
-const LABEL_MAP: Record<string, string> = {
-  projects: 'Projects',
-  notifications: 'Notifications',
-  settings: 'Settings',
-  new: 'New',
-  upload: 'Upload',
-}
+const KNOWN_LABEL_SEGMENTS = new Set(['projects', 'notifications', 'settings', 'new', 'upload'])
 
 /** Looks like a UUID (8-4-4-4-12 hex) */
 function isUuid(s: string): boolean {
@@ -31,7 +26,7 @@ function isUuid(s: string): boolean {
  */
 const SKIP_SEGMENTS = new Set(['assets', 'collections'])
 
-function buildBreadcrumbs(pathname: string, dynamicLabels: Record<string, string>): { label: string; href: string }[] {
+function buildBreadcrumbs(pathname: string, dynamicLabels: Record<string, string>, t: (key: string) => string): { label: string; href: string }[] {
   const segments = pathname.split('/').filter(Boolean)
   const crumbs: { label: string; href: string }[] = []
 
@@ -44,7 +39,7 @@ function buildBreadcrumbs(pathname: string, dynamicLabels: Record<string, string
     if (isUuid(segment) && !dynamicLabels[segment]) continue
     const label =
       dynamicLabels[segment] ??
-      LABEL_MAP[segment] ??
+      (KNOWN_LABEL_SEGMENTS.has(segment) ? t(`breadcrumbLabels.${segment}`) : undefined) ??
       segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
     crumbs.push({ label, href: path })
   }
@@ -53,10 +48,11 @@ function buildBreadcrumbs(pathname: string, dynamicLabels: Record<string, string
 }
 
 export function Header({ onSearchOpen }: HeaderProps) {
+  const t = useTranslations('layout.header')
   const pathname = usePathname()
   const { rightPanelOpen, toggleRightPanel } = useViewStore()
   const { labels, extraCrumbs } = useBreadcrumbStore()
-  const urlCrumbs = buildBreadcrumbs(pathname, labels)
+  const urlCrumbs = buildBreadcrumbs(pathname, labels, t)
   const breadcrumbs = [...urlCrumbs, ...extraCrumbs.map((c) => ({ label: c.label, href: c.href ?? '' }))]
 
   return (
@@ -95,7 +91,7 @@ export function Header({ onSearchOpen }: HeaderProps) {
           className="flex items-center gap-1.5 rounded-md border border-border bg-bg-secondary/60 px-2.5 py-1 text-xs text-text-tertiary hover:border-border-focus hover:text-text-secondary transition-colors"
         >
           <Search className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Search</span>
+          <span className="hidden sm:inline">{t('search')}</span>
           <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border bg-bg-tertiary/50 px-1 py-0.5 font-mono text-[10px] text-text-tertiary">
             <span>⌘</span>K
           </kbd>
@@ -111,7 +107,7 @@ export function Header({ onSearchOpen }: HeaderProps) {
                 ? 'text-text-primary bg-accent-muted'
                 : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary',
             )}
-            title={rightPanelOpen ? 'Hide panel' : 'Show panel'}
+            title={rightPanelOpen ? t('hidePanel') : t('showPanel')}
           >
             {rightPanelOpen ? (
               <PanelRightClose className="h-4 w-4" />

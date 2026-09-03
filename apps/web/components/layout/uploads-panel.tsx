@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   X,
   CheckCircle,
@@ -37,7 +38,7 @@ function matchesFilter(status: UploadStatus, filter: FilterTab): boolean {
   }
 }
 
-function groupByDate(files: UploadFile[]): { label: string; items: UploadFile[] }[] {
+function groupByDate(files: UploadFile[], t: (key: string) => string): { label: string; items: UploadFile[] }[] {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
   const yesterday = today - 86400000
@@ -47,9 +48,9 @@ function groupByDate(files: UploadFile[]): { label: string; items: UploadFile[] 
   for (const f of files) {
     let label: string
     if (f.createdAt >= today) {
-      label = 'Today'
+      label = t('today')
     } else if (f.createdAt >= yesterday) {
-      label = 'Yesterday'
+      label = t('yesterday')
     } else {
       label = new Date(f.createdAt).toLocaleDateString(undefined, {
         month: 'short',
@@ -66,25 +67,27 @@ function groupByDate(files: UploadFile[]): { label: string; items: UploadFile[] 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: UploadStatus }) {
+  const t = useTranslations('layout.uploadsPanel')
   switch (status) {
     case 'pending':
-      return <span className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-text-tertiary">Queued</span>
+      return <span className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-text-tertiary">{t('status.queued')}</span>
     case 'uploading':
-      return <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent"><Loader2 className="h-2.5 w-2.5 animate-spin" />Uploading</span>
+      return <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent"><Loader2 className="h-2.5 w-2.5 animate-spin" />{t('status.uploading')}</span>
     case 'processing':
-      return <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400"><Cog className="h-2.5 w-2.5 animate-spin" />Processing</span>
+      return <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400"><Cog className="h-2.5 w-2.5 animate-spin" />{t('status.processing')}</span>
     case 'complete':
-      return <span className="inline-flex items-center gap-1 rounded-full bg-status-success/10 px-2 py-0.5 text-[10px] font-medium text-status-success"><CheckCircle className="h-2.5 w-2.5" />Ready</span>
+      return <span className="inline-flex items-center gap-1 rounded-full bg-status-success/10 px-2 py-0.5 text-[10px] font-medium text-status-success"><CheckCircle className="h-2.5 w-2.5" />{t('status.ready')}</span>
     case 'failed':
-      return <span className="inline-flex items-center gap-1 rounded-full bg-status-error/10 px-2 py-0.5 text-[10px] font-medium text-status-error"><AlertCircle className="h-2.5 w-2.5" />Failed</span>
+      return <span className="inline-flex items-center gap-1 rounded-full bg-status-error/10 px-2 py-0.5 text-[10px] font-medium text-status-error"><AlertCircle className="h-2.5 w-2.5" />{t('status.failed')}</span>
     case 'cancelled':
-      return <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-text-tertiary"><Ban className="h-2.5 w-2.5" />Cancelled</span>
+      return <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-text-tertiary"><Ban className="h-2.5 w-2.5" />{t('status.cancelled')}</span>
   }
 }
 
 // ─── Upload Item ──────────────────────────────────────────────────────────────
 
 function UploadItem({ upload }: { upload: UploadFile }) {
+  const t = useTranslations('layout.uploadsPanel')
   const { cancelUpload, removeFile } = useUploadStore()
   const isUploading = upload.status === 'pending' || upload.status === 'uploading'
   const isProcessing = upload.status === 'processing'
@@ -126,12 +129,12 @@ function UploadItem({ upload }: { upload: UploadFile }) {
         <div className="flex items-center gap-1 mt-1">
           {upload.status === 'uploading' && (
             <span className="text-[11px] text-text-secondary">
-              Uploading {upload.progress}%
+              {t('uploadingPercent', { percent: upload.progress })}
             </span>
           )}
           {upload.status === 'processing' && (
             <span className="text-[11px] text-amber-400">
-              {upload.processingProgress > 0 ? `Processing ${upload.processingProgress}%` : 'Processing...'}
+              {upload.processingProgress > 0 ? t('processingPercent', { percent: upload.processingProgress }) : t('processingEllipsis')}
             </span>
           )}
           {upload.status === 'complete' && (
@@ -151,7 +154,7 @@ function UploadItem({ upload }: { upload: UploadFile }) {
           <button
             onClick={() => cancelUpload(upload.id)}
             className="h-6 w-6 flex items-center justify-center rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
-            title="Cancel upload"
+            title={t('cancelUpload')}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -160,7 +163,7 @@ function UploadItem({ upload }: { upload: UploadFile }) {
           <button
             onClick={() => removeFile(upload.id)}
             className="h-6 w-6 flex items-center justify-center rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
-            title="Remove"
+            title={t('remove')}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -169,7 +172,7 @@ function UploadItem({ upload }: { upload: UploadFile }) {
           <button
             onClick={() => removeFile(upload.id)}
             className="h-6 w-6 flex items-center justify-center rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
-            title="Dismiss"
+            title={t('dismiss')}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -182,6 +185,7 @@ function UploadItem({ upload }: { upload: UploadFile }) {
 // ─── Panel ────────────────────────────────────────────────────────────────────
 
 export function UploadsPanel() {
+  const t = useTranslations('layout.uploadsPanel')
   const { files, panelOpen, setPanelOpen, clearCompleted, fetchHistory, fetchMoreHistory, historyHasMore, historyLoading } = useUploadStore()
   const [filter, setFilter] = React.useState<FilterTab>('active')
   const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -218,7 +222,7 @@ export function UploadsPanel() {
   // Sort descending by createdAt
   const sorted = [...files].sort((a, b) => b.createdAt - a.createdAt)
   const filtered = sorted.filter((f) => matchesFilter(f.status, filter))
-  const groups = groupByDate(filtered)
+  const groups = groupByDate(filtered, t)
 
   const counts = {
     all: files.length,
@@ -228,10 +232,10 @@ export function UploadsPanel() {
   }
 
   const tabs: { id: FilterTab; label: string; count: number }[] = [
-    { id: 'all', label: 'All', count: counts.all },
-    { id: 'active', label: 'Active', count: counts.active },
-    { id: 'complete', label: 'Complete', count: counts.complete },
-    { id: 'failed', label: 'Failed', count: counts.failed },
+    { id: 'all', label: t('tabs.all'), count: counts.all },
+    { id: 'active', label: t('tabs.active'), count: counts.active },
+    { id: 'complete', label: t('tabs.complete'), count: counts.complete },
+    { id: 'failed', label: t('tabs.failed'), count: counts.failed },
   ]
 
   return (
@@ -247,10 +251,10 @@ export function UploadsPanel() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-12 border-b border-border shrink-0">
           <h2 className="text-sm font-semibold text-text-primary">
-            Uploads
+            {t('title')}
             {counts.active > 0 && (
               <span className="ml-1.5 text-xs font-normal text-accent">
-                {counts.active} active
+                {t('activeCount', { count: counts.active })}
               </span>
             )}
           </h2>
@@ -260,7 +264,7 @@ export function UploadsPanel() {
                 onClick={clearCompleted}
                 className="text-xs text-text-tertiary hover:text-text-secondary transition-colors px-2 py-1 rounded hover:bg-bg-hover"
               >
-                Clear
+                {t('clear')}
               </button>
             )}
             <button
@@ -308,12 +312,12 @@ export function UploadsPanel() {
                 <FileIcon className="h-6 w-6 text-text-tertiary" />
               </div>
               <p className="text-sm text-text-secondary">
-                {filter === 'all' ? 'No uploads yet' : `No ${filter} uploads`}
+                {filter === 'all' ? t('emptyAll') : t(`emptyFiltered.${filter}`)}
               </p>
               <p className="text-xs text-text-tertiary mt-1">
                 {filter === 'all'
-                  ? 'Upload files from any project to track them here.'
-                  : 'Items will appear here as uploads progress.'}
+                  ? t('emptyAllDescription')
+                  : t('emptyFilteredDescription')}
               </p>
             </div>
           ) : (

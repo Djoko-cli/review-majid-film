@@ -1,1 +1,160 @@
-{}
+{
+  "header": {
+    "breadcrumbLabels": {
+      "projects": "Projects",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "new": "New",
+      "upload": "Upload"
+    },
+    "search": "Search",
+    "hidePanel": "Hide panel",
+    "showPanel": "Show panel"
+  },
+  "keyboardShortcuts": {
+    "title": "Keyboard Shortcuts",
+    "close": "Close",
+    "footerHintBefore": "Press",
+    "footerHintAfter": "anytime to toggle this panel",
+    "groups": {
+      "navigation": {
+        "title": "Navigation",
+        "items": {
+          "commandPalette": "Open command palette / search",
+          "showShortcuts": "Show keyboard shortcuts",
+          "toggleSidebar": "Toggle sidebar"
+        }
+      },
+      "review": {
+        "title": "Review",
+        "items": {
+          "playPause": "Play / pause video or audio",
+          "seekBack": "Seek back 5 seconds",
+          "seekForward": "Seek forward 5 seconds",
+          "jumpBack": "Jump back 10 seconds",
+          "playPauseAlt": "Play / pause",
+          "jumpForward": "Jump forward 10 seconds",
+          "muteToggle": "Mute / unmute",
+          "fullscreenToggle": "Toggle fullscreen"
+        }
+      },
+      "actions": {
+        "title": "Actions",
+        "items": {
+          "newProject": "New project",
+          "uploadAsset": "Upload asset",
+          "goHome": "Go to home",
+          "goProjects": "Go to projects",
+          "goAssets": "Go to assets"
+        }
+      },
+      "comments": {
+        "title": "Comments",
+        "items": {
+          "focusCommentInput": "Focus comment input",
+          "cancelComment": "Cancel comment / close panel"
+        }
+      }
+    }
+  },
+  "notificationDrawer": {
+    "someone": "Someone",
+    "anAsset": "an asset",
+    "mentioned": "{actor} mentioned you on {asset}",
+    "commented": "{actor} commented on {asset}",
+    "assigned": "{actor} assigned you to {asset}",
+    "approvalUpdated": "{actor} updated approval on {asset}",
+    "dueSoon": "{asset} is due soon",
+    "newNotification": "New notification",
+    "title": "Notifications",
+    "settingsTitle": "Notification settings",
+    "all": "All",
+    "unread": "Unread",
+    "markAllAsRead": "Mark all as read",
+    "emptyTitle": "No Updates Yet",
+    "emptyDescription": "New activity on your account will show here."
+  },
+  "sidebar": {
+    "nav": {
+      "projects": "Projects"
+    },
+    "notifications": "Notifications",
+    "uploads": "Uploads",
+    "account": "Account",
+    "user": "User",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logOut": "Log out",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "collapse": "Collapse"
+  },
+  "uploadsPanel": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "status": {
+      "queued": "Queued",
+      "uploading": "Uploading",
+      "processing": "Processing",
+      "ready": "Ready",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "cancelUpload": "Cancel upload",
+    "remove": "Remove",
+    "dismiss": "Dismiss",
+    "uploadingPercent": "Uploading {percent}%",
+    "processingPercent": "Processing {percent}%",
+    "processingEllipsis": "Processing...",
+    "title": "Uploads",
+    "activeCount": "{count} active",
+    "clear": "Clear",
+    "tabs": {
+      "all": "All",
+      "active": "Active",
+      "complete": "Complete",
+      "failed": "Failed"
+    },
+    "emptyAll": "No uploads yet",
+    "emptyFiltered": {
+      "active": "No active uploads",
+      "complete": "No complete uploads",
+      "failed": "No failed uploads"
+    },
+    "emptyAllDescription": "Upload files from any project to track them here.",
+    "emptyFilteredDescription": "Items will appear here as uploads progress."
+  },
+  "commandPalette": {
+    "items": {
+      "home": "Home",
+      "projects": "Projects",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "newProject": "New Project",
+      "uploadAsset": "Upload Asset"
+    },
+    "title": "Command Palette",
+    "searchPlaceholder": "Search projects, assets, or jump to...",
+    "noResultsFound": "No results found",
+    "groups": {
+      "projects": "Projects",
+      "folders": "Folders",
+      "assets": "Assets",
+      "navigation": "Navigation",
+      "actions": "Actions"
+    },
+    "itemCount": "{count, plural, one {# item} other {# items}}",
+    "inProject": "in {name}",
+    "assetTypeLabels": {
+      "image": "image",
+      "imageCarousel": "image carousel",
+      "audio": "audio",
+      "video": "video"
+    },
+    "hints": {
+      "navigate": "navigate",
+      "select": "select",
+      "close": "close"
+    }
+  }
+}

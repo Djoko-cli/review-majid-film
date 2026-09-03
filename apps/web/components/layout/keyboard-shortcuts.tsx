@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { useTranslations } from 'next-intl'
 import { Keyboard, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -9,53 +10,55 @@ import { cn } from '@/lib/utils'
 
 interface ShortcutItem {
   keys: string[]
-  label: string
+  id: string
 }
 
 interface ShortcutGroup {
-  title: string
+  id: string
   items: ShortcutItem[]
 }
 
 // ─── Shortcut definitions ─────────────────────────────────────────────────────
+// `id`s key into the layout.keyboardShortcuts.groups.<id>.{title,items.<id>}
+// translation catalog — the group/item text itself is looked up at render time.
 
 const SHORTCUT_GROUPS: ShortcutGroup[] = [
   {
-    title: 'Navigation',
+    id: 'navigation',
     items: [
-      { keys: ['⌘', 'K'], label: 'Open command palette / search' },
-      { keys: ['?'], label: 'Show keyboard shortcuts' },
-      { keys: ['⌘', '/'], label: 'Toggle sidebar' },
+      { keys: ['⌘', 'K'], id: 'commandPalette' },
+      { keys: ['?'], id: 'showShortcuts' },
+      { keys: ['⌘', '/'], id: 'toggleSidebar' },
     ],
   },
   {
-    title: 'Review',
+    id: 'review',
     items: [
-      { keys: ['Space'], label: 'Play / pause video or audio' },
-      { keys: ['←'], label: 'Seek back 5 seconds' },
-      { keys: ['→'], label: 'Seek forward 5 seconds' },
-      { keys: ['J'], label: 'Jump back 10 seconds' },
-      { keys: ['K'], label: 'Play / pause' },
-      { keys: ['L'], label: 'Jump forward 10 seconds' },
-      { keys: ['M'], label: 'Mute / unmute' },
-      { keys: ['F'], label: 'Toggle fullscreen' },
+      { keys: ['Space'], id: 'playPause' },
+      { keys: ['←'], id: 'seekBack' },
+      { keys: ['→'], id: 'seekForward' },
+      { keys: ['J'], id: 'jumpBack' },
+      { keys: ['K'], id: 'playPauseAlt' },
+      { keys: ['L'], id: 'jumpForward' },
+      { keys: ['M'], id: 'muteToggle' },
+      { keys: ['F'], id: 'fullscreenToggle' },
     ],
   },
   {
-    title: 'Actions',
+    id: 'actions',
     items: [
-      { keys: ['N', 'P'], label: 'New project' },
-      { keys: ['N', 'A'], label: 'Upload asset' },
-      { keys: ['G', 'H'], label: 'Go to home' },
-      { keys: ['G', 'P'], label: 'Go to projects' },
-      { keys: ['G', 'A'], label: 'Go to assets' },
+      { keys: ['N', 'P'], id: 'newProject' },
+      { keys: ['N', 'A'], id: 'uploadAsset' },
+      { keys: ['G', 'H'], id: 'goHome' },
+      { keys: ['G', 'P'], id: 'goProjects' },
+      { keys: ['G', 'A'], id: 'goAssets' },
     ],
   },
   {
-    title: 'Comments',
+    id: 'comments',
     items: [
-      { keys: ['C'], label: 'Focus comment input' },
-      { keys: ['Esc'], label: 'Cancel comment / close panel' },
+      { keys: ['C'], id: 'focusCommentInput' },
+      { keys: ['Esc'], id: 'cancelComment' },
     ],
   },
 ]
@@ -85,6 +88,7 @@ export function KeyboardShortcuts({
   onOpenChange,
   standalone = false,
 }: KeyboardShortcutsProps) {
+  const t = useTranslations('layout.keyboardShortcuts')
   const [internalOpen, setInternalOpen] = React.useState(false)
 
   const isOpen = standalone ? internalOpen : (controlledOpen ?? false)
@@ -132,13 +136,13 @@ export function KeyboardShortcuts({
             <div className="flex items-center gap-2">
               <Keyboard className="h-5 w-5 text-text-tertiary" />
               <Dialog.Title className="text-base font-semibold text-text-primary">
-                Keyboard Shortcuts
+                {t('title')}
               </Dialog.Title>
             </div>
             <Dialog.Close asChild>
               <button className="rounded-md p-1 text-text-tertiary transition-colors hover:bg-bg-hover hover:text-text-primary">
                 <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
+                <span className="sr-only">{t('close')}</span>
               </button>
             </Dialog.Close>
           </div>
@@ -147,9 +151,9 @@ export function KeyboardShortcuts({
           <div className="flex-1 overflow-y-auto px-6 py-4">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
               {SHORTCUT_GROUPS.map((group) => (
-                <div key={group.title} className="space-y-3">
+                <div key={group.id} className="space-y-3">
                   <h3 className="text-2xs font-medium uppercase tracking-wider text-text-tertiary">
-                    {group.title}
+                    {t(`groups.${group.id}.title`)}
                   </h3>
                   <div className="space-y-2">
                     {group.items.map((item, idx) => (
@@ -158,7 +162,7 @@ export function KeyboardShortcuts({
                         className="flex items-center justify-between gap-4"
                       >
                         <span className="text-sm text-text-secondary">
-                          {item.label}
+                          {t(`groups.${group.id}.items.${item.id}`)}
                         </span>
                         <div className="flex shrink-0 items-center gap-1">
                           {item.keys.map((key, ki) => (
@@ -176,11 +180,11 @@ export function KeyboardShortcuts({
           {/* Footer hint */}
           <div className="border-t border-border px-6 py-3">
             <p className="text-2xs text-text-tertiary">
-              Press{' '}
+              {t('footerHintBefore')}{' '}
               <kbd className="rounded border border-border px-1 py-0.5 font-mono text-2xs">
                 ?
               </kbd>{' '}
-              anytime to toggle this panel
+              {t('footerHintAfter')}
             </p>
           </div>
         </Dialog.Content>

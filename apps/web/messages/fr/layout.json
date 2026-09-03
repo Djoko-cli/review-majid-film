@@ -1,1 +1,160 @@
-{}
+{
+  "header": {
+    "breadcrumbLabels": {
+      "projects": "Projets",
+      "notifications": "Notifications",
+      "settings": "Paramètres",
+      "new": "Nouveau",
+      "upload": "Import"
+    },
+    "search": "Rechercher",
+    "hidePanel": "Masquer le panneau",
+    "showPanel": "Afficher le panneau"
+  },
+  "keyboardShortcuts": {
+    "title": "Raccourcis clavier",
+    "close": "Fermer",
+    "footerHintBefore": "Appuyez sur",
+    "footerHintAfter": "à tout moment pour afficher ou masquer ce panneau",
+    "groups": {
+      "navigation": {
+        "title": "Navigation",
+        "items": {
+          "commandPalette": "Ouvrir la palette de commandes / recherche",
+          "showShortcuts": "Afficher les raccourcis clavier",
+          "toggleSidebar": "Afficher ou masquer la barre latérale"
+        }
+      },
+      "review": {
+        "title": "Révision",
+        "items": {
+          "playPause": "Lecture / pause de la vidéo ou de l'audio",
+          "seekBack": "Reculer de 5 secondes",
+          "seekForward": "Avancer de 5 secondes",
+          "jumpBack": "Reculer de 10 secondes",
+          "playPauseAlt": "Lecture / pause",
+          "jumpForward": "Avancer de 10 secondes",
+          "muteToggle": "Couper ou réactiver le son",
+          "fullscreenToggle": "Afficher ou masquer le plein écran"
+        }
+      },
+      "actions": {
+        "title": "Actions",
+        "items": {
+          "newProject": "Nouveau projet",
+          "uploadAsset": "Importer un média",
+          "goHome": "Aller à l'accueil",
+          "goProjects": "Aller aux projets",
+          "goAssets": "Aller aux médias"
+        }
+      },
+      "comments": {
+        "title": "Commentaires",
+        "items": {
+          "focusCommentInput": "Placer le curseur dans le champ de commentaire",
+          "cancelComment": "Annuler le commentaire / fermer le panneau"
+        }
+      }
+    }
+  },
+  "notificationDrawer": {
+    "someone": "Quelqu'un",
+    "anAsset": "un média",
+    "mentioned": "{actor} vous a mentionné sur {asset}",
+    "commented": "{actor} a commenté {asset}",
+    "assigned": "{actor} vous a assigné à {asset}",
+    "approvalUpdated": "{actor} a mis à jour l'approbation sur {asset}",
+    "dueSoon": "{asset} arrive bientôt à échéance",
+    "newNotification": "Nouvelle notification",
+    "title": "Notifications",
+    "settingsTitle": "Paramètres de notification",
+    "all": "Toutes",
+    "unread": "Non lues",
+    "markAllAsRead": "Tout marquer comme lu",
+    "emptyTitle": "Aucune mise à jour pour l'instant",
+    "emptyDescription": "L'activité de votre compte s'affichera ici."
+  },
+  "sidebar": {
+    "nav": {
+      "projects": "Projets"
+    },
+    "notifications": "Notifications",
+    "uploads": "Imports",
+    "account": "Compte",
+    "user": "Utilisateur",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logOut": "Se déconnecter",
+    "expandSidebar": "Développer la barre latérale",
+    "collapseSidebar": "Réduire la barre latérale",
+    "collapse": "Réduire"
+  },
+  "uploadsPanel": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "status": {
+      "queued": "En attente",
+      "uploading": "Import en cours",
+      "processing": "Traitement en cours",
+      "ready": "Prêt",
+      "failed": "Échec",
+      "cancelled": "Annulé"
+    },
+    "cancelUpload": "Annuler l'import",
+    "remove": "Supprimer",
+    "dismiss": "Ignorer",
+    "uploadingPercent": "Import en cours {percent} %",
+    "processingPercent": "Traitement en cours {percent} %",
+    "processingEllipsis": "Traitement en cours...",
+    "title": "Imports",
+    "activeCount": "{count} actif(s)",
+    "clear": "Effacer",
+    "tabs": {
+      "all": "Tous",
+      "active": "Actifs",
+      "complete": "Terminés",
+      "failed": "Échecs"
+    },
+    "emptyAll": "Aucun import pour l'instant",
+    "emptyFiltered": {
+      "active": "Aucun import actif",
+      "complete": "Aucun import terminé",
+      "failed": "Aucun import échoué"
+    },
+    "emptyAllDescription": "Importez des fichiers depuis n'importe quel projet pour les suivre ici.",
+    "emptyFilteredDescription": "Les éléments apparaîtront ici au fur et à mesure des imports."
+  },
+  "commandPalette": {
+    "items": {
+      "home": "Accueil",
+      "projects": "Projets",
+      "notifications": "Notifications",
+      "settings": "Paramètres",
+      "newProject": "Nouveau projet",
+      "uploadAsset": "Importer un média"
+    },
+    "title": "Palette de commandes",
+    "searchPlaceholder": "Rechercher des projets, des médias, ou aller à...",
+    "noResultsFound": "Aucun résultat trouvé",
+    "groups": {
+      "projects": "Projets",
+      "folders": "Dossiers",
+      "assets": "Médias",
+      "navigation": "Navigation",
+      "actions": "Actions"
+    },
+    "itemCount": "{count, plural, one {# élément} other {# éléments}}",
+    "inProject": "dans {name}",
+    "assetTypeLabels": {
+      "image": "image",
+      "imageCarousel": "carrousel d'images",
+      "audio": "audio",
+      "video": "vidéo"
+    },
+    "hints": {
+      "navigate": "naviguer",
+      "select": "sélectionner",
+      "close": "fermer"
+    }
+  }
+}

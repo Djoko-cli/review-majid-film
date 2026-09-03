@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import {
   Layers,
@@ -28,12 +29,12 @@ import type { InstanceSettings } from '@/types'
 
 interface NavItem {
   href: string
-  label: string
+  labelKey: string
   icon: React.ElementType
 }
 
 const navItems: NavItem[] = [
-  { href: '/projects', label: 'Projects', icon: Layers },
+  { href: '/projects', labelKey: 'nav.projects', icon: Layers },
 ]
 
 interface SidebarProps {
@@ -42,6 +43,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const t = useTranslations('layout.sidebar')
   const pathname = usePathname()
   const { user, logout, isSuperAdmin } = useAuthStore()
   const { files: uploadFiles, togglePanel, panelOpen } = useUploadStore()
@@ -121,6 +123,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 ? pathname === '/'
                 : pathname.startsWith(item.href)
             const Icon = item.icon
+            const label = t(item.labelKey)
             return (
               <Link
                 key={item.href}
@@ -133,7 +136,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     ? 'bg-bg-hover text-text-primary'
                     : 'text-text-secondary hover:bg-bg-hover/60 hover:text-text-primary',
                 )}
-                title={collapsed ? item.label : undefined}
+                title={collapsed ? label : undefined}
               >
                 <Icon
                   className="h-[18px] w-[18px] shrink-0"
@@ -143,7 +146,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   <span
                     className={cn('text-[13px]', isActive && 'font-medium')}
                   >
-                    {item.label}
+                    {label}
                   </span>
                 )}
               </Link>
@@ -160,7 +163,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 ? 'bg-bg-hover text-text-primary'
                 : 'text-text-secondary hover:bg-bg-hover/60 hover:text-text-primary',
             )}
-            title={collapsed ? 'Notifications' : undefined}
+            title={collapsed ? t('notifications') : undefined}
           >
             <div className="relative shrink-0">
               <Bell
@@ -175,7 +178,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </div>
             {!collapsed && (
               <span className={cn('text-[13px]', notifOpen && 'font-medium')}>
-                Notifications
+                {t('notifications')}
               </span>
             )}
           </button>
@@ -190,7 +193,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 ? 'bg-bg-hover text-text-primary'
                 : 'text-text-secondary hover:bg-bg-hover/60 hover:text-text-primary',
             )}
-            title={collapsed ? 'Uploads' : undefined}
+            title={collapsed ? t('uploads') : undefined}
           >
             <div className="relative shrink-0">
               <Upload className="h-[18px] w-[18px]" strokeWidth={panelOpen ? 2 : 1.5} />
@@ -202,7 +205,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </div>
             {!collapsed && (
               <span className={cn('text-[13px]', panelOpen && 'font-medium')}>
-                Uploads
+                {t('uploads')}
               </span>
             )}
           </button>
@@ -235,13 +238,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   'flex w-full items-center rounded-md text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors',
                   collapsed ? 'justify-center h-9 w-9 mx-auto' : 'gap-2.5 px-2 py-1.5',
                 )}
-                title={collapsed ? (user?.name ?? 'Account') : undefined}
+                title={collapsed ? (user?.name ?? t('account')) : undefined}
               >
                 <Avatar src={user?.avatar_url} name={user?.name} size="sm" />
                 {!collapsed && (
                   <div className="flex flex-col items-start overflow-hidden min-w-0">
                     <span className="truncate text-[13px] font-medium text-text-primary leading-tight w-full text-left">
-                      {user?.name ?? 'User'}
+                      {user?.name ?? t('user')}
                     </span>
                     <span className="truncate text-[10px] text-text-tertiary leading-tight w-full text-left">
                       {user?.email ?? ''}
@@ -264,7 +267,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-[13px] text-text-secondary hover:bg-bg-hover hover:text-text-primary focus:outline-none"
                   >
                     <User className="h-4 w-4" />
-                    Profile
+                    {t('profile')}
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild>
@@ -273,7 +276,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-[13px] text-text-secondary hover:bg-bg-hover hover:text-text-primary focus:outline-none"
                   >
                     <Settings className="h-4 w-4" />
-                    Settings
+                    {t('settings')}
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className="my-1 h-px bg-border" />
@@ -282,7 +285,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-[13px] text-status-error hover:bg-status-error/10 focus:outline-none"
                 >
                   <LogOut className="h-4 w-4" />
-                  Log out
+                  {t('logOut')}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -295,7 +298,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               'flex w-full items-center rounded-md text-text-tertiary hover:bg-bg-hover hover:text-text-secondary transition-colors',
               collapsed ? 'justify-center h-8 w-8 mx-auto' : 'gap-2 px-2.5 h-8',
             )}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={collapsed ? t('expandSidebar') : t('collapseSidebar')}
           >
             <ChevronsLeft
               className={cn(
@@ -303,7 +306,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 collapsed && 'rotate-180',
               )}
             />
-            {!collapsed && <span className="text-xs">Collapse</span>}
+            {!collapsed && <span className="text-xs">{t('collapse')}</span>}
           </button>
         </div>
       </aside>
