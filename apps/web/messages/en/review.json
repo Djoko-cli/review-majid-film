@@ -8,6 +8,67 @@
   },
   "shownOnOtherSide": "Shown on the other side",
   "inUse": "in use",
+  "commentPanel": {
+    "menu": {
+      "edit": "Edit",
+      "copyLink": "Copy Link",
+      "delete": "Delete"
+    },
+    "reply": {
+      "placeholder": "Leave your reply here...",
+      "addEmoji": "Add emoji",
+      "cancel": "Cancel"
+    },
+    "item": {
+      "unknownAuthor": "Unknown",
+      "jumpToTimecode": "Jump to timecode",
+      "showAnnotation": "Show annotation",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "reply": "Reply",
+      "addReaction": "Add reaction",
+      "unresolve": "Unresolve",
+      "resolve": "Resolve",
+      "repliesCount": "{count, plural, one {# reply} other {# replies}}"
+    },
+    "visibility": {
+      "all": "All comments",
+      "public": "Public comments",
+      "internal": "Internal comments"
+    },
+    "filterTooltip": "Filter",
+    "filter": {
+      "header": "Filter by...",
+      "annotations": "Annotations",
+      "attachments": "Attachments",
+      "completed": "Completed",
+      "incomplete": "Incomplete",
+      "unread": "Unread",
+      "mentionsReactions": "Mentions and reactions",
+      "hashtag": "Hashtag",
+      "person": "Person",
+      "clearFilters": "Clear Filters"
+    },
+    "sortTooltip": "Sort",
+    "sort": {
+      "header": "Sort thread by...",
+      "timecodeDefault": "Timecode (Default)",
+      "oldest": "Oldest",
+      "newest": "Newest",
+      "commenter": "Commenter",
+      "completed": "Completed"
+    },
+    "searchTooltip": "Search",
+    "searchPlaceholder": "Search...",
+    "searchCancel": "Cancel",
+    "exportTooltip": "Export comments",
+    "export": {
+      "csv": "CSV"
+    },
+    "emptyTitle": "No comments yet",
+    "emptyDescription": "Leave a comment below to start the review"
+  },
   "commentInput": {
     "noMembersFound": "No members found",
     "drawTools": {

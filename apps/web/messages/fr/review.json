@@ -8,6 +8,67 @@
   },
   "shownOnOtherSide": "Affiché de l'autre côté",
   "inUse": "en cours d'utilisation",
+  "commentPanel": {
+    "menu": {
+      "edit": "Modifier",
+      "copyLink": "Copier le lien",
+      "delete": "Supprimer"
+    },
+    "reply": {
+      "placeholder": "Laissez votre réponse ici...",
+      "addEmoji": "Ajouter un emoji",
+      "cancel": "Annuler"
+    },
+    "item": {
+      "unknownAuthor": "Inconnu",
+      "jumpToTimecode": "Aller au timecode",
+      "showAnnotation": "Afficher l'annotation",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "reply": "Répondre",
+      "addReaction": "Ajouter une réaction",
+      "unresolve": "Rouvrir",
+      "resolve": "Résoudre",
+      "repliesCount": "{count, plural, one {# réponse} other {# réponses}}"
+    },
+    "visibility": {
+      "all": "Tous les commentaires",
+      "public": "Commentaires publics",
+      "internal": "Commentaires internes"
+    },
+    "filterTooltip": "Filtrer",
+    "filter": {
+      "header": "Filtrer par...",
+      "annotations": "Annotations",
+      "attachments": "Pièces jointes",
+      "completed": "Terminés",
+      "incomplete": "Non terminés",
+      "unread": "Non lus",
+      "mentionsReactions": "Mentions et réactions",
+      "hashtag": "Hashtag",
+      "person": "Personne",
+      "clearFilters": "Effacer les filtres"
+    },
+    "sortTooltip": "Trier",
+    "sort": {
+      "header": "Trier le fil par...",
+      "timecodeDefault": "Timecode (par défaut)",
+      "oldest": "Plus ancien",
+      "newest": "Plus récent",
+      "commenter": "Commentateur",
+      "completed": "Terminé"
+    },
+    "searchTooltip": "Rechercher",
+    "searchPlaceholder": "Rechercher...",
+    "searchCancel": "Annuler",
+    "exportTooltip": "Exporter les commentaires",
+    "export": {
+      "csv": "CSV"
+    },
+    "emptyTitle": "Aucun commentaire pour l'instant",
+    "emptyDescription": "Laissez un commentaire ci-dessous pour démarrer la révision"
+  },
   "commentInput": {
     "noMembersFound": "Aucun membre trouvé",
     "drawTools": {
