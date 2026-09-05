@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **One app container, pulled from GHCR.** The production stack is now four
+  containers (`review`, `review-postgres`, `review-redis`, `review-minio`) on
+  a named `review` network, instead of eleven. `review` runs the internal
+  Caddy, the Next.js frontend, the FastAPI backend, and every Celery process
+  as supervised processes of a single image
+  (`ghcr.io/djoko-cli/review-majid-film`), built and published by
+  `.github/workflows/docker-build-push.yml` on each release — a deploy host
+  needs only `docker-compose.yml` and `.env.prod`, never the source tree. Data
+  lives in plain host directories instead of Compose-managed volumes.
+  `minio-init` is gone; the API already creates its bucket on boot.
+- `docker-compose.prod.yml` is now `docker-compose.yml`, matching the
+  convention every other app on the same host uses.
+- The README is now French-first (`README.md`), with the English version at
+  `README.en.md`; the v2.0.0 release notes gained a French section.
+
+### Fixed
+
+- **A fresh instance no longer shows the "Powered by FreeFrame" badge, nor
+  "FreeFrame" as its name.** The branding row is auto-created from the
+  model's defaults, which were still upstream's — while the admin screen had
+  already dropped the fields that could change them, so the first production
+  deploy rendered both with no way to fix it. Defaults are now Review's own,
+  and a migration repairs any existing row still carrying the upstream
+  values.
+- Internal hostnames in `.env.prod` must now be `review-postgres`,
+  `review-redis`, `review-minio` — Compose resolves service names, not
+  container names, and the services were renamed.
+
 ## [2.0.0] - 2026-09-03
 
 The first release under Review's own identity — a rebrand, a redesign, a real

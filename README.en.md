@@ -31,7 +31,7 @@ Review is a fork of [freeframe](https://github.com/Techiebutler/freeframe) (MIT)
 - **Password and OIDC authentication** — sign in with a real password, or against any standards-compliant OpenID Connect provider (built for a self-hosted [Pocket ID](https://github.com/pocket-id/pocket-id) instance, but provider-agnostic)
 - **French and English**, throughout the app, the public share pages, and every transactional email
 - **A database-backed admin console** (Settings → Admin → Config) for instance settings — auth, OIDC, email, upload limits, transcoder tuning — editable live, no `.env` editing or container restart required
-- **White-label logo** — your own mark on the sidebar, sign-in screen, favicon, and share links; the "Powered by FreeFrame" badge can be switched off
+- **White-label logo** — your own mark on the sidebar, sign-in screen, favicon, and share links; no "Powered by FreeFrame" badge in the UI (upstream attribution lives in [LICENSE](LICENSE) and below)
 - **Self-hosted** with Docker Compose — runs on any server, cloud VM, or NAS
 
 ### Frame-accurate review

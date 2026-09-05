@@ -127,7 +127,7 @@ class TestOrgNameResolution:
         with patch(
             "apps.api.database.SessionLocal", side_effect=RuntimeError("no db")
         ):
-            assert branding_service.resolve_org_name() == "FreeFrame"
+            assert branding_service.resolve_org_name() == "Review"
         branding_service.reset_org_name_cache()
 
     def test_cache_can_be_dropped_after_a_rename(self):

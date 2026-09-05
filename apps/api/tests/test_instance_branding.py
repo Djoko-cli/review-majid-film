@@ -19,8 +19,11 @@ def test_get_branding_returns_defaults(client, mock_db):
         r = client.get("/instance/branding")
     assert r.status_code == 200
     body = r.json()
-    assert "org_name" in body
-    assert "powered_by_freeframe" in body
+    # Must match HARDCODED_DEFAULTS in apps/web/stores/branding-store.ts: the
+    # admin screen no longer edits either field, so what a fresh instance
+    # auto-creates here is what it renders, permanently.
+    assert body["org_name"] == "Review"
+    assert body["powered_by_freeframe"] is False
 
 
 # ── PUT /instance/branding ──────────────────────────────────────────────

@@ -36,8 +36,8 @@ def _default_instance_branding() -> InstanceBranding:
     now = datetime.now(timezone.utc)
     return InstanceBranding(
         id=_SINGLETON_ID,
-        org_name="FreeFrame",
-        powered_by_freeframe=True,
+        org_name="Review",
+        powered_by_freeframe=False,
         created_at=now,
         updated_at=now,
     )

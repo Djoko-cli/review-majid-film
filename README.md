@@ -31,7 +31,7 @@ Review est un fork de [freeframe](https://github.com/Techiebutler/freeframe) (MI
 - **Authentification par mot de passe et OIDC** — connexion avec un vrai mot de passe, ou via n'importe quel fournisseur OpenID Connect conforme aux standards (conçu pour une instance auto-hébergée de [Pocket ID](https://github.com/pocket-id/pocket-id), mais agnostique du fournisseur)
 - **Français et anglais**, dans toute l'application, les pages de partage publiques, et chaque email transactionnel
 - **Une console d'administration en base de données** (Réglages → Admin → Config) pour les paramètres d'instance — authentification, OIDC, email, limites d'upload, réglages du transcodeur — modifiables en direct, sans édition de `.env` ni redémarrage de conteneur
-- **Logo en marque blanche** — votre propre identité sur la barre latérale, l'écran de connexion, le favicon et les liens de partage ; le badge « Powered by FreeFrame » peut être désactivé
+- **Logo en marque blanche** — votre propre identité sur la barre latérale, l'écran de connexion, le favicon et les liens de partage ; aucun badge « Powered by FreeFrame » dans l'interface (l'attribution amont vit dans [LICENSE](LICENSE) et ci-dessous)
 - **Auto-hébergé** avec Docker Compose — fonctionne sur n'importe quel serveur, VM cloud, ou NAS
 
 ### Revue précise à l'image près

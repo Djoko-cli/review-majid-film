@@ -4,7 +4,7 @@ from typing import Optional
 
 # Used until an admin sets a name, and whenever the row or the database can't
 # be read. A missing brand name must never be the reason an email fails.
-DEFAULT_ORG_NAME = "FreeFrame"
+DEFAULT_ORG_NAME = "Review"
 
 _CACHE_TTL_SECONDS = 60
 _cached: Optional[tuple[float, str]] = None

@@ -89,7 +89,7 @@ export const useBrandingStore = create<BrandingState>()(
           faviconUrl: data.favicon_url ?? null,
           appleIconUrl: data.apple_icon_url ?? null,
           loginLogoUrl: data.login_logo_url ?? null,
-          poweredByFreeframe: data.powered_by_freeframe ?? true,
+          poweredByFreeframe: data.powered_by_freeframe ?? HARDCODED_DEFAULTS.poweredByFreeframe,
           // No coercion to a default here, unlike the fields above. `null` means
           // no accent was ever configured, and it has to survive as `null` so
           // BrandingHead hands the accent tokens back to the stylesheet. Filling

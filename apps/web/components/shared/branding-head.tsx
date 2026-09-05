@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useBrandingStore } from '@/stores/branding-store'
+import { HARDCODED_DEFAULTS, useBrandingStore } from '@/stores/branding-store'
 import { accentVars, ACCENT_VAR_NAMES } from '@/lib/accent'
 
 const DATA_ATTR = 'data-ff-branding'
@@ -60,7 +60,7 @@ export function BrandingHead() {
   }, [loaded, fetchBranding])
 
   React.useEffect(() => {
-    const org = orgName || 'FreeFrame'
+    const org = orgName || HARDCODED_DEFAULTS.orgName
     const current = document.title
     // Page titles are composed as "Page – Org" (usePageTitle, folder-share-viewer).
     // Preserve the page part and only swap the org suffix; set a bare org title
